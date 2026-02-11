@@ -1,0 +1,342 @@
+STRUKTUR DATABASE ROSE MARRY (VERSI REVISI) - 1 CLICK COPY
+========================================================
+
+========================
+MASTER TABLE
+========================
+
+1. Table: users
+   Deskripsi: Menyimpan data akun staf/admin yang bisa mengakses sistem backend.
+   Struktur:
+     - id (bigint, primary)
+     - username (string, unique)
+     - password (string, nullable)
+     - status (boolean)
+     - timestamps
+   Catatan: Role & permission akan dikelola oleh package spatie/laravel-permission.
+
+2-6. Table: Spatie (roles, permissions, model_has_roles, model_has_permissions, role_has_permissions)
+   Deskripsi: Tabel-tabel ini di-generate otomatis oleh package spatie/laravel-permission untuk mengelola hak akses (role) dan izin (permission) dari users.
+
+7. Table: categories
+   Deskripsi: Mengelompokkan produk dan material ke dalam kategori yang lebih teratur.
+   Struktur:
+     - id
+     - name (string)
+     - type (enum: product, material)
+     - status (boolean)
+     - timestamps
+   Catatan: Kolom type sangat penting untuk membedakan kategori untuk produk jual atau bahan baku.
+
+8. Table: units
+   Deskripsi: Menyimpan daftar satuan ukuran yang digunakan, seperti "kg", "pcs", "liter".
+   Struktur:
+     - id
+     - name (string)
+     - status (boolean)
+     - timestamps
+
+9. Table: suppliers
+   Deskripsi: Data pemasok/supplier untuk material.
+   Struktur:
+     - id
+     - name (string)
+     - phone (string)
+     - description (text, nullable)
+     - status (enum: sering, sedang, jarang)
+     - timestamps
+   Catatan: Kolom status bisa digunakan untuk segmentasi supplier dalam laporan pembelian.
+
+10. Table: customers (TAMBAHAN)
+    Deskripsi: Menyimpan data pelanggan untuk transaksi yang memerlukan identitas pelanggan (bukan anonim).
+    Struktur:
+      - id
+      - name (string)
+      - phone (string, nullable)
+      - email (string, nullable)
+      - address (text, nullable)
+      - status (boolean)
+      - timestamps
+
+11. Table: shifts
+    Deskripsi: Mendefinisikan periode shift kerja, misalnya "Pagi" (07:00-15:00) dan "Siang" (15:00-23:00).
+    Struktur:
+      - id
+      - name (string)
+      - start_time (time)
+      - end_time (time)
+      - status (boolean)
+      - timestamps
+
+12. Table: classes
+    Deskripsi: Data kelas siswa, misalnya "X AKL 1", "XI RPL 2".
+    Struktur:
+      - id
+      - name (string)
+      - status (boolean)
+      - timestamps
+
+13. Table: divisions
+    Deskripsi: Area kerja atau divisi produksi, seperti "Kasir", "Makanan", "Roti", "Minuman".
+    Struktur:
+      - id
+      - name (string)
+      - type (enum: cashier, production)
+      - status (boolean)
+      - timestamps
+    Catatan: Kolom type membedakan divisi yang melayani (cashier) dengan yang memproduksi.
+
+========================
+STUDENT & GROUP SYSTEM
+========================
+
+14. Table: students
+    Deskripsi: Data siswa yang bisa bertugas, termasuk PIN untuk login ke POS.
+    Struktur:
+      - id
+      - pin (string, unique)
+      - name (string)
+      - class_id (foreign -> classes.id)
+      - status (boolean)
+      - timestamps
+
+15. Table: student_groups
+    Deskripsi: Mengelompokkan siswa untuk penugasan harian.
+    Struktur:
+      - id
+      - name (string)
+      - class_id (foreign -> classes.id)
+      - status (boolean)
+      - timestamps
+
+16. Table: student_group_members
+    Deskripsi: Tabel penghubung many-to-many antara siswa dan kelompoknya.
+    Struktur:
+      - id
+      - student_group_id (foreign -> student_groups.id)
+      - student_id (foreign -> students.id)
+      - timestamps
+
+========================
+SCHEDULING
+========================
+
+17. Table: schedules
+    Deskripsi: Jadwal penugasan hasil akhir yang menentukan kelompok mana yang bertugas di shift dan divisi tertentu pada tanggal tertentu.
+    Struktur:
+      - id
+      - date (date)
+      - shift_id (foreign -> shifts.id)
+      - student_group_id (foreign -> student_groups.id)
+      - division_id (foreign -> divisions.id)
+      - status (boolean)
+      - timestamps
+
+========================
+MATERIAL MANAGEMENT
+========================
+
+18. Table: materials
+    Deskripsi: Data master semua bahan baku/material.
+    Struktur:
+      - id
+      - category_id (foreign -> categories.id)
+      - unit_id (foreign -> units.id)
+      - supplier_id (foreign -> suppliers.id, nullable)
+      - name (string)
+      - minimum_stock (integer)
+      - status (boolean)
+      - timestamps
+
+19. Table: material_stocks
+    Deskripsi: Tabel yang menyimpan jumlah stok tersedia untuk setiap material.
+    Struktur:
+      - id
+      - material_id (foreign -> materials.id, unique)
+      - qty_available (decimal 15,2)
+      - timestamps
+
+20. Table: material_stock_logs
+    Deskripsi: Catatan audit wajib untuk setiap perubahan stok material.
+    Struktur:
+      - id
+      - material_id (foreign -> materials.id)
+      - type (enum: in, out, adjustment)
+      - qty (decimal 15,2)
+      - description (string)
+      - reference_type (string, nullable) // Contoh: App\Models\PurchaseItem
+      - reference_id (bigint, nullable)
+      - created_by (foreign -> users.id, nullable) // PENTING: Hanya User yang bisa membuat log audit.
+      - timestamps
+
+========================
+PURCHASING SYSTEM (TAMBAHAN)
+========================
+
+21. Table: purchases
+    Deskripsi: Header/induk dari transaksi pembelian material dari supplier.
+    Struktur:
+      - id
+      - supplier_id (foreign -> suppliers.id)
+      - invoice_number (string, unique)
+      - date (date)
+      - total_amount (decimal 15,2)
+      - status (enum: received, pending, cancelled)
+      - notes (text, nullable)
+      - created_by (foreign -> users.id, nullable) // Hanya User (Staf) yang bisa beli.
+      - timestamps
+
+22. Table: purchase_items
+    Deskripsi: Detail setiap material yang dibeli dalam satu transaksi pembelian.
+    Struktur:
+      - id
+      - purchase_id (foreign -> purchases.id)
+      - material_id (foreign -> materials.id)
+      - qty (decimal 15,2)
+      - price (decimal 15,2)
+      - subtotal (decimal 15,2)
+      - timestamps
+
+========================
+PRODUCT MANAGEMENT
+========================
+
+23. Table: products
+    Deskripsi: Data master semua produk yang dijual.
+    Struktur:
+      - id
+      - category_id (foreign -> categories.id)
+      - division_id (foreign -> divisions.id) // Menentukan divisi mana yang memproduksi ini.
+      - name (string)
+      - price (decimal 15,2)
+      - status (boolean)
+      - timestamps
+
+24. Table: product_stocks
+    Deskripsi: Menyimpan jumlah stok tersedia untuk setiap produk.
+    Struktur:
+      - id
+      - product_id (foreign -> products.id, unique)
+      - qty_available (integer)
+      - timestamps
+
+25. Table: product_stock_logs
+    Deskripsi: Catatan audit wajib untuk setiap perubahan stok produk.
+    Struktur:
+      - id
+      - product_id (foreign -> products.id)
+      - type (enum: in, out, adjustment)
+      - qty (integer)
+      - description (string)
+      - reference_type (string, nullable) // Contoh: App\Models\Production, App\Models\Sale
+      - reference_id (bigint, nullable)
+      - created_by (foreign -> users.id, nullable) // PENTING: Hanya User yang bisa membuat log audit.
+      - timestamps
+
+========================
+BILL OF MATERIAL (RESEP)
+========================
+
+26. Table: product_materials
+    Deskripsi: Menyimpan resep/bahan yang diperlukan untuk membuat satu satuan produk.
+    Struktur:
+      - id
+      - product_id (foreign -> products.id)
+      - material_id (foreign -> materials.id)
+      - qty_used (decimal 15,2)
+      - timestamps
+
+========================
+PRODUCTION SYSTEM
+========================
+
+27. Table: productions
+    Deskripsi: Record setiap kali aktivitas produksi dilakukan.
+    Struktur:
+      - id
+      - product_id (foreign -> products.id)
+      - student_group_id (foreign -> student_groups.id)
+      - shift_id (foreign -> shifts.id)
+      - qty_produced (integer)
+      - production_date (date)
+      - status (enum: draft, completed)
+      - created_by (foreign -> users.id, nullable) // User yang menginput/validasi.
+      - timestamps
+
+========================
+POS SYSTEM
+========================
+
+28. Table: sales
+    Deskripsi: Header/induk dari transaksi penjualan di kasir.
+    Struktur:
+      - id
+      - invoice_number (string, unique)
+      - customer_id (foreign -> customers.id, nullable) // Boleh kosong untuk pelanggan umum.
+      - shift_id (foreign -> shifts.id)
+      - cashier_student_id (foreign -> students.id)
+      - subtotal (decimal 15,2)
+      - tax_amount (decimal 15,2, default: 0)
+      - discount_amount (decimal 15,2, default: 0)
+      - total_amount (decimal 15,2) // total = subtotal - discount + tax
+      - paid_amount (decimal 15,2)
+      - change_amount (decimal 15,2)
+      - payment_method (enum: cash, qris, transfer)
+      - status (enum: paid, cancelled)
+      - timestamps
+
+29. Table: sale_items
+    Deskripsi: Detail setiap produk yang terjual dalam satu transaksi.
+    Struktur:
+      - id
+      - sale_id (foreign -> sales.id)
+      - product_id (foreign -> products.id)
+      - qty (integer)
+      - price (decimal 15,2) // Harga saat transaksi terjadi.
+      - subtotal (decimal 15,2)
+      - timestamps
+
+========================================================
+ALUR BISNIS & LOGIKA OTOMATIS (VERSI REVISI)
+========================================================
+
+1. PEMBELIAN (BARU)
+   Trigger: Staf perlu menambah stok material.
+   Alur:
+     1. Staf (User) membuat transaksi pembelian. Data disimpan di purchases dan purchase_items.
+     2. Saat status purchases diubah menjadi 'received', sistem OTOMATIS:
+        - Menambah qty_available di tabel material_stocks untuk setiap item di purchase_items.
+        - Mencatat log baru di material_stock_logs dengan type: 'in'. reference_type & reference_id akan menunjuk ke purchase_items yang bersangkutan, dan created_by adalah staf yang menyelesaikan pembelian.
+
+2. PRODUKSI
+   Trigger: Ada jadwal produksi atau kebutuhan stok produk.
+   Alur:
+     1. Staf (User) membuat record produksi baru di tabel productions dengan status 'draft'.
+     2. Saat produksi selesai dan status diubah menjadi 'completed', sistem OTOMATIS:
+        - (A) Kurangi Material: Mengecek resep di product_materials, lalu mengurangi qty_available di material_stocks. Sistem mencatat log di material_stock_logs dengan type: 'out' dan reference menunjuk ke productions.id.
+        - (B) Tambah Produk: Menambah qty_produced ke qty_available di product_stocks. Sistem mencatat log di product_stock_logs dengan type: 'in' dan reference menunjuk ke productions.id.
+
+3. PENJUALAN
+   Trigger: Pelanggan melakukan pembelian.
+   Alur:
+     1. Siswa kasir (sesuai jadwal) memproses transaksi di POS. Data disimpan di sales dan sale_items.
+     2. Saat transaksi dibayar (status sales berubah menjadi 'paid'), sistem OTOMATIS:
+        - Mengurangi qty_available di product_stocks untuk setiap produk yang terjual.
+        - Mencatat log di product_stock_logs dengan type: 'out'. reference_type & reference_id menunjuk ke sales.id.
+
+4. PENYESUAIAN & WASTE (BARU)
+   Trigger: Ada barang rusak, expired, atau kesalahan hitung stok.
+   Alur:
+     1. Staf (User) secara manual membuat entri baru di material_stock_logs atau product_stock_logs dengan type: 'adjustment'.
+     2. PENTING: Log ini TIDAK mengubah stok secara otomatis. Ini berfungsi sebagai catatan audit resmi. Koreksi stok di tabel *_stocks harus dilakukan secara terpisah oleh staf berdasarkan log ini untuk menjaga integritas data.
+
+5. ADMIN & LAPORAN
+   Dengan struktur ini, Admin dapat melihat berbagai laporan terperinci:
+     - Laporan Penjualan: Filter per shift, tanggal, cashier, customer, atau produk.
+     - Laporan Produksi: Lihat efisiensi produksi per divisi, kelompok, atau shift.
+     - Laporan Stok: Pantau stok material & produk, dapatkan notifikasi jika stok mendekati minimum_stock.
+     - Laporan Pembelian: Analisis pengeluaran per supplier atau per periode.
+
+========================================================
+AKHIR DARI DOKUMENTASI
+========================================================

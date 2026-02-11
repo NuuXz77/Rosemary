@@ -2,35 +2,29 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Permission\Traits\HasRoles;
 
+/**
+ * User Model
+ * 
+ * Menyimpan data akun staf/admin yang bisa mengakses sistem backend.
+ * User berfungsi sebagai creator untuk transaksi pembelian, log stok, produksi, dll.
+ * Role & permission dikelola menggunakan package spatie/laravel-permission.
+ */
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
+        'username',        // Username unik untuk login
+        'password',        // Password (di-hash otomatis)
+        'terakhir_login',  // Timestamp login terakhir
+        'last_login_ip',   // IP address login terakhir
+        'is_active',       // Boolean: aktif/nonaktif
     ];
 
     /**
@@ -42,7 +36,45 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'terakhir_login' => 'datetime',
+            'is_active' => 'boolean',
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Relasi One-to-Many ke MaterialStockLogs
+     * User (staf) yang membuat log perubahan stok material\n     */
+    public function materialStockLogs(): HasMany
+    {
+        return $this->hasMany(MaterialStockLogs::class, 'created_by');
+    }
+
+    /**
+     * Relasi One-to-Many ke ProductStockLogs
+     * User (staf) yang membuat log perubahan stok produk
+     */
+    public function productStockLogs(): HasMany
+    {
+        return $this->hasMany(ProductStockLogs::class, 'created_by');
+    }
+
+    /**
+     * Relasi One-to-Many ke Purchases
+     * User (staf) yang membuat transaksi pembelian
+     */
+    public function purchases(): HasMany
+    {
+        return $this->hasMany(Purchases::class, 'created_by');
+    }
+
+    /**
+     * Relasi One-to-Many ke Productions
+     * User (staf) yang input/validasi produksi
+     */
+    public function productions(): HasMany
+    {
+        return $this->hasMany(Productions::class, 'created_by');
+    }
 }
+
