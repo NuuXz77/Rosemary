@@ -4,20 +4,297 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "425868a474d745d21e77f45693146088",
+    "content-hash": "74d8e4a018fbc31600b8944277455cf2",
     "packages": [
         {
-            "name": "brick/math",
-            "version": "0.14.6",
+            "name": "afatmustafa/blade-hugeicons",
+            "version": "v1.0.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/brick/math.git",
-                "reference": "32498d5e1897e7642c0b961ace2df6d7dc9a3bc3"
+                "url": "https://github.com/afatmustafa/blade-hugeicons.git",
+                "reference": "c2394a185e40eeb8ec35ae9273667649536b2d19"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/brick/math/zipball/32498d5e1897e7642c0b961ace2df6d7dc9a3bc3",
-                "reference": "32498d5e1897e7642c0b961ace2df6d7dc9a3bc3",
+                "url": "https://api.github.com/repos/afatmustafa/blade-hugeicons/zipball/c2394a185e40eeb8ec35ae9273667649536b2d19",
+                "reference": "c2394a185e40eeb8ec35ae9273667649536b2d19",
+                "shasum": ""
+            },
+            "require": {
+                "blade-ui-kit/blade-icons": "^1.1|^1.8",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.21",
+                "orchestra/testbench": "^8.0|^9.0|^10.0",
+                "phpunit/phpunit": "^10.1|^11.5|^12.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Afatmustafa\\HugeIcons\\BladeHugeIconsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Afatmustafa\\HugeIcons\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mustafa Afat",
+                    "email": "mustafa@afat.me",
+                    "homepage": "https://afat.me",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A package to easily make use of Hugeicons(Free version) in your Laravel Blade views.",
+            "homepage": "https://github.com/afatmustafa/blade-hugeicons",
+            "keywords": [
+                "Hugeicons",
+                "blade",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/afatmustafa/blade-hugeicons/issues",
+                "source": "https://github.com/afatmustafa/blade-hugeicons/tree/v1.0.3"
+            },
+            "time": "2025-12-29T02:06:27+00:00"
+        },
+        {
+            "name": "blade-ui-kit/blade-heroicons",
+            "version": "2.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/driesvints/blade-heroicons.git",
+                "reference": "4553b2a1f6c76f0ac7f3bc0de4c0cfa06a097d19"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/driesvints/blade-heroicons/zipball/4553b2a1f6c76f0ac7f3bc0de4c0cfa06a097d19",
+                "reference": "4553b2a1f6c76f0ac7f3bc0de4c0cfa06a097d19",
+                "shasum": ""
+            },
+            "require": {
+                "blade-ui-kit/blade-icons": "^1.6",
+                "illuminate/support": "^9.0|^10.0|^11.0|^12.0",
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^7.0|^8.0|^9.0|^10.0",
+                "phpunit/phpunit": "^9.0|^10.5|^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "BladeUI\\Heroicons\\BladeHeroiconsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "BladeUI\\Heroicons\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dries Vints",
+                    "homepage": "https://driesvints.com"
+                }
+            ],
+            "description": "A package to easily make use of Heroicons in your Laravel Blade views.",
+            "homepage": "https://github.com/blade-ui-kit/blade-heroicons",
+            "keywords": [
+                "Heroicons",
+                "blade",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/driesvints/blade-heroicons/issues",
+                "source": "https://github.com/driesvints/blade-heroicons/tree/2.6.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sponsors/driesvints",
+                    "type": "github"
+                },
+                {
+                    "url": "https://www.paypal.com/paypalme/driesvints",
+                    "type": "paypal"
+                }
+            ],
+            "time": "2025-02-13T20:53:33+00:00"
+        },
+        {
+            "name": "blade-ui-kit/blade-icons",
+            "version": "1.8.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/driesvints/blade-icons.git",
+                "reference": "47e7b6f43250e6404e4224db8229219cd42b543c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/driesvints/blade-icons/zipball/47e7b6f43250e6404e4224db8229219cd42b543c",
+                "reference": "47e7b6f43250e6404e4224db8229219cd42b543c",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/contracts": "^8.0|^9.0|^10.0|^11.0|^12.0",
+                "illuminate/filesystem": "^8.0|^9.0|^10.0|^11.0|^12.0",
+                "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0",
+                "illuminate/view": "^8.0|^9.0|^10.0|^11.0|^12.0",
+                "php": "^7.4|^8.0",
+                "symfony/console": "^5.3|^6.0|^7.0",
+                "symfony/finder": "^5.3|^6.0|^7.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.5.1",
+                "orchestra/testbench": "^6.0|^7.0|^8.0|^9.0|^10.0",
+                "phpunit/phpunit": "^9.0|^10.5|^11.0"
+            },
+            "bin": [
+                "bin/blade-icons-generate"
+            ],
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "BladeUI\\Icons\\BladeIconsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "BladeUI\\Icons\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dries Vints",
+                    "homepage": "https://driesvints.com"
+                }
+            ],
+            "description": "A package to easily make use of icons in your Laravel Blade views.",
+            "homepage": "https://github.com/driesvints/blade-icons",
+            "keywords": [
+                "blade",
+                "icons",
+                "laravel",
+                "svg"
+            ],
+            "support": {
+                "issues": "https://github.com/driesvints/blade-icons/issues",
+                "source": "https://github.com/driesvints/blade-icons"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sponsors/driesvints",
+                    "type": "github"
+                },
+                {
+                    "url": "https://www.paypal.com/paypalme/driesvints",
+                    "type": "paypal"
+                }
+            ],
+            "time": "2026-01-20T09:46:32+00:00"
+        },
+        {
+            "name": "blade-ui-kit/blade-zondicons",
+            "version": "1.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/codeat3/blade-zondicons.git",
+                "reference": "7ad98e7a3ec57d929cabe5b57c96d56fe6b84f00"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/codeat3/blade-zondicons/zipball/7ad98e7a3ec57d929cabe5b57c96d56fe6b84f00",
+                "reference": "7ad98e7a3ec57d929cabe5b57c96d56fe6b84f00",
+                "shasum": ""
+            },
+            "require": {
+                "blade-ui-kit/blade-icons": "^1.1",
+                "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0",
+                "php": "^7.4|^8.0"
+            },
+            "require-dev": {
+                "codeat3/blade-icon-generation-helpers": "^0.10",
+                "codeat3/phpcs-styles": "^1.0",
+                "orchestra/testbench": "^6.0|^7.0|^8.0|^9.0|^10.0",
+                "phpunit/phpunit": "^9.0|^10.5|^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "BladeUI\\Zondicons\\BladeZondiconsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "BladeUI\\Zondicons\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dries Vints",
+                    "homepage": "https://driesvints.com"
+                },
+                {
+                    "name": "Swapnil Sarwe",
+                    "homepage": "https://swapnilsarwe.com"
+                }
+            ],
+            "description": "A package to easily make use of Zondicons in your Laravel Blade views.",
+            "homepage": "https://github.com/codeat3/blade-zondicons",
+            "keywords": [
+                "Zondicons",
+                "blade",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/codeat3/blade-zondicons/issues",
+                "source": "https://github.com/codeat3/blade-zondicons"
+            },
+            "time": "2025-02-26T12:06:57+00:00"
+        },
+        {
+            "name": "brick/math",
+            "version": "0.14.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/brick/math.git",
+                "reference": "07ff363b16ef8aca9692bba3be9e73fe63f34e50"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/brick/math/zipball/07ff363b16ef8aca9692bba3be9e73fe63f34e50",
+                "reference": "07ff363b16ef8aca9692bba3be9e73fe63f34e50",
                 "shasum": ""
             },
             "require": {
@@ -56,7 +333,7 @@
             ],
             "support": {
                 "issues": "https://github.com/brick/math/issues",
-                "source": "https://github.com/brick/math/tree/0.14.6"
+                "source": "https://github.com/brick/math/tree/0.14.7"
             },
             "funding": [
                 {
@@ -64,7 +341,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-02-05T07:59:58+00:00"
+            "time": "2026-02-07T10:57:35+00:00"
         },
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -134,6 +411,283 @@
                 }
             ],
             "time": "2024-02-09T16:56:22+00:00"
+        },
+        {
+            "name": "codeat3/blade-clarity-icons",
+            "version": "1.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/codeat3/blade-clarity-icons.git",
+                "reference": "4b4450200061633f4e9f5390e7095fbc30057340"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/codeat3/blade-clarity-icons/zipball/4b4450200061633f4e9f5390e7095fbc30057340",
+                "reference": "4b4450200061633f4e9f5390e7095fbc30057340",
+                "shasum": ""
+            },
+            "require": {
+                "blade-ui-kit/blade-icons": "^1.1",
+                "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0",
+                "php": "^7.4|^8.0"
+            },
+            "require-dev": {
+                "codeat3/blade-icon-generation-helpers": "^0.10",
+                "codeat3/phpcs-styles": "^1.0",
+                "orchestra/testbench": "^6.0|^7.0|^8.0|^9.0|^10.0",
+                "phpunit/phpunit": "^9.0|^10.5|^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Codeat3\\BladeClarityIcons\\BladeClarityIconsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Codeat3\\BladeClarityIcons\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Swapnil Sarwe",
+                    "homepage": "https://swapnilsarwe.com"
+                },
+                {
+                    "name": "Dries Vints",
+                    "homepage": "https://driesvints.com"
+                }
+            ],
+            "description": "A package to easily make use of Clarity Icons in your Laravel Blade views.",
+            "homepage": "https://github.com/codeat3/blade-clarity-icons",
+            "keywords": [
+                "blade",
+                "clarity",
+                "icons",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/codeat3/blade-clarity-icons/issues",
+                "source": "https://github.com/codeat3/blade-clarity-icons/tree/1.10.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/swapnilsarwe",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-02-25T08:35:37+00:00"
+        },
+        {
+            "name": "codeat3/blade-iconpark",
+            "version": "1.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/codeat3/blade-iconpark.git",
+                "reference": "fb0265a9d36cd08e7b50cbd82df3c3b0b4eb3266"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/codeat3/blade-iconpark/zipball/fb0265a9d36cd08e7b50cbd82df3c3b0b4eb3266",
+                "reference": "fb0265a9d36cd08e7b50cbd82df3c3b0b4eb3266",
+                "shasum": ""
+            },
+            "require": {
+                "blade-ui-kit/blade-icons": "^1.1",
+                "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0",
+                "php": "^7.4|^8.0"
+            },
+            "require-dev": {
+                "codeat3/blade-icon-generation-helpers": "^0.10",
+                "codeat3/phpcs-styles": "^1.0",
+                "orchestra/testbench": "^6.0|^7.0|^8.0|^9.0|^10.0",
+                "phpunit/phpunit": "^9.0|^10.5|^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Codeat3\\BladeIconpark\\BladeIconparkServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Codeat3\\BladeIconpark\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Swapnil Sarwe",
+                    "homepage": "https://swapnilsarwe.com"
+                },
+                {
+                    "name": "Dries Vints",
+                    "homepage": "https://driesvints.com"
+                }
+            ],
+            "description": "A package to easily make use of \"Icon Park Icons\" in your Laravel Blade views. ",
+            "homepage": "https://github.com/codeat3/blade-iconpark",
+            "keywords": [
+                "blade",
+                "iconpark",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/codeat3/blade-iconpark/issues",
+                "source": "https://github.com/codeat3/blade-iconpark/tree/1.7.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/swapnilsarwe",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-02-25T08:26:18+00:00"
+        },
+        {
+            "name": "codeat3/blade-solar-icons",
+            "version": "1.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/codeat3/blade-solar-icons.git",
+                "reference": "9909f5de2ff8e161e242f41d93c86612fb0665a3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/codeat3/blade-solar-icons/zipball/9909f5de2ff8e161e242f41d93c86612fb0665a3",
+                "reference": "9909f5de2ff8e161e242f41d93c86612fb0665a3",
+                "shasum": ""
+            },
+            "require": {
+                "blade-ui-kit/blade-icons": "^1.1",
+                "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0",
+                "php": "^7.4|^8.0"
+            },
+            "require-dev": {
+                "codeat3/blade-icon-generation-helpers": "^0.10",
+                "codeat3/phpcs-styles": "^1.0",
+                "iconify/json": "^2.2",
+                "orchestra/testbench": "^6.0|^7.0|^8.0|^9.0|^10.0",
+                "phpunit/phpunit": "^9.0|^10.5|^11.0",
+                "symfony/process": "^5.0|^6.0|^7.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Codeat3\\BladeSolarIcons\\BladeSolarIconsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Codeat3\\BladeSolarIcons\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Swapnil Sarwe",
+                    "homepage": "https://swapnilsarwe.com"
+                },
+                {
+                    "name": "Dries Vints",
+                    "homepage": "https://driesvints.com"
+                }
+            ],
+            "description": "A package to easily make use of \"Solar Icons\" in your Laravel Blade views.",
+            "homepage": "https://github.com/codeat3/blade-solar-icons",
+            "keywords": [
+                "Solar Icons",
+                "blade",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/codeat3/blade-solar-icons/issues",
+                "source": "https://github.com/codeat3/blade-solar-icons/tree/1.3.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/swapnilsarwe",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-12-06T12:38:44+00:00"
+        },
+        {
+            "name": "davidhsianturi/blade-bootstrap-icons",
+            "version": "v2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/davidhsianturi/blade-bootstrap-icons.git",
+                "reference": "e4480e75c4c3b0b350dd8f3acf3dfc1bd9eb560f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/davidhsianturi/blade-bootstrap-icons/zipball/e4480e75c4c3b0b350dd8f3acf3dfc1bd9eb560f",
+                "reference": "e4480e75c4c3b0b350dd8f3acf3dfc1bd9eb560f",
+                "shasum": ""
+            },
+            "require": {
+                "blade-ui-kit/blade-icons": "^1.6",
+                "illuminate/support": "^9.0|^10.0|^11.0|^12.0",
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^7.0|^8.0|^9.0|^10.1",
+                "phpunit/phpunit": "^9.0|^10.5|^11.5"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Davidhsianturi\\BladeBootstrapIcons\\BladeBootstrapIconsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Davidhsianturi\\BladeBootstrapIcons\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "David H. Sianturi",
+                    "email": "davidhsianturi@gmail.com",
+                    "homepage": "https://davidhsianturi.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A package to easily make use of Bootstrap Icons in your Laravel Blade views.",
+            "homepage": "https://github.com/davidhsianturi/blade-bootstrap-icons",
+            "keywords": [
+                "Bootstrap Icons",
+                "blade",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/davidhsianturi/blade-bootstrap-icons/issues",
+                "source": "https://github.com/davidhsianturi/blade-bootstrap-icons/tree/v2.1.0"
+            },
+            "time": "2025-06-18T12:39:09+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -2021,16 +2575,16 @@
         },
         {
             "name": "livewire/livewire",
-            "version": "v3.7.9",
+            "version": "v3.7.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/livewire/livewire.git",
-                "reference": "112b27e41e87e89d828a96e37b257aff2a058c7a"
+                "reference": "0dc679eb4c8b4470cb12522b5927ef08ca2358bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/livewire/livewire/zipball/112b27e41e87e89d828a96e37b257aff2a058c7a",
-                "reference": "112b27e41e87e89d828a96e37b257aff2a058c7a",
+                "url": "https://api.github.com/repos/livewire/livewire/zipball/0dc679eb4c8b4470cb12522b5927ef08ca2358bb",
+                "reference": "0dc679eb4c8b4470cb12522b5927ef08ca2358bb",
                 "shasum": ""
             },
             "require": {
@@ -2085,7 +2639,7 @@
             "description": "A front-end framework for Laravel.",
             "support": {
                 "issues": "https://github.com/livewire/livewire/issues",
-                "source": "https://github.com/livewire/livewire/tree/v3.7.9"
+                "source": "https://github.com/livewire/livewire/tree/v3.7.10"
             },
             "funding": [
                 {
@@ -2093,7 +2647,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-02-05T23:27:27+00:00"
+            "time": "2026-02-09T22:49:33+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -2305,16 +2859,16 @@
         },
         {
             "name": "nette/schema",
-            "version": "v1.3.3",
+            "version": "v1.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/schema.git",
-                "reference": "2befc2f42d7c715fd9d95efc31b1081e5d765004"
+                "reference": "086497a2f34b82fede9b5a41cc8e131d087cd8f7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/schema/zipball/2befc2f42d7c715fd9d95efc31b1081e5d765004",
-                "reference": "2befc2f42d7c715fd9d95efc31b1081e5d765004",
+                "url": "https://api.github.com/repos/nette/schema/zipball/086497a2f34b82fede9b5a41cc8e131d087cd8f7",
+                "reference": "086497a2f34b82fede9b5a41cc8e131d087cd8f7",
                 "shasum": ""
             },
             "require": {
@@ -2322,8 +2876,8 @@
                 "php": "8.1 - 8.5"
             },
             "require-dev": {
-                "nette/tester": "^2.5.2",
-                "phpstan/phpstan-nette": "^2.0@stable",
+                "nette/tester": "^2.6",
+                "phpstan/phpstan": "^2.0@stable",
                 "tracy/tracy": "^2.8"
             },
             "type": "library",
@@ -2364,9 +2918,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nette/schema/issues",
-                "source": "https://github.com/nette/schema/tree/v1.3.3"
+                "source": "https://github.com/nette/schema/tree/v1.3.4"
             },
-            "time": "2025-10-30T22:57:59+00:00"
+            "time": "2026-02-08T02:54:00+00:00"
         },
         {
             "name": "nette/utils",
@@ -3365,6 +3919,89 @@
                 "source": "https://github.com/ramsey/uuid/tree/4.9.2"
             },
             "time": "2025-12-14T04:43:48+00:00"
+        },
+        {
+            "name": "spatie/laravel-permission",
+            "version": "6.24.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/laravel-permission.git",
+                "reference": "eefc9d17eba80d023d6bff313f882cb2bcd691a3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/eefc9d17eba80d023d6bff313f882cb2bcd691a3",
+                "reference": "eefc9d17eba80d023d6bff313f882cb2bcd691a3",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/auth": "^8.12|^9.0|^10.0|^11.0|^12.0",
+                "illuminate/container": "^8.12|^9.0|^10.0|^11.0|^12.0",
+                "illuminate/contracts": "^8.12|^9.0|^10.0|^11.0|^12.0",
+                "illuminate/database": "^8.12|^9.0|^10.0|^11.0|^12.0",
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "laravel/passport": "^11.0|^12.0",
+                "laravel/pint": "^1.0",
+                "orchestra/testbench": "^6.23|^7.0|^8.0|^9.0|^10.0",
+                "phpunit/phpunit": "^9.4|^10.1|^11.5"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Spatie\\Permission\\PermissionServiceProvider"
+                    ]
+                },
+                "branch-alias": {
+                    "dev-main": "6.x-dev",
+                    "dev-master": "6.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Spatie\\Permission\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Permission handling for Laravel 8.0 and up",
+            "homepage": "https://github.com/spatie/laravel-permission",
+            "keywords": [
+                "acl",
+                "laravel",
+                "permission",
+                "permissions",
+                "rbac",
+                "roles",
+                "security",
+                "spatie"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/laravel-permission/issues",
+                "source": "https://github.com/spatie/laravel-permission/tree/6.24.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/spatie",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-02-09T21:10:03+00:00"
         },
         {
             "name": "symfony/clock",
@@ -7186,16 +7823,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "11.5.51",
+            "version": "11.5.52",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "ad14159f92910b0f0e3928c13e9b2077529de091"
+                "reference": "b287d32c26f78768e391843c5a59395f24b62605"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/ad14159f92910b0f0e3928c13e9b2077529de091",
-                "reference": "ad14159f92910b0f0e3928c13e9b2077529de091",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/b287d32c26f78768e391843c5a59395f24b62605",
+                "reference": "b287d32c26f78768e391843c5a59395f24b62605",
                 "shasum": ""
             },
             "require": {
@@ -7268,7 +7905,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.51"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.52"
             },
             "funding": [
                 {
@@ -7292,7 +7929,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-02-05T07:59:30+00:00"
+            "time": "2026-02-08T07:05:14+00:00"
         },
         {
             "name": "sebastian/cli-parser",

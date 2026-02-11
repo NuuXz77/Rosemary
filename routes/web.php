@@ -1,9 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Livewire\Auth\Login;
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
