@@ -68,7 +68,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/master/customers', \App\Livewire\Admin\Master\Customers\Index::class)->name('master.customers.index');   // class belum ada
     Route::get('/master/shifts', \App\Livewire\Admin\Master\Shifts\Index::class)->name('master.shifts.index');            // class belum ada
     Route::get('/master/divisions', \App\Livewire\Admin\Master\Divisions\Index::class)->name('master.divisions.index');   // class belum ada
-    Route::get('/master/classes', \App\Livewire\Admin\Master\Classes\Index::class)->name('master.classes.index');         // class belum ada
+    Route::get('/master/classes', \App\Livewire\Admin\Master\Classes\Index::class)->name('master.classes.index');         // ✅ class ada
 
     // ============= SETTINGS (Livewire class belum dibuat) =============
     Route::get('/settings/app', \App\Livewire\Admin\Settings\App\Index::class)->name('settings.app.index');
