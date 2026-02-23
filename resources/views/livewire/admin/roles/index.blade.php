@@ -71,16 +71,16 @@
                         <!-- Nama Role -->
                         <td>
                             <div class="flex items-center gap-2">
-                                <div class="avatar placeholder">
+                                {{-- <div class="avatar placeholder">
                                     <div class="bg-primary text-primary-content rounded-lg w-10 h-10">
                                         <span class="text-xs font-bold">
                                             {{ strtoupper(substr($role->name, 0, 2)) }}
                                         </span>
                                     </div>
-                                </div>
+                                </div> --}}
                                 <div>
-                                    <div class="font-bold">{{ $role->name }}</div>
-                                    <div class="text-sm opacity-50">{{ ucfirst(str_replace('_', ' ', $role->name)) }}</div>
+                                    <div class="font-bold text-sm">{{ $role->name }}</div>
+                                    <div class="text-xs opacity-50">{{ ucfirst(str_replace('_', ' ', $role->name)) }}</div>
                                 </div>
                             </div>
                         </td>
