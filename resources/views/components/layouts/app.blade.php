@@ -143,21 +143,21 @@
                     // Default event patterns
                     const defaultEvents = [
                         'close-create-modal',
-                        'close-edit-modal', 
+                        'close-edit-modal',
                         'close-delete-modal',
                         'close-detail-modal'
                     ];
-                    
+
                     // Gabungkan default events dengan custom events
                     const allEvents = [...defaultEvents, ...customEvents];
-                    
+
                     // Listen untuk semua events
                     allEvents.forEach(eventName => {
                         this.$wire.on(eventName, () => {
                             this.closeModal();
                         });
                     });
-                    
+
                     // Handle manual close (ESC atau click X)
                     const modal = document.getElementById(modalId);
                     modal?.addEventListener('close', () => {
@@ -180,7 +180,7 @@
         });
 
         // Active menu highlighting
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const currentPath = window.location.pathname;
             const menuLinks = document.querySelectorAll('.sidebar-menu a');
 
@@ -218,7 +218,7 @@
         });
 
         // Pull to Refresh Functionality
-        (function() {
+        (function () {
             let startY = 0;
             let currentY = 0;
             let isPulling = false;
@@ -277,7 +277,7 @@
 
             document.addEventListener('touchmove', (e) => {
                 if (!isPulling || isRefreshing) return;
-                
+
                 currentY = e.touches[0].pageY;
                 const pullDistance = currentY - startY;
 
@@ -290,15 +290,15 @@
 
             document.addEventListener('touchend', () => {
                 if (!isPulling) return;
-                
+
                 const pullDistance = currentY - startY;
-                
+
                 if (pullDistance >= threshold && window.scrollY === 0 && !isRefreshing) {
                     refreshData();
                 } else {
                     hideIndicator();
                 }
-                
+
                 isPulling = false;
                 startY = 0;
                 currentY = 0;
@@ -312,7 +312,7 @@
                 // Jika scroll ke atas (deltaY negatif) dan sudah di posisi paling atas
                 if (e.deltaY < 0 && window.scrollY === 0 && !isRefreshing) {
                     scrollAttempts++;
-                    
+
                     clearTimeout(scrollTimer);
                     scrollTimer = setTimeout(() => {
                         scrollAttempts = 0;
@@ -354,6 +354,7 @@
             }, 3000);
         })();
     </script>
+    @include('components.partials.theme-script')
 </body>
 
 </html>

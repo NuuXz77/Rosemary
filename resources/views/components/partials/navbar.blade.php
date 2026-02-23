@@ -60,7 +60,7 @@
 
         <label class="swap swap-rotate">
             <!-- this hidden checkbox controls the state -->
-            <input type="checkbox" class="theme-controller" value="light" />
+            <input type="checkbox" class="theme-controller" value="dark" />
 
             <!-- sun icon -->
             <svg class="swap-off h-5 w-5 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -102,13 +102,13 @@
             </div>
             <ul class="dropdown-content menu bg-base-100 border border-base-300 rounded-box z-1 w-52 p-2 shadow-sm">
                 <li>
-                    <a href="/profile">
+                    <a wire:navigate href="{{ route('profile.index') }}">
                         <x-heroicon-o-user-circle class="w-5 h-5" />
                         Profil Saya
                     </a>
                 </li>
                 <li>
-                    <a href="/">
+                    <a wire:navigate href="{{ route('settings.app.index') }}">
                         <x-heroicon-o-cog-6-tooth class="w-5 h-5" />
                         Pengaturan
                     </a>
