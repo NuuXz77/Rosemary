@@ -20,6 +20,7 @@ class Products extends Model
         'category_id',  // FK ke categories
         'division_id',  // FK ke divisions (divisi yang produksi)
         'name',         // Nama produk
+        'barcode',      // Kode barcode produk
         'price',        // Harga jual
         'status',       // Boolean: aktif/nonaktif
     ];
@@ -69,7 +70,7 @@ class Products extends Model
     public function materials(): BelongsToMany
     {
         return $this->belongsToMany(Materials::class, 'product_materials', 'product_id', 'material_id')
-                    ->withPivot('qty_used');
+            ->withPivot('qty_used');
     }
 
     /**

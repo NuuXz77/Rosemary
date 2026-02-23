@@ -1,0 +1,420 @@
+<div wire:snapshot="{&quot;data&quot;:{&quot;search&quot;:&quot;&quot;,&quot;barcode&quot;:&quot;&quot;,&quot;filterCategory&quot;:&quot;&quot;,&quot;cart&quot;:[[],{&quot;s&quot;:&quot;arr&quot;}],&quot;subtotal&quot;:0,&quot;tax_rate&quot;:0,&quot;tax_amount&quot;:0,&quot;discount_amount&quot;:0,&quot;total_amount&quot;:0,&quot;customer_id&quot;:null,&quot;shift_id&quot;:null,&quot;cashier_student_id&quot;:null,&quot;payment_method&quot;:&quot;cash&quot;,&quot;paid_amount&quot;:0,&quot;change_amount&quot;:0,&quot;lastSaleId&quot;:null,&quot;showReceipt&quot;:false},&quot;memo&quot;:{&quot;id&quot;:&quot;sgnEDXhSgJuke7Ulntvv&quot;,&quot;name&quot;:&quot;admin.sales.p-o-s&quot;,&quot;path&quot;:&quot;sales\/pos&quot;,&quot;method&quot;:&quot;GET&quot;,&quot;release&quot;:&quot;a-a-a&quot;,&quot;children&quot;:[],&quot;scripts&quot;:[],&quot;assets&quot;:[],&quot;errors&quot;:[],&quot;locale&quot;:&quot;en&quot;},&quot;checksum&quot;:&quot;1d43e157072bcb5c586244119753820c7b902cc69245b42e7fa5a45a426d08d5&quot;}" wire:effects="[]" wire:id="sgnEDXhSgJuke7Ulntvv" class="flex flex-col gap-4">
+    <!-- Top Bar: Config & Search -->
+    <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card-body p-4">
+            <div class="flex flex-col lg:flex-row justify-between items-center gap-4">
+                <!-- Left Section: Logo & Search -->
+                <div class="flex flex-col md:flex-row items-center gap-4 grow w-full lg:w-auto">
+                    <div class="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-lg border border-primary/20 shrink-0 self-start md:self-auto">
+                        <svg class="w-5 h-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z"/>
+</svg>                        <span class="font-bold text-primary">RoseMarry POS</span>
+                    </div>
+                    
+                    <div class="flex flex-col md:flex-row items-center gap-2 grow w-full">
+                        <!-- Barcode Input -->
+                        <div class="join w-full md:w-64">
+                            <label class="input input-bordered join-item flex items-center gap-2 w-full border-primary/50 bg-primary/5 shadow-sm">
+                                <svg class="w-4 h-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z"/>
+  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z"/>
+</svg>                                <input type="text" id="barcode-input" wire:model="barcode" wire:keydown.enter="scanBarcode" placeholder="Scan Barcode..." class="grow border-none focus:outline-none text-sm font-bold" autocomplete="off" />
+                            </label>
+                            <button type="button" onclick="startCamera()" class="btn btn-primary join-item px-3">
+                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z"/>
+  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z"/>
+</svg>                            </button>
+                        </div>
+
+                        <!-- Manual Search -->
+                        <div class="grow w-full">
+                            <label class="input input-bordered flex items-center gap-2 w-full shadow-sm">
+                                <svg class="w-4 h-4 opacity-50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+  <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
+</svg>                                <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari menu manual..." class="grow border-none focus:outline-none text-sm" />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Section: Config -->
+                <div class="flex items-center gap-2 w-full lg:w-auto justify-end">
+                    <select wire:model="shift_id" class="select select-bordered select-sm w-full md:w-32">
+                        <option value="">Shift?</option>
+                        <!--[if BLOCK]><![endif]--><!--[if ENDBLOCK]><![endif]-->                    </select>
+                    <select wire:model="cashier_student_id" class="select select-bordered select-sm w-full md:w-32">
+                        <option value="">Kasir?</option>
+                        <!--[if BLOCK]><![endif]--><!--[if ENDBLOCK]><![endif]-->                    </select>
+                    <a href="http://127.0.0.1:8000/sales" wire:navigate class="btn btn-sm btn-ghost btn-square">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+</svg>                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main - Product Grid (Full Width) -->
+    <div class="w-full flex flex-col gap-4 overflow-hidden px-1">
+        <!-- Category Tabs -->
+        <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            <button wire:click="$set('filterCategory', '')" class="btn btn-sm shrink-0 btn-primary">
+                Semua Produk
+            </button>
+            <!--[if BLOCK]><![endif]--><!--[if ENDBLOCK]><![endif]-->        </div>
+
+        <!-- Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4 overflow-y-auto pr-2 pb-24">
+            <!--[if BLOCK]><![endif]-->                <div class="col-span-full py-12 flex flex-col items-center opacity-40">
+                    <svg class="w-16 h-16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M15.182 16.318A4.486 4.486 0 0 0 12.016 15a4.486 4.486 0 0 0-3.198 1.318M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z"/>
+</svg>                    <p class="mt-2 font-medium">Menu tidak ditemukan</p>
+                </div>
+            <!--[if ENDBLOCK]><![endif]-->        </div>
+    </div>
+
+    <!-- Floating Fixed Cart (Bottom Right) -->
+    <div class="fixed bottom-6 right-6 z-40 flex flex-col items-end pointer-events-none">
+        <!-- Actual Cart Card (Collapsible) -->
+        <div id="floating-cart" class="hidden md:flex flex-col w-80 lg:w-96 max-h-[70vh] bg-base-100 shadow-2xl rounded-3xl border border-base-200 overflow-hidden mb-4 pointer-events-auto transition-all duration-300 translate-y-4 opacity-0 scale-95">
+            <div class="p-4 border-b border-base-200 flex justify-between items-center bg-primary text-primary-content">
+                <h2 class="font-bold flex items-center gap-2">
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/>
+</svg>                    Keranjang
+                </h2>
+                <div class="flex items-center gap-2">
+                    <span class="badge badge-sm badge-ghost font-bold">0</span>
+                    <button onclick="toggleFloatingCart()" class="btn btn-xs btn-circle btn-ghost">✕</button>
+                </div>
+            </div>
+
+            <!-- Cart Items -->
+            <div class="flex-grow overflow-y-auto p-4 space-y-3 bg-base-100">
+                <!--[if BLOCK]><![endif]-->                    <div class="py-10 flex flex-col items-center justify-center opacity-30 text-center">
+                        <svg class="w-12 h-12 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/>
+</svg>                        <p class="text-xs">Belum ada pesanan</p>
+                    </div>
+                <!--[if ENDBLOCK]><![endif]-->            </div>
+
+            <!-- Summary & Checkout -->
+            <div class="p-4 bg-base-200/50 border-t border-base-200 mt-auto space-y-3">
+                <div class="form-control">
+                    <select wire:model="customer_id" class="select select-bordered select-xs w-full">
+                        <option value="">Guest (Umum)</option>
+                        <!--[if BLOCK]><![endif]--><!--[if ENDBLOCK]><![endif]-->                    </select>
+                </div>
+
+                <div class="flex justify-between font-black text-lg text-primary">
+                    <span>TOTAL</span>
+                    <span>Rp 0</span>
+                </div>
+
+                <button wire:click="openPayment" class="btn btn-primary btn-block shadow-lg gap-2 btn-sm h-10" disabled>
+                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+</svg>                    Bayar Sekarang
+                </button>
+            </div>
+        </div>
+
+        <!-- Cart Trigger Button -->
+        <button id="cart-trigger" onclick="toggleFloatingCart()" class="btn btn-circle btn-primary btn-lg shadow-2xl relative pointer-events-auto active:scale-90 transition-all">
+            <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/>
+</svg>            <!--[if BLOCK]><![endif]--><!--[if ENDBLOCK]><![endif]-->        </button>
+    </div>
+
+    <!-- Payment Modal -->
+    <dialog id="payment-modal" class="modal" x-data
+    x-on:open-modal.window="if ($event.detail.id === 'payment-modal') { $el.showModal(); }"
+    x-on:close-modal.window="if ($event.detail.id === 'payment-modal') { $el.close(); }">
+    <div class="modal-box w-11/12 max-w-5xl">
+        <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+        </form>
+
+        <!--[if BLOCK]><![endif]-->            <h3 class="font-bold text-lg">Penyelesaian Pembayaran</h3>
+        <!--[if ENDBLOCK]><![endif]-->
+        <div class="py-4">
+            <form wire:submit.prevent="submitOrder" class="space-y-4">
+            <div class="p-4 bg-primary/5 rounded-2xl flex flex-col items-center">
+                <span class="text-xs opacity-60 uppercase font-black tracking-widest text-primary">Total Tagihan</span>
+                <span class="text-4xl font-black text-primary">Rp 0</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-control">
+                    <label class="label"><span class="label-text font-semibold">Metode Pembayaran</span></label>
+                    <div class="flex flex-col gap-2">
+                        <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-base-200 transition-colors  border-primary bg-primary/5 ">
+                            <input type="radio" wire:model.live="payment_method" value="cash" class="radio radio-primary" />
+                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z"/>
+</svg>                            <span class="font-bold">Tunai (Cash)</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-base-200 transition-colors ">
+                            <input type="radio" wire:model.live="payment_method" value="qris" class="radio radio-primary" />
+                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z"/>
+  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z"/>
+</svg>                            <span class="font-bold">QRIS / Digital</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-control">
+                    <label class="label"><span class="label-text font-semibold">Uang Diterima</span></label>
+                    <div class="join">
+                        <span class="join-item btn btn-active pointer-events-none">Rp</span>
+                        <input type="number" wire:model.live="paid_amount" class="input input-bordered join-item w-full text-2xl font-black text-secondary h-14" />
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <!--[if BLOCK]><![endif]-->                            <button type="button" wire:click="$set('paid_amount', 10000)" class="btn btn-xs btn-outline btn-ghost">10.000</button>
+                                                    <button type="button" wire:click="$set('paid_amount', 20000)" class="btn btn-xs btn-outline btn-ghost">20.000</button>
+                                                    <button type="button" wire:click="$set('paid_amount', 50000)" class="btn btn-xs btn-outline btn-ghost">50.000</button>
+                                                    <button type="button" wire:click="$set('paid_amount', 100000)" class="btn btn-xs btn-outline btn-ghost">100.000</button>
+                        <!--[if ENDBLOCK]><![endif]-->                        <button type="button" wire:click="$set('paid_amount', 0)" class="btn btn-xs btn-outline btn-primary">Uang Pas</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-secondary/5 rounded-2xl flex justify-between items-center border border-secondary/20">
+                <div class="flex flex-col">
+                    <span class="text-[10px] opacity-60 uppercase font-bold text-secondary">Kembalian</span>
+                    <span class="text-2xl font-black text-secondary">Rp 0</span>
+                </div>
+                <svg class="w-10 h-10 text-secondary opacity-20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+  <path stroke-linecap="round" stroke-linejoin="round" d="m9 14.25 6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185ZM9.75 9h.008v.008H9.75V9Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm4.125 4.5h.008v.008h-.008V13.5Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/>
+</svg>            </div>
+
+            <div class="modal-action">
+                <button type="button" class="btn btn-ghost" onclick="document.getElementById('payment-modal').close()">Batal</button>
+                <button type="submit" class="btn btn-primary min-w-[200px] h-14 text-lg">
+                    <span wire:loading wire:target="submitOrder" class="loading loading-spinner loading-xs"></span>
+                    Simpan & Cetak Struk
+                </button>
+            </div>
+        </form>
+        </div>
+    </div>
+
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+    <!-- Receipt Modal -->
+    <dialog id="receipt-modal" class="modal" x-data
+    x-on:open-modal.window="if ($event.detail.id === 'receipt-modal') { $el.showModal(); }"
+    x-on:close-modal.window="if ($event.detail.id === 'receipt-modal') { $el.close(); }">
+    <div class="modal-box w-11/12 max-w-5xl">
+        <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+        </form>
+
+        <!--[if BLOCK]><![endif]-->            <h3 class="font-bold text-lg">Struk Pembayaran</h3>
+        <!--[if ENDBLOCK]><![endif]-->
+        <div class="py-4">
+            <!--[if BLOCK]><![endif]--><!--[if ENDBLOCK]><![endif]-->
+        </div>
+    </div>
+
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+    <!-- Camera Scanner Modal -->
+    <dialog id="camera-modal" class="modal">
+        <div class="modal-box p-4 max-w-md bg-base-100 rounded-3xl overflow-hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg flex items-center gap-2">
+                    <svg class="w-6 h-6 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z"/>
+  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z"/>
+</svg>                    Scan Barcode Kamera
+                </h3>
+                <button type="button" onclick="stopCamera()" class="btn btn-sm btn-circle btn-ghost">✕</button>
+            </div>
+            
+            <div id="camera-warning" class="hidden mb-4 p-3 bg-warning/20 rounded-xl text-xs text-warning-content border border-warning/30 flex items-start gap-2">
+                <svg class="w-4 h-4 shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/>
+</svg>                <p>Kamera membutuhkan koneksi aman (HTTPS) atau Localhost.</p>
+            </div>
+
+            <div id="reader" class="overflow-hidden rounded-2xl border-4 border-primary/20 bg-black aspect-square relative">
+                <div id="reader-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-white/50 space-y-2">
+                    <div class="loading loading-spinner loading-lg"></div>
+                    <span class="text-xs uppercase tracking-widest font-bold">Menginisialisasi...</span>
+                </div>
+            </div>
+
+            <div class="mt-4 flex flex-col gap-2">
+                <p class="text-[10px] opacity-50 text-center">Posisikan barcode di tengah kotak scanner</p>
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                    <button type="button" onclick="stopCamera()" class="btn btn-outline btn-sm">Batal</button>
+                    <button type="button" id="retry-btn" onclick="startCamera()" class="btn btn-primary btn-sm hidden">Ulangi</button>
+                </div>
+            </div>
+        </div>
+    </dialog>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+        let html5QrCode = null;
+
+        function toggleFloatingCart() {
+            const cart = document.getElementById('floating-cart');
+            const trigger = document.getElementById('cart-trigger');
+            
+            if (cart.classList.contains('hidden')) {
+                cart.classList.remove('hidden');
+                setTimeout(() => {
+                    cart.classList.remove('opacity-0', 'translate-y-4', 'scale-95');
+                    cart.classList.add('opacity-100', 'translate-y-0', 'scale-100');
+                }, 10);
+                trigger.classList.add('scale-0');
+            } else {
+                cart.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
+                cart.classList.add('opacity-0', 'translate-y-4', 'scale-95');
+                setTimeout(() => {
+                    cart.classList.add('hidden');
+                    trigger.classList.remove('scale-0');
+                }, 300);
+            }
+        }
+
+        async function startCamera() {
+            document.getElementById('camera-modal').showModal();
+            document.getElementById('reader-placeholder').classList.remove('hidden');
+            document.getElementById('retry-btn').classList.add('hidden');
+            
+            if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                document.getElementById('camera-warning').classList.remove('hidden');
+            }
+
+            try {
+                if (html5QrCode) {
+                    await html5QrCode.stop().catch(() => {});
+                }
+                
+                html5QrCode = new Html5Qrcode("reader");
+                const config = { fps: 15, qrbox: { width: 250, height: 150 } };
+
+                await html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    config,
+                    (decodedText) => {
+                        window.Livewire.find('sgnEDXhSgJuke7Ulntvv').set('barcode', decodedText);
+                        window.Livewire.find('sgnEDXhSgJuke7Ulntvv').scanBarcode();
+                        stopCamera();
+                    }
+                );
+                document.getElementById('reader-placeholder').classList.add('hidden');
+            } catch (err) {
+                console.error("Camera error", err);
+                document.getElementById('reader-placeholder').innerHTML = `
+                    <div class="text-error text-center p-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                        <span class="font-bold">Izin Kamera Ditolak / Eror</span>
+                        <p class="text-[10px] mt-1">Pastikan izin kamera aktif dan gunakan koneksi secure (HTTPS).</p>
+                    </div>
+                `;
+                document.getElementById('retry-btn').classList.remove('hidden');
+            }
+        }
+
+        async function stopCamera() {
+            try {
+                if (html5QrCode && html5QrCode.isScanning) {
+                    await html5QrCode.stop();
+                }
+            } catch (err) {
+                console.error("Stop error", err);
+            } finally {
+                document.getElementById('camera-modal').close();
+            }
+        }
+
+        document.addEventListener('livewire:initialized', () => {
+            const barcodeInput = document.getElementById('barcode-input');
+            barcodeInput.focus();
+
+            document.addEventListener('click', (e) => {
+                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'BUTTON') {
+                    barcodeInput.focus();
+                }
+            });
+
+            const beep = new Audio('https://assets.mixkit.co/active_storage/sfx/2216/2216-preview.mp3');
+            
+            Livewire.on('play-beep', () => {
+                beep.play().catch(e => console.log('Audio play failed', e));
+            });
+        });
+
+        function printReceipt() {
+            const printContent = document.getElementById('thermal-receipt').innerHTML;
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'fixed';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = '0';
+            document.body.appendChild(iframe);
+            
+            const doc = iframe.contentWindow.document;
+            doc.open();
+            doc.write(`
+                <html>
+                    <head>
+                        <title>Print Receipt</title>
+                        <style>
+                            @page { size: 80mm auto; margin: 0; }
+                            body { 
+                                font-family: 'Courier New', Courier, monospace; 
+                                width: 80mm; 
+                                margin: 0; 
+                                padding: 10px; 
+                                font-size: 12px; 
+                                color: black;
+                                background: white;
+                            }
+                            .text-center { text-align: center; }
+                            .font-bold { font-weight: bold; }
+                            .flex { display: flex; }
+                            .justify-between { justify-content: space-between; }
+                            .mb-1 { margin-bottom: 2px; }
+                            .mb-2 { margin-bottom: 5px; }
+                            .mt-4 { margin-top: 15px; }
+                            .uppercase { text-transform: uppercase; }
+                            .border-b { border-bottom: 1px dashed black; }
+                            .border-t { border-top: 1px dashed black; }
+                            .pb-2 { padding-bottom: 5px; }
+                            .pt-4 { padding-top: 10px; }
+                        </style>
+                    </head>
+                    <body>
+                        ${printContent}
+                    </body>
+                </html>
+            `);
+            doc.close();
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+            setTimeout(() => {
+                document.body.removeChild(iframe);
+            }, 500);
+        }
+    </script>
+
+    <style>
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        @media print { .no-print { display: none !important; } }
+    </style>
+</div>
