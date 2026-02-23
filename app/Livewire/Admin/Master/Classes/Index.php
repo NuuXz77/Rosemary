@@ -13,6 +13,7 @@ class Index extends Component
 {
     use WithPagination;
 
+<<<<<<< Updated upstream
     #[Title('Master Classes')]
 
     // Search & Pagination
@@ -38,19 +39,41 @@ class Index extends Component
     }
 
     public function updatingSearch(): void
+=======
+    #[Title('Manajemen Kelas')]
+    
+    public $search = '';
+    public $perPage = 10;
+    public $sortField = 'name';
+    public $sortDirection = 'asc';
+
+    public function updatingSearch()
+>>>>>>> Stashed changes
     {
         $this->resetPage();
     }
 
+<<<<<<< Updated upstream
     public function resetFields()
     {
         $this->reset(['name', 'status', 'classId', 'isEdit']);
         $this->status = true;
         $this->resetValidation();
+=======
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+>>>>>>> Stashed changes
     }
 
     public function create()
     {
+<<<<<<< Updated upstream
         $this->resetFields();
         $this->dispatch('open-modal', id: 'class-modal');
     }
@@ -76,10 +99,14 @@ class Index extends Component
         } catch (\Exception $e) {
             $this->dispatch('show-toast', type: 'error', message: 'Gagal menambah kelas: ' . $e->getMessage());
         }
+=======
+        $this->dispatch('open-create-modal');
+>>>>>>> Stashed changes
     }
 
     public function edit($id)
     {
+<<<<<<< Updated upstream
         $class = SchoolClass::findOrFail($id);
         $this->resetFields();
 
@@ -113,10 +140,15 @@ class Index extends Component
         } catch (\Exception $e) {
             $this->dispatch('show-toast', type: 'error', message: 'Gagal memperbarui kelas: ' . $e->getMessage());
         }
+=======
+        $this->dispatch('open-edit-modal', id: $id);
+        $this->dispatch('open-modal', id: 'modal_edit_class');
+>>>>>>> Stashed changes
     }
 
     public function confirmDelete($id)
     {
+<<<<<<< Updated upstream
         $this->classId = $id;
         $this->dispatch('open-modal', id: 'delete-modal');
     }
@@ -144,13 +176,36 @@ class Index extends Component
         } catch (\Exception $e) {
             $this->dispatch('show-toast', type: 'error', message: 'Gagal menghapus kelas: ' . $e->getMessage());
         }
+=======
+        $this->dispatch('confirm-delete', id: $id);
+        $this->dispatch('open-modal', id: 'modal_delete_class');
+    }
+
+    protected $listeners = [
+        'class-created' => 'refresh',
+        'class-updated' => 'refresh',
+        'class-deleted' => 'refresh',
+    ];
+
+    public function refresh()
+    {
+        // Handled by Livewire auto-refresh
+>>>>>>> Stashed changes
     }
 
     public function render()
     {
         $classes = SchoolClass::query()
+<<<<<<< Updated upstream
             ->when($this->search, fn($query) => $query->where('name', 'like', '%' . $this->search . '%'))
             ->orderBy('created_at', 'desc')
+=======
+            ->when($this->search, function ($query) {
+                $query->where('name', 'like', '%' . $this->search . '%');
+            })
+            ->withCount(['students', 'studentGroups'])
+            ->orderBy($this->sortField, $this->sortDirection)
+>>>>>>> Stashed changes
             ->paginate($this->perPage);
 
         return view('livewire.admin.master.classes.index', [
@@ -158,3 +213,4 @@ class Index extends Component
         ]);
     }
 }
+

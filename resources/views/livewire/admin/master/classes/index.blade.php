@@ -1,4 +1,5 @@
 <div>
+<<<<<<< Updated upstream
     <div class="card bg-base-100 shadow-sm border border-base-200">
         <div class="card-body p-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -47,22 +48,142 @@
                                     'bg-white' => $classItem->status,
                                     'bg-base-content/30' => !$classItem->status,
                                 ])></div>
+=======
+    <!-- Main Card -->
+    <div class="card bg-base-100 border border-base-300" style="overflow: visible !important;">
+        <div class="card-body" style="overflow: visible !important;">
+            
+            <!-- Top Section: Filters & Actions -->
+            <div class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mb-6">
+                <!-- Left: Search & Filter -->
+                <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                    <!-- Search Input -->
+                    <div class="form-control">
+                        <label class="input input-sm">
+                            <x-bi-search class="w-3" />
+                            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari kelas..." />
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Right: Create Button -->
+                <livewire:admin.master.classes.modals.create />
+            </div>
+
+            {{-- Modals --}}
+            <livewire:admin.master.classes.modals.edit />
+            <livewire:admin.master.classes.modals.delete />
+
+            <!-- Table Section -->
+            @php
+                $columns = [
+                    ['label' => 'No', 'class' => 'w-16'],
+                    ['label' => 'Nama Kelas', 'field' => 'name', 'sortable' => true],
+                    ['label' => 'Jumlah Siswa', 'class' => 'text-center'],
+                    ['label' => 'Jumlah Kelompok', 'class' => 'text-center'],
+                    ['label' => 'Status', 'field' => 'status', 'sortable' => true, 'class' => 'text-center'],
+                    ['label' => 'Dibuat Pada', 'field' => 'created_at', 'sortable' => true],
+                    ['label' => 'Aksi', 'class' => 'text-center'],
+                ];
+            @endphp
+
+            <x-partials.table 
+                :columns="$columns" 
+                :data="$classes" 
+                :sortField="$sortField" 
+                :sortDirection="$sortDirection"
+                emptyMessage="Tidak ada data kelas" 
+                emptyIcon="heroicon-o-academic-cap">
+                
+                @foreach ($classes as $index => $classItem)
+                    <tr wire:key="class-{{ $classItem->id }}" class="hover:bg-base-200 transition-colors duration-150"
+                        style="overflow: visible !important;">
+                        
+                        <!-- No -->
+                        <td>{{ $classes->firstItem() + $index }}</td>
+                        
+                        <!-- Nama Kelas -->
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div>
+                                    <div class="font-bold text-sm">{{ $classItem->name }}</div>
+                                    <div class="text-xs opacity-50">Data Kelas</div>
+                                </div>
+                            </div>
+                        </td>
+                        
+                        <!-- Jumlah Siswa -->
+                        <td class="text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <x-heroicon-o-users class="w-4 h-4 opacity-50" />
+                                <span class="font-semibold">{{ $classItem->students_count }}</span>
+                            </div>
+                        </td>
+
+                        <!-- Jumlah Kelompok -->
+                        <td class="text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <x-heroicon-o-user-group class="w-4 h-4 opacity-50" />
+                                <span class="font-semibold">{{ $classItem->student_groups_count }}</span>
+                            </div>
+                        </td>
+                        
+                        <!-- Status -->
+                        <td class="text-center">
+                            <span class="badge {{ $classItem->status ? 'badge-success' : 'badge-error' }} badge-sm">
+>>>>>>> Stashed changes
                                 {{ $classItem->status ? 'Aktif' : 'Nonaktif' }}
                             </div>
                         </td>
                         <td class="text-center">
                             <x-partials.dropdown-action :id="$classItem->id" />
                         </td>
+                        
+                        <!-- Dibuat Pada -->
+                        <td>
+                            <div class="text-sm">
+                                {{ $classItem->created_at->format('d M Y') }}
+                            </div>
+                            <div class="text-xs opacity-50">
+                                {{ $classItem->created_at->format('H:i') }}
+                            </div>
+                        </td>
+                        
+                        <!-- Aksi -->
+                        <td class="text-center">
+                            <x-partials.dropdown-action 
+                                :id="$classItem->id" 
+                                editModalId="modal_edit_class"
+                                deleteModalId="modal_delete_class"
+                            />
+                        </td>
                     </tr>
                 @endforeach
             </x-partials.table>
 
+<<<<<<< Updated upstream
             <div class="mt-6">
                 <x-partials.pagination :paginator="$classes" :perPage="$perPage" />
+=======
+            <!-- Footer: Pagination -->
+            <div class="mt-6 pt-4 border-t border-base-300">
+                <div class="flex flex-col gap-4">
+                    <!-- Data Info -->
+                    <div class="text-sm text-gray-600 text-center sm:text-left">
+                        Menampilkan <span class="font-semibold">{{ $classes->firstItem() ?? 0 }}</span>
+                        sampai <span class="font-semibold">{{ $classes->lastItem() ?? 0 }}</span>
+                        dari <span class="font-semibold">{{ $classes->total() }}</span> data
+                    </div>
+
+                    <!-- Pagination Component -->
+                    <x-partials.pagination :paginator="$classes" :perPage="$perPage" />
+                </div>
+>>>>>>> Stashed changes
             </div>
         </div>
     </div>
 
+<<<<<<< Updated upstream
     <!-- Class Modal -->
     <x-partials.modal id="class-modal" :title="$isEdit ? 'Edit Kelas' : 'Tambah Kelas Baru'">
         <form wire:submit.prevent="{{ $isEdit ? 'update' : 'store' }}" class="space-y-4">
@@ -112,3 +233,6 @@
         </div>
     </x-partials.modal>
 </div>
+=======
+
+>>>>>>> Stashed changes
