@@ -100,7 +100,8 @@
                     </p>
                 </div>
             </div>
-            <ul class="dropdown-content menu bg-base-100 border border-base-300 rounded-box z-1 w-52 p-2 shadow-sm">
+            <ul
+                class="dropdown-content menu bg-base-100 border border-base-300 rounded-box z-[100] w-52 p-2 shadow-lg mt-3">
                 <li>
                     <a wire:navigate href="{{ route('profile.index') }}">
                         <x-heroicon-o-user-circle class="w-5 h-5" />
@@ -113,9 +114,7 @@
                         Pengaturan
                     </a>
                 </li>
-                <li>
-                    <livewire:auth.logout />
-                </li>
+                <livewire:auth.logout />
             </ul>
         </div>
     </div>

@@ -1,30 +1,87 @@
 <div>
-    <div class="card bg-base-100 border border-base-300">
-        <div class="card-body">
-            <div class="mb-4 w-full md:w-auto">
-                <label class="input input-sm">
-                    <x-bi-search class="w-3" />
-                    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari log bahan..." />
-                </label>
+    <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card-body p-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <div class="flex items-center gap-2">
+                    <x-heroicon-o-document-magnifying-glass class="w-6 h-6 text-primary" />
+                    <h2 class="text-xl font-bold">Log Mutasi Bahan Baku</h2>
+                </div>
+                <div class="flex flex-wrap gap-3 w-full md:w-auto">
+                    <select wire:model.live="filterType" class="select select-sm select-bordered">
+                        <option value="">Semua Tipe</option>
+                        <option value="in">Masuk (In)</option>
+                        <option value="out">Keluar (Out)</option>
+                        <option value="adjustment">Penyesuaian</option>
+                    </select>
+
+                    <div class="join w-full md:w-64">
+                        <label class="input input-sm input-bordered join-item flex items-center gap-2 w-full">
+                            <x-heroicon-o-magnifying-glass class="w-4 h-4 text-base-content/50" />
+                            <input type="text" wire:model.live.debounce.300ms="search" class="grow"
+                                placeholder="Cari bahan..." />
+                        </label>
+                    </div>
+                </div>
             </div>
 
-            <x-partials.table :columns="[['label'=>'No','class'=>'w-12'], ['label'=>'Material'], ['label'=>'Tipe'], ['label'=>'Qty'], ['label'=>'User'], ['label'=>'Waktu']]" :data="$logs" emptyMessage="Tidak ada log stok bahan">
-                @foreach($logs as $index => $log)
-                    <tr wire:key="material-log-{{ $log->id }}" class="hover:bg-base-200">
-                        <td>{{ $logs->firstItem() + $index }}</td>
-                        <td>{{ $log->material->name ?? '-' }}</td>
-                        <td>{{ strtoupper($log->type) }}</td>
-                        <td>{{ $log->qty }}</td>
-                        <td>{{ $log->creator->name ?? '-' }}</td>
-                        <td>{{ $log->created_at?->format('d M Y H:i') ?? '-' }}</td>
+            <x-partials.table :columns="[
+        ['label' => 'Waktu', 'class' => 'w-48'],
+        ['label' => 'Bahan Baku'],
+        ['label' => 'Tipe', 'class' => 'text-center'],
+        ['label' => 'Jumlah', 'class' => 'text-right'],
+        ['label' => 'Keterangan'],
+        ['label' => 'Petugas']
+    ]" :data="$logs" emptyMessage="Belum ada riwayat mutasi stok.">
+                @foreach ($logs as $log)
+                    <tr wire:key="log-{{ $log->id }}" class="hover:bg-base-200/50 transition-colors">
+                        <td>
+                            <div class="font-bold text-sm">{{ $log->created_at->translatedFormat('d M Y') }}</div>
+                            <div class="text-[10px] opacity-40">{{ $log->created_at->format('H:i:s') }}</div>
+                        </td>
+                        <td>
+                            <div class="font-bold">{{ $log->material->name ?? '-' }}</div>
+                            <div class="text-[10px] opacity-40">Unit: {{ $log->material->unit->name ?? '-' }}</div>
+                        </td>
+                        <td class="text-center">
+                            @if($log->type === 'in')
+                                <div class="badge badge-success badge-sm text-white font-bold">IN</div>
+                            @elseif($log->type === 'out')
+                                <div class="badge badge-error badge-sm text-white font-bold">OUT</div>
+                            @else
+                                <div class="badge badge-warning badge-sm font-bold text-warning-content">ADJ</div>
+                            @endif
+                        </td>
+                        <td class="text-right font-mono font-bold">
+                            <span @class([
+                                'text-success' => $log->qty > 0,
+                                'text-error' => $log->qty < 0,
+                                'text-base-content' => $log->qty == 0
+                            ])>
+                                {{ $log->qty > 0 ? '+' : '' }}{{ number_format($log->qty, 3, ',', '.') }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="text-xs max-w-xs break-words">{{ $log->description }}</div>
+                            @if($log->reference_type)
+                                <div class="text-[10px] opacity-40 mt-1 italic">Ref: {{ class_basename($log->reference_type) }}
+                                    #{{ $log->reference_id }}</div>
+                            @endif
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-full bg-base-300 flex items-center justify-center text-[10px]">
+                                    {{ substr($log->creator->name ?? '?', 0, 1) }}
+                                </div>
+                                <span class="text-xs">{{ $log->creator->name ?? '-' }}</span>
+                            </div>
+                        </td>
                     </tr>
                 @endforeach
             </x-partials.table>
 
-            <div class="mt-4">
+            <div class="mt-6">
                 <x-partials.pagination :paginator="$logs" :perPage="$perPage" />
             </div>
         </div>
     </div>
 </div>
-
