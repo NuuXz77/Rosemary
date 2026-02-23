@@ -13,7 +13,7 @@ class Login extends Component
     public $username;
     public $password;
     public $remember = false;
-    
+
     public $success = null;
     public $error = null;
 
@@ -37,7 +37,7 @@ class Login extends Component
 
         if (Auth::attempt($credentials, $this->remember)) {
             $user = Auth::user();
-            
+
             // Update last login
             $user->update([
                 'terakhir_login' => now(),
@@ -45,10 +45,21 @@ class Login extends Component
             ]);
 
             session()->regenerate();
-            
+
             $this->success = 'Login berhasil! Mengalihkan...';
-            
-            // Redirect ke dashboard dengan wire:navigate
+
+            // Redirect based on roles
+            if ($user->hasRole('Admin')) {
+                return $this->redirect('/dashboard', navigate: true);
+            } elseif ($user->hasRole('Production')) {
+                return $this->redirect('/productions', navigate: true);
+            } elseif ($user->hasRole('Inventory')) {
+                return $this->redirect('/material-stocks', navigate: true);
+            } elseif ($user->hasRole('Cashier')) {
+                return $this->redirect('/sales/pos', navigate: true);
+            }
+
+            // Fallback
             return $this->redirect('/dashboard', navigate: true);
         }
 

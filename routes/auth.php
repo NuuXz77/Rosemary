@@ -38,18 +38,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/schedules', \App\Livewire\Admin\Schedules\Index::class)->name('schedules.index');
 
     // ============= INVENTORY MANAGEMENT =============
-    Route::get('/materials', \App\Livewire\Admin\Materials\Index::class)->name('materials.index');                   // class belum ada
+    Route::get('/materials', \App\Livewire\Admin\Materials\Index::class)->name('materials.index');                   // ✅ class ada
     Route::get('/material-stocks', \App\Livewire\Admin\MaterialStocks\Index::class)->name('material-stocks.index');    // ✅ class ada
-    Route::get('/material-stock-logs', \App\Livewire\Admin\MaterialStockLogs\Index::class)->name('material-stock-logs.index'); // class belum ada
-    Route::get('/products', \App\Livewire\Admin\Products\Index::class)->name('products.index');                     // class belum ada
+    Route::get('/material-stock-logs', \App\Livewire\Admin\MaterialStockLogs\Index::class)->name('material-stock-logs.index'); // ✅ class ada
+    Route::get('/products', \App\Livewire\Admin\Products\Index::class)->name('products.index');                     // ✅ class ada
     Route::get('/product-stocks', \App\Livewire\Admin\ProductStocks\Index::class)->name('product-stocks.index');       // ✅ class ada
-    Route::get('/product-stock-logs', \App\Livewire\Admin\ProductStockLogs\Index::class)->name('product-stock-logs.index');   // class belum ada
-    Route::get('/product-materials', \App\Livewire\Admin\ProductMaterials\Index::class)->name('product-materials.index');     // class belum ada
+    Route::get('/product-stock-logs', \App\Livewire\Admin\ProductStockLogs\Index::class)->name('product-stock-logs.index');   // ✅ class ada
+    Route::get('/product-materials', \App\Livewire\Admin\ProductMaterials\Index::class)->name('product-materials.index');     // ✅ class ada
 
     // ============= TRANSACTION MANAGEMENT =============
     Route::get('/purchases', \App\Livewire\Admin\Purchases\Index::class)->name('purchases.index');                     // ✅ class ada
-    Route::get('/productions', \App\Livewire\Admin\Productions\Index::class)->name('productions.index');            // class belum ada
+    Route::get('/productions', \App\Livewire\Admin\Productions\Index::class)->name('productions.index');            // ✅ class ada
     Route::get('/sales', \App\Livewire\Admin\Sales\Index::class)->name('sales.index');                                 // ✅ class ada
+    Route::get('/sales/pos', \App\Livewire\Admin\Sales\POS::class)->name('sales.pos');                                   // ✅ NEW POS
+
 
     // ============= REPORTS & ANALYTICS =============
     Route::get('/reports/sales', \App\Livewire\Admin\Reports\Sales\Index::class)->name('reports.sales.index');          // class belum ada

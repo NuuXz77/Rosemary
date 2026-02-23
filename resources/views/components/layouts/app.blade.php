@@ -59,20 +59,18 @@
 
                                         // Mapping untuk label yang lebih baik
                                         $labelMapping = [
-                                            'siswa' => 'Data Siswa',
-                                            'guru-bk' => 'Guru BK',
-                                            'guru-kelas' => 'Guru Kelas',
-                                            'pelanggaran' => 'Pelanggaran',
-                                            'tindakan' => 'Tindakan',
-                                            'peraturan' => 'Peraturan',
-                                            'kegiatan' => 'Kegiatan',
-                                            'pks' => 'PKS',
-                                            'kategori' => 'Kategori',
-                                            'tipe' => 'Tipe',
-                                            'kelas' => 'Kelas',
-                                            'jurusan' => 'Jurusan',
-                                            'tahun-ajaran' => 'Tahun Ajaran',
-                                            'roles' => 'Roles & Permissions',
+                                            'materials' => 'Bahan Baku',
+                                            'material-stocks' => 'Stok Material',
+                                            'products' => 'Data Produk',
+                                            'product-stocks' => 'Stok Produk',
+                                            'productions' => 'Produksi',
+                                            'sales' => 'Penjualan',
+                                            'pos' => 'Kasir (POS)',
+                                            'reports' => 'Laporan',
+                                            'purchases' => 'Pembelian',
+                                            'master' => 'Master Data',
+                                            'users' => 'Manajemen User',
+                                            'roles' => 'Hak Akses',
                                             'create' => 'Tambah',
                                             'edit' => 'Edit',
                                             'show' => 'Detail',
@@ -200,22 +198,7 @@
 
         document.addEventListener('livewire:navigated', () => {
             console.log('Halaman telah pindah atau dimuat!');
-            // Inisialisasi JS Anda di sini
         }, { once: true });
-
-        document.addEventListener('livewire:navigating', () => {
-            if (window.Alpine && typeof window.Alpine.destroyTree === 'function') {
-                window.Alpine.destroyTree(document.body);
-            }
-        });
-
-        document.addEventListener('livewire:navigated', () => {
-            if (window.Alpine && typeof window.Alpine.initTree === 'function') {
-                requestAnimationFrame(() => {
-                    window.Alpine.initTree(document.body);
-                });
-            }
-        });
 
         // Pull to Refresh Functionality
         (function () {

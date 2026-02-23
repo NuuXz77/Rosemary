@@ -3,9 +3,9 @@
 namespace App\Livewire\Admin\MaterialStockLogs;
 
 use App\Models\MaterialStockLogs;
+use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
-use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('components.layouts.app')]
@@ -13,11 +13,13 @@ class Index extends Component
 {
     use WithPagination;
 
-    #[Title('Material Stock Logs')]
-    public string $search = '';
-    public int $perPage = 10;
+    #[Title('Log Mutasi Bahan Baku')]
 
-    public function updatingSearch(): void
+    public $search = '';
+    public $perPage = 15;
+    public $filterType = '';
+
+    public function updatingSearch()
     {
         $this->resetPage();
     }
@@ -25,12 +27,12 @@ class Index extends Component
     public function render()
     {
         $logs = MaterialStockLogs::query()
-            ->with(['material', 'creator'])
-            ->when($this->search, function ($query) {
-                $query->whereHas('material', fn ($innerQuery) => $innerQuery->where('name', 'like', '%' . $this->search . '%'))
-                    ->orWhere('type', 'like', '%' . $this->search . '%');
+            ->with(['material.unit', 'creator'])
+            ->whereHas('material', function ($q) {
+                $q->when($this->search, fn($s) => $s->where('name', 'like', '%' . $this->search . '%'));
             })
-            ->latest()
+            ->when($this->filterType, fn($q) => $q->where('type', $this->filterType))
+            ->orderBy('created_at', 'desc')
             ->paginate($this->perPage);
 
         return view('livewire.admin.material-stock-logs.index', [

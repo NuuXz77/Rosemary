@@ -18,6 +18,13 @@ class Index extends Component
     public $perPage = 10;
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
+    public $selectedSaleId = null;
+
+    public function viewReceipt($id)
+    {
+        $this->selectedSaleId = $id;
+        $this->dispatch('open-modal', id: 'receipt-modal');
+    }
 
     public function mount()
     {
@@ -65,6 +72,7 @@ class Index extends Component
 
         return view('livewire.admin.sales.index', [
             'sales' => $sales,
+            'selectedSale' => $this->selectedSaleId ? Sales::with(['items.product', 'customer', 'cashier', 'shift'])->find($this->selectedSaleId) : null,
         ]);
     }
 }

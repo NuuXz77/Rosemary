@@ -77,15 +77,30 @@ class PermissionSeeder extends Seeder
             ['name' => 'reports.stocks.view', 'category_id' => optional($reportCategory)->id],
             ['name' => 'reports.schedules.view', 'category_id' => optional($reportCategory)->id],
 
-            // Pengaturan
+            // Master Data (Pengaturan)
             ['name' => 'master.categories.view', 'category_id' => optional($settingCategory)->id],
+            ['name' => 'master.categories.manage', 'category_id' => optional($settingCategory)->id],
+
             ['name' => 'master.units.view', 'category_id' => optional($settingCategory)->id],
+            ['name' => 'master.units.manage', 'category_id' => optional($settingCategory)->id],
+
             ['name' => 'master.suppliers.view', 'category_id' => optional($settingCategory)->id],
+            ['name' => 'master.suppliers.manage', 'category_id' => optional($settingCategory)->id],
+
             ['name' => 'master.customers.view', 'category_id' => optional($settingCategory)->id],
+            ['name' => 'master.customers.manage', 'category_id' => optional($settingCategory)->id],
+
             ['name' => 'master.shifts.view', 'category_id' => optional($settingCategory)->id],
+            ['name' => 'master.shifts.manage', 'category_id' => optional($settingCategory)->id],
+
             ['name' => 'master.divisions.view', 'category_id' => optional($settingCategory)->id],
+            ['name' => 'master.divisions.manage', 'category_id' => optional($settingCategory)->id],
+
             ['name' => 'master.classes.view', 'category_id' => optional($settingCategory)->id],
+            ['name' => 'master.classes.manage', 'category_id' => optional($settingCategory)->id],
+
             ['name' => 'settings.app.view', 'category_id' => optional($settingCategory)->id],
+            ['name' => 'settings.app.manage', 'category_id' => optional($settingCategory)->id],
         ];
 
         foreach ($permissions as $permission) {

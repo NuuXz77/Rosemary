@@ -10,7 +10,7 @@
             </div> --}}
             <img src="{{ asset('img/logo.png') }}" alt="App Logo" class="w-8" />
             <div class="flex-1 min-w-0">
-                <h2 class="text-xl font-bold truncate">{{ config('app.name', 'Absensi App') }}</h2>
+                <h2 class="text-xl font-bold truncate">{{ config('app.name', 'RoseMarry POS') }}</h2>
                 <p class="text-xs text-gray-500">v1.0.0</p>
             </div>
         </div>
@@ -30,12 +30,12 @@
                         </div>
                     </div>
                     <div>
-                        <p class="font-bold truncate">{{ Auth::user()->name }}</p>
+                        <p class="font-bold truncate">{{ Auth::user()->username }}</p>
                         <p class="text-sm text-gray-500">
                             <span
                                 class="badge badge-sm 
-                                {{ Auth::user()->role === 'admin' ? 'badge-primary' : 'badge-secondary' }}">
-                                {{ ucfirst(Auth::user()->role) }}
+                                {{ Auth::user()->hasRole('Admin') ? 'badge-primary' : 'badge-secondary' }}">
+                                {{ Auth::user()->getRoleNames()->first() ?? 'No Role' }}
                             </span>
                         </p>
                     </div>
