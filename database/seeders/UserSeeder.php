@@ -14,10 +14,10 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $users = [
-            ['username' => 'admin', 'password' => 'admin', 'role' => 'admin'],
-            ['username' => 'production', 'password' => 'production', 'role' => 'production'],
-            ['username' => 'inventory', 'password' => 'inventory', 'role' => 'inventory'],
-            ['username' => 'cashier', 'password' => 'cashier', 'role' => 'cashier'],
+            ['username' => 'admin', 'password' => 'admin', 'role' => 'Admin'],
+            ['username' => 'production', 'password' => 'production', 'role' => 'Production'],
+            ['username' => 'inventory', 'password' => 'inventory', 'role' => 'Inventory'],
+            ['username' => 'cashier', 'password' => 'cashier', 'role' => 'Cashier'],
         ];
 
         foreach ($users as $data) {

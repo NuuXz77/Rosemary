@@ -29,9 +29,46 @@ class RoleSeeder extends Seeder
             );
         }
 
+        /** @var Role $adminRole */
         $adminRole = Role::where('name', 'Admin')->first();
         if ($adminRole) {
             $adminRole->syncPermissions(Permission::pluck('name')->toArray());
+        }
+
+        // Production Role Permissions
+        /** @var Role $productionRole */
+        $productionRole = Role::where('name', 'Production')->first();
+        if ($productionRole) {
+            $productionRole->syncPermissions([
+                'productions.view',
+                'products.view',
+                'product-stocks.view',
+                'product-materials.view',
+                'reports.productions.view',
+            ]);
+        }
+
+        // Inventory Role Permissions
+        /** @var Role $inventoryRole */
+        $inventoryRole = Role::where('name', 'Inventory')->first();
+        if ($inventoryRole) {
+            $inventoryRole->syncPermissions([
+                'materials.view',
+                'material-stocks.view',
+                'material-stock-logs.view',
+                'purchases.view',
+                'reports.stocks.view',
+            ]);
+        }
+
+        // Cashier Role Permissions
+        /** @var Role $cashierRole */
+        $cashierRole = Role::where('name', 'Cashier')->first();
+        if ($cashierRole) {
+            $cashierRole->syncPermissions([
+                'sales.view',
+                'reports.sales.view',
+            ]);
         }
     }
 }

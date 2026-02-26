@@ -59,20 +59,18 @@
 
                                         // Mapping untuk label yang lebih baik
                                         $labelMapping = [
-                                            'siswa' => 'Data Siswa',
-                                            'guru-bk' => 'Guru BK',
-                                            'guru-kelas' => 'Guru Kelas',
-                                            'pelanggaran' => 'Pelanggaran',
-                                            'tindakan' => 'Tindakan',
-                                            'peraturan' => 'Peraturan',
-                                            'kegiatan' => 'Kegiatan',
-                                            'pks' => 'PKS',
-                                            'kategori' => 'Kategori',
-                                            'tipe' => 'Tipe',
-                                            'kelas' => 'Kelas',
-                                            'jurusan' => 'Jurusan',
-                                            'tahun-ajaran' => 'Tahun Ajaran',
-                                            'roles' => 'Roles & Permissions',
+                                            'materials' => 'Bahan Baku',
+                                            'material-stocks' => 'Stok Material',
+                                            'products' => 'Data Produk',
+                                            'product-stocks' => 'Stok Produk',
+                                            'productions' => 'Produksi',
+                                            'sales' => 'Penjualan',
+                                            'pos' => 'Kasir (POS)',
+                                            'reports' => 'Laporan',
+                                            'purchases' => 'Pembelian',
+                                            'master' => 'Master Data',
+                                            'users' => 'Manajemen User',
+                                            'roles' => 'Hak Akses',
                                             'create' => 'Tambah',
                                             'edit' => 'Edit',
                                             'show' => 'Detail',
@@ -143,21 +141,21 @@
                     // Default event patterns
                     const defaultEvents = [
                         'close-create-modal',
-                        'close-edit-modal', 
+                        'close-edit-modal',
                         'close-delete-modal',
                         'close-detail-modal'
                     ];
-                    
+
                     // Gabungkan default events dengan custom events
                     const allEvents = [...defaultEvents, ...customEvents];
-                    
+
                     // Listen untuk semua events
                     allEvents.forEach(eventName => {
                         this.$wire.on(eventName, () => {
                             this.closeModal();
                         });
                     });
-                    
+
                     // Handle manual close (ESC atau click X)
                     const modal = document.getElementById(modalId);
                     modal?.addEventListener('close', () => {
@@ -180,7 +178,7 @@
         });
 
         // Active menu highlighting
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const currentPath = window.location.pathname;
             const menuLinks = document.querySelectorAll('.sidebar-menu a');
 
@@ -200,25 +198,10 @@
 
         document.addEventListener('livewire:navigated', () => {
             console.log('Halaman telah pindah atau dimuat!');
-            // Inisialisasi JS Anda di sini
         }, { once: true });
 
-        document.addEventListener('livewire:navigating', () => {
-            if (window.Alpine && typeof window.Alpine.destroyTree === 'function') {
-                window.Alpine.destroyTree(document.body);
-            }
-        });
-
-        document.addEventListener('livewire:navigated', () => {
-            if (window.Alpine && typeof window.Alpine.initTree === 'function') {
-                requestAnimationFrame(() => {
-                    window.Alpine.initTree(document.body);
-                });
-            }
-        });
-
         // Pull to Refresh Functionality
-        (function() {
+        (function () {
             let startY = 0;
             let currentY = 0;
             let isPulling = false;
@@ -277,7 +260,7 @@
 
             document.addEventListener('touchmove', (e) => {
                 if (!isPulling || isRefreshing) return;
-                
+
                 currentY = e.touches[0].pageY;
                 const pullDistance = currentY - startY;
 
@@ -290,15 +273,15 @@
 
             document.addEventListener('touchend', () => {
                 if (!isPulling) return;
-                
+
                 const pullDistance = currentY - startY;
-                
+
                 if (pullDistance >= threshold && window.scrollY === 0 && !isRefreshing) {
                     refreshData();
                 } else {
                     hideIndicator();
                 }
-                
+
                 isPulling = false;
                 startY = 0;
                 currentY = 0;
@@ -312,7 +295,7 @@
                 // Jika scroll ke atas (deltaY negatif) dan sudah di posisi paling atas
                 if (e.deltaY < 0 && window.scrollY === 0 && !isRefreshing) {
                     scrollAttempts++;
-                    
+
                     clearTimeout(scrollTimer);
                     scrollTimer = setTimeout(() => {
                         scrollAttempts = 0;
@@ -354,6 +337,7 @@
             }, 3000);
         })();
     </script>
+    @include('components.partials.theme-script')
 </body>
 
 </html>
