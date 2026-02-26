@@ -1,0 +1,190 @@
+DOKUMENTASI SISTEM
+ROSE MARRY – SISTEM MANAJEMEN F&B TERINTEGRASI
+
+============================================================
+I. LATAR BELAKANG
+============================================================
+
+Rose Marry adalah sistem manajemen Food & Beverage (F&B)
+yang dirancang untuk mengelola proses pembelian bahan,
+pengelolaan stok, produksi, dan penjualan secara terintegrasi.
+
+Sistem ini bertujuan untuk:
+1. Mengontrol pembelian bahan baku.
+2. Mengelola stok bahan dan produk jadi.
+3. Mengatur proses produksi berdasarkan resep.
+4. Mengelola transaksi penjualan melalui sistem kasir.
+5. Menyediakan laporan real-time yang akurat dan transparan.
+
+============================================================
+II. ROLE SISTEM (4 ROLE UTAMA)
+============================================================
+
+1. ADMIN
+   - Mengelola seluruh data master.
+   - Mengatur role dan permission.
+   - Mengelola user.
+   - Mengakses seluruh laporan sistem.
+   - Monitoring aktivitas purchase, inventory, dan cashier.
+
+2. PRODUCTION
+   - Mengelola Bill of Material (resep).
+   - Melakukan proses produksi.
+   - Menambah stok produk jadi setelah produksi selesai.
+   - Melihat histori produksi.
+
+3. INVENTORY
+   - Mengelola supplier.
+   - Membuat Purchase Order (PO).
+   - Mencatat pembelian bahan.
+   - Menambahkan stok bahan setelah barang diterima.
+   - Mengelola data bahan (material).
+   - Mengelola data produk.
+   - Monitoring stok bahan dan produk.
+   - Melakukan penyesuaian stok (stock adjustment).
+
+4. CASHIER
+   - Melakukan transaksi penjualan (POS).
+   - Menginput item pembelian.
+   - Mengelola pembayaran.
+   - Mengurangi stok produk otomatis.
+   - Mencetak invoice/struk.
+   - Melihat histori transaksi harian.
+
+============================================================
+III. STRUKTUR MODUL SISTEM
+============================================================
+
+1. Modul Master Data
+   - Users
+   - Roles & Permissions
+   - Categories
+   - Units
+   - Suppliers
+
+2. Modul Purchase
+   - Purchase Orders
+   - Purchase Details
+   - Penerimaan barang
+   - Penambahan stok material otomatis
+
+3. Modul Inventory
+   - Materials (bahan baku)
+   - Products (produk jadi)
+   - Bill of Materials (resep)
+   - Production
+   - Stock Movements
+   - Stock Adjustment
+
+4. Modul Sales (POS)
+   - Sales
+   - Sales Details
+   - Pembayaran
+   - Pengurangan stok otomatis
+
+============================================================
+IV. ALUR BISNIS TERINTEGRASI
+============================================================
+
+1. INVENTORY membuat PO ke supplier.
+2. Barang diterima → stok material bertambah.
+3. PRODUCTION melakukan produksi:
+   - Sistem mengurangi stok bahan sesuai resep.
+   - Sistem menambah stok produk jadi.
+4. CASHIER menjual produk: 
+   - Stok produk berkurang otomatis.
+   - Transaksi tersimpan sebagai histori.
+5. ADMIN memonitor seluruh aktivitas dan laporan.
+
+============================================================
+V. KEUNGGULAN SISTEM
+============================================================
+
+1. Role terpisah sesuai tanggung jawab.
+   Setiap user memiliki akses berdasarkan peran:
+   Admin, Purchase, Inventory, dan Cashier.
+   Hal ini mencegah tumpang tindih pekerjaan dan
+   meningkatkan keamanan sistem.
+
+2. Role & Permission Dinamis (Flexible Access Control).
+   Sistem menggunakan manajemen role dan permission
+   berbasis database (Spatie Laravel Permission),
+   sehingga:
+   - Role baru dapat dibuat tanpa mengubah struktur sistem.
+   - Permission dapat diatur sesuai kebutuhan operasional.
+   - Hak akses dapat dikombinasikan (custom role).
+   - Kontrol penuh terhadap setiap modul:
+     purchase, inventory, produksi, dan penjualan.
+
+3. Terintegrasi dengan seluruh struktur database.
+   Setiap role terhubung langsung dengan tabel-tabel utama:
+   - Inventory → suppliers, materials, material_stock_logs, purchases
+   - Production → products, product_materials, productions
+   - Cashier → sales, sale_items, product_stock_logs
+   - Admin → seluruh tabel dan laporan
+   Semua aktivitas tercatat melalui relasi antar tabel.
+
+4. Alur pembelian → produksi → penjualan terintegrasi.
+   Data mengalir otomatis dari:
+   Pembelian bahan → Produksi → Stok Produk → Penjualan.
+
+5. Stok bahan dan produk selalu terkontrol.
+   Sistem memisahkan:
+   - material_stocks (bahan baku)
+   - product_stocks (produk jadi)
+   Sehingga monitoring lebih akurat.
+
+6. Pengurangan stok otomatis berbasis resep (Bill of Material).
+   Saat produksi dilakukan:
+   - Stok bahan otomatis berkurang sesuai qty_used.
+   - Stok produk otomatis bertambah sesuai qty_produced.
+   Seluruh aktivitas tercatat pada stock_logs.
+
+7. Histori transaksi dan pembelian terdokumentasi.
+   Semua aktivitas memiliki:
+   - timestamps
+   - reference_type & reference_id
+   - created_by
+   Hal ini memudahkan audit dan pelacakan.
+
+8. Monitoring & Reporting Terpusat.
+   Admin dapat memfilter laporan:
+   - Per shift
+   - Per division
+   - Per tanggal
+   - Per kategori produk
+   Data real-time dan transparan.
+
+9. Sistem mendukung operasional F&B skala sekolah maupun bisnis kecil-menengah.
+   Struktur database modular dan scalable,
+   sehingga dapat dikembangkan untuk multi-branch
+   atau penambahan role di masa depan.
+
+10. Sistem Kelompok Siswa Dinamis (Student Group Management).
+    Admin dapat:
+    - Membuat kelompok siswa (student_groups).
+    - Menentukan division kelompok (Kasir / Makanan / Roti / Minuman).
+    - Menentukan kelas asal kelompok.
+    - Menambahkan atau mengubah anggota kelompok.
+    - Mengatur jadwal kelompok per shift dan tanggal.
+
+    Relasi ini terhubung dengan:
+    - schedules (penjadwalan operasional)
+    - productions (kelompok produksi)
+    - sales (kasir dari kelompok tertentu)
+
+    Dengan sistem ini:
+    - 1 kelompok kasir dapat berisi 1 siswa.
+    - 1 kelompok produksi dapat berisi lebih dari 1 siswa.
+    - Rotasi shift dapat diatur otomatis atau manual oleh admin.
+
+============================================================
+VI. KESIMPULAN
+============================================================
+
+Rose Marry adalah sistem manajemen F&B berbasis role
+yang memisahkan tanggung jawab Admin, Purchase,
+Inventory, dan Cashier secara jelas dan terstruktur.
+Sistem ini memastikan setiap proses operasional
+tercatat dengan baik, mengurangi kesalahan manual,
+dan meningkatkan efisiensi manajemen usaha.

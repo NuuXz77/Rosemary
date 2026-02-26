@@ -78,11 +78,12 @@
                     'master.shifts.view',
                     'master.divisions.view',
                     'master.classes.view',
+                    'discounts.manage',
                     'settings.app.view'
                 ])
-                    <li class="menu-title">
+                    {{-- <li class="menu-title">
                         <span>Administrator</span>
-                    </li>
+                    </li> --}}
                 @endcanany
 
                 {{-- DASHBOARD --}}
@@ -371,7 +372,7 @@
                 @endcanany
 
                 {{-- PENGATURAN --}}
-                @canany(['master.categories.view', 'master.units.view', 'master.suppliers.view', 'master.customers.view', 'master.shifts.view', 'master.divisions.view', 'master.classes.view', 'settings.app.view'])
+                @canany(['master.categories.view', 'master.units.view', 'master.suppliers.view', 'master.customers.view', 'master.shifts.view', 'master.divisions.view', 'master.classes.view', 'discounts.manage', 'settings.app.view'])
                     <li>
                         <details
                             {{ request()->is('settings*', 'master*') ? 'open' : '' }}>
@@ -440,6 +441,14 @@
                                         <a wire:navigate href="/settings/app"
                                             class="{{ request()->is('settings/app*') ? 'bg-base-300' : '' }}">
                                             Pengaturan Aplikasi
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('discounts.manage')
+                                    <li>
+                                        <a wire:navigate href="/settings/discounts"
+                                            class="{{ request()->is('settings/discounts*') ? 'bg-base-300' : '' }}">
+                                            Set Diskon
                                         </a>
                                     </li>
                                 @endcan

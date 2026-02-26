@@ -1,0 +1,68 @@
+Table Master:
+
+1. users (untuk data login)
+    - id (primary)
+    - username (varchar)
+    - role (admin, production, inventory, cashier)
+    - status (boolen)
+
+2. categorys (untuk data kategori)
+    - id (primary)
+    - name (varchar)
+    - type (product/material)
+    - status (boolen)
+
+3. units (untukd ata unit)
+    - id (primary)
+    - name (varchar)
+    - status (boolen)
+
+4. supplier (untuk data pemasok)
+    - id (primary)
+    - name (varchar)
+    - phone (integer)
+    - description (text)
+    - status (enum (sering, sedang, jarang))
+    
+5. shift (untuk data shift)
+    - id (primary)
+    - name (varchar)
+    - start_time (time)
+    - end_time (time)
+    - status (boolean)
+
+6. classes (untuk data kelas)
+    - id (primary)
+    - name (varchar) - 10 Kuliner 2 / 11 Kuliner 1
+    - status (boolean)
+
+Main table:
+. students (untuk users siswa)
+    - id (primary)
+    - pin (unique)
+    - user_id (FK -> users) // untuk login menggunakan pin saja (username = pin , dan passwors = null)
+    - class_id (FK -> class) 
+    - name (varchar)
+
+. schedule (untuk data jadwal)
+    - id (primary)
+    - shift_id (FK -> shift)
+    - date (date)
+    - description (text)
+    - status (boolean)
+
+. materials (untuk data bahan)
+    - id (primary)
+    - category_id (FK -> categorys)
+    - name (varchar)
+    - unit_id (FK -> units)
+    - amount (integer) // otomatis terkurang ketika ada perubahan di product
+    - status (enum (tersedia, menipis, habis))
+
+. products (untuk data produk)
+    - id (primary)
+    - category_id (FK -> categorys)
+    - name (price)
+
+
+
