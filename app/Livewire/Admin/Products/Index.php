@@ -24,19 +24,24 @@ class Index extends Component
     // Form Properties
     public $productId;
     public $name;
+    public $barcode;
     public $category_id;
     public $division_id;
     public $price = 0;
     public $status = true;
     public $isEdit = false;
 
-    protected $rules = [
-        'name' => 'required|string|max:255',
-        'category_id' => 'required|exists:categories,id',
-        'division_id' => 'required|exists:divisions,id',
-        'price' => 'required|numeric|min:0',
-        'status' => 'required|boolean',
-    ];
+    protected function rules()
+    {
+        return [
+            'name' => 'required|string|max:255',
+            'barcode' => 'nullable|string|max:100|unique:products,barcode,' . $this->productId,
+            'category_id' => 'required|exists:categories,id',
+            'division_id' => 'required|exists:divisions,id',
+            'price' => 'required|numeric|min:0',
+            'status' => 'required|boolean',
+        ];
+    }
 
     public function mount()
     {
@@ -52,7 +57,7 @@ class Index extends Component
 
     public function resetFields()
     {
-        $this->reset(['name', 'category_id', 'division_id', 'price', 'status', 'productId', 'isEdit']);
+        $this->reset(['name', 'barcode', 'category_id', 'division_id', 'price', 'status', 'productId', 'isEdit']);
         $this->status = true;
         $this->price = 0;
         $this->resetValidation();
@@ -81,6 +86,7 @@ class Index extends Component
 
             $product = Products::create([
                 'name' => $this->name,
+                'barcode' => $this->barcode,
                 'category_id' => $this->category_id,
                 'division_id' => $this->division_id,
                 'price' => $this->price,
@@ -108,6 +114,7 @@ class Index extends Component
 
         $this->productId = $product->id;
         $this->name = $product->name;
+        $this->barcode = $product->barcode;
         $this->category_id = $product->category_id;
         $this->division_id = $product->division_id;
         $this->price = $product->price;
@@ -130,6 +137,7 @@ class Index extends Component
             $product = Products::findOrFail($this->productId);
             $product->update([
                 'name' => $this->name,
+                'barcode' => $this->barcode,
                 'category_id' => $this->category_id,
                 'division_id' => $this->division_id,
                 'price' => $this->price,
@@ -186,6 +194,7 @@ class Index extends Component
             ->with(['category', 'division', 'stock'])
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('barcode', 'like', '%' . $this->search . '%')
                     ->orWhereHas('category', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'))
                     ->orWhereHas('division', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'));
             })
