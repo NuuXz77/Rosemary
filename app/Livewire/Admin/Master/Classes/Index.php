@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Master\Classes;
 
 use App\Models\Classes as SchoolClass;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -15,22 +16,23 @@ class Index extends Component
 
     #[Title('Master Classes')]
 
-    // Search & Pagination
     public string $search = '';
     public int $perPage = 10;
+    public string $sortField = 'created_at';
+    public string $sortDirection = 'desc';
 
-    // Form Properties
-    public $classId;
-    public $name;
-    public $status = true;
-    public $isEdit = false;
+    public function sortBy(string $field): void
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
 
-    protected $rules = [
-        'name' => 'required|string|max:255',
-        'status' => 'required|boolean',
-    ];
-
-    public function mount()
+    public function mount(): void
     {
         if (!auth()->user()->can('master.classes.view')) {
             abort(403, 'Anda tidak memiliki akses untuk melihat halaman ini.');
@@ -42,119 +44,47 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function resetFields()
-    {
-        $this->reset(['name', 'status', 'classId', 'isEdit']);
-        $this->status = true;
-        $this->resetValidation();
-    }
-
-    public function create()
-    {
-        $this->resetFields();
-        $this->dispatch('open-modal', id: 'class-modal');
-    }
-
-    public function store()
+    public function openCreate(): void
     {
         if (!auth()->user()->can('master.classes.manage')) {
-            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk menambah kelas.');
+            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki akses untuk menambah kelas.');
             return;
         }
-
-        $this->validate();
-
-        try {
-            SchoolClass::create([
-                'name' => $this->name,
-                'status' => $this->status,
-            ]);
-
-            $this->dispatch('close-modal', id: 'class-modal');
-            $this->dispatch('show-toast', type: 'success', message: 'Kelas berhasil ditambahkan.');
-            $this->resetFields();
-        } catch (\Exception $e) {
-            $this->dispatch('show-toast', type: 'error', message: 'Gagal menambah kelas: ' . $e->getMessage());
-        }
+        $this->dispatch('open-create-class');
     }
 
-    public function edit($id)
-    {
-        $class = SchoolClass::findOrFail($id);
-        $this->resetFields();
-
-        $this->classId = $class->id;
-        $this->name = $class->name;
-        $this->status = (bool) $class->status;
-        $this->isEdit = true;
-
-        $this->dispatch('open-modal', id: 'class-modal');
-    }
-
-    public function update()
+    public function edit(int $id): void
     {
         if (!auth()->user()->can('master.classes.manage')) {
-            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk mengubah kelas.');
+            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki akses untuk mengedit kelas.');
             return;
         }
-
-        $this->validate();
-
-        try {
-            $class = SchoolClass::findOrFail($this->classId);
-            $class->update([
-                'name' => $this->name,
-                'status' => $this->status,
-            ]);
-
-            $this->dispatch('close-modal', id: 'class-modal');
-            $this->dispatch('show-toast', type: 'success', message: 'Kelas berhasil diperbarui.');
-            $this->resetFields();
-        } catch (\Exception $e) {
-            $this->dispatch('show-toast', type: 'error', message: 'Gagal memperbarui kelas: ' . $e->getMessage());
-        }
+        $this->dispatch('open-edit-class', id: $id);
     }
 
-    public function confirmDelete($id)
-    {
-        $this->classId = $id;
-        $this->dispatch('open-modal', id: 'delete-modal');
-    }
-
-    public function delete()
+    public function confirmDelete(int $id): void
     {
         if (!auth()->user()->can('master.classes.manage')) {
-            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk menghapus kelas.');
+            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki akses untuk menghapus kelas.');
             return;
         }
+        $this->dispatch('open-delete-class', id: $id);
+    }
 
-        try {
-            $class = SchoolClass::findOrFail($this->classId);
-
-            // Cek relasi
-            if ($class->students()->count() > 0 || $class->studentGroups()->count() > 0) {
-                $this->dispatch('show-toast', type: 'error', message: 'Kelas tidak bisa dihapus karena masih digunakan oleh siswa atau kelompok siswa.');
-                $this->dispatch('close-modal', id: 'delete-modal');
-                return;
-            }
-
-            $class->delete();
-            $this->dispatch('close-modal', id: 'delete-modal');
-            $this->dispatch('show-toast', type: 'success', message: 'Kelas berhasil dihapus.');
-        } catch (\Exception $e) {
-            $this->dispatch('show-toast', type: 'error', message: 'Gagal menghapus kelas: ' . $e->getMessage());
-        }
+    #[On('class-changed')]
+    public function refreshList(): void
+    {
+        $this->resetPage();
     }
 
     public function render()
     {
         $classes = SchoolClass::query()
-            ->when($this->search, fn($query) => $query->where('name', 'like', '%' . $this->search . '%'))
-            ->orderBy('created_at', 'desc')
+            ->withCount('students')
+            ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))
+            ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
 
-        return view('livewire.admin.master.classes.index', [
-            'classes' => $classes,
-        ]);
+        return view('livewire.admin.master.classes.index', compact('classes'));
     }
 }

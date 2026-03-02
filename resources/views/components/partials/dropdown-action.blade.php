@@ -9,7 +9,9 @@
     'editModalId' => 'modal_edit',
     'deleteModalId' => 'modal_delete',
     'detailModalId' => 'modal_detail',
-    'customActions' => []
+    'customActions' => [],
+    'viewRoute' => null,
+    'editRoute' => null,
 ])
 
 <div
@@ -48,19 +50,33 @@
         >
         @if($showView)
             <li>
-                <button wire:click="{{ $viewMethod }}({{ $id }})" class="flex items-center gap-2">
-                    <x-heroicon-o-eye class="w-4 h-4" />
-                    <span>Lihat Detail</span>
-                </button>
+                @if($viewRoute)
+                    <a wire:navigate href="{{ $viewRoute }}" class="flex items-center gap-2">
+                        <x-heroicon-o-eye class="w-4 h-4" />
+                        <span>Lihat Detail</span>
+                    </a>
+                @else
+                    <button wire:click="{{ $viewMethod }}({{ $id }})" class="flex items-center gap-2">
+                        <x-heroicon-o-eye class="w-4 h-4" />
+                        <span>Lihat Detail</span>
+                    </button>
+                @endif
             </li>
         @endif
 
         @if($showEdit)
             <li>
-                <button wire:click="{{ $editMethod }}({{ $id }})" class="flex items-center gap-2">
-                    <x-heroicon-o-pencil class="w-4 h-4" />
-                    <span>Edit</span>
-                </button>
+                @if($editRoute)
+                    <a wire:navigate href="{{ $editRoute }}" class="flex items-center gap-2">
+                        <x-heroicon-o-pencil class="w-4 h-4" />
+                        <span>Edit</span>
+                    </a>
+                @else
+                    <button wire:click="{{ $editMethod }}({{ $id }})" class="flex items-center gap-2">
+                        <x-heroicon-o-pencil class="w-4 h-4" />
+                        <span>Edit</span>
+                    </button>
+                @endif
             </li>
         @endif
 
