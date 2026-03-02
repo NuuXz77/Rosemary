@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Admin\Master\Classes;
 
-use App\Models\Classes as SchoolClass;
+use App\Models\Classes;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -14,7 +14,7 @@ class Index extends Component
 {
     use WithPagination;
 
-    #[Title('Master Classes')]
+    #[Title('Master Kelas')]
 
     public string $search = '';
     public int $perPage = 10;
