@@ -15,7 +15,7 @@
                 @foreach($columns as $column)
                     <th class="{{ $column['class'] ?? '' }}">
                         @if(isset($column['sortable']) && $column['sortable'])
-                            <button wire:click="sortBy('{{ $column['field'] }}')" class="flex items-center gap-1 hover:text-primary">
+                            <button wire:click="sortBy('{{ $column['field'] }}')" class="flex items-center justify-center gap-1 w-full hover:text-primary">
                                 {{ $column['label'] }}
                                 @if($sortField === $column['field'])
                                     @if($sortDirection === 'asc')

@@ -2,11 +2,7 @@
     <div class="card bg-base-100 shadow-sm border border-base-200">
         <div class="card-body p-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                <div class="flex items-center gap-2">
-                    <x-heroicon-o-academic-cap class="w-6 h-6 text-primary" />
-                    <h2 class="text-xl font-bold">Daftar Kelas</h2>
-                </div>
-                <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
                     <div class="join w-full md:w-64">
                         <label class="input input-sm input-bordered join-item flex items-center gap-2 w-full">
                             <x-heroicon-o-magnifying-glass class="w-4 h-4 text-base-content/50" />
@@ -14,41 +10,47 @@
                                 placeholder="Cari kelas..." />
                         </label>
                     </div>
-                    <button wire:click="create" class="btn btn-sm btn-primary">
-                        <x-heroicon-o-plus class="w-4 h-4" />
-                        Tambah Kelas
-                    </button>
                 </div>
+                <livewire:admin.master.classes.modals.create />
             </div>
 
-            <x-partials.table :columns="[
-        ['label' => 'No', 'class' => 'w-16'],
-        ['label' => 'Nama Kelas'],
-        ['label' => 'Status'],
-        ['label' => 'Aksi', 'class' => 'text-center w-20']
-    ]" :data="$classes"
+            @php
+                $header = [
+                    ['label' => 'No', 'class' => 'w-16'],
+                    ['label' => 'Nama Kelas'],
+                    ['label' => 'Jumlah Siswa', 'class' => 'text-center', 'sortable' => true, 'field' => 'students_count'],
+                    ['label' => 'Status'],
+                    ['label' => 'Aksi', 'class' => 'text-center w-20'],
+                ];
+            @endphp
+
+            <x-partials.table :columns="$header" :data="$classes"
+                :sortField="$sortField" :sortDirection="$sortDirection"
                 emptyMessage="Belum ada data kelas.">
                 @foreach ($classes as $index => $classItem)
                     <tr wire:key="class-{{ $classItem->id }}" class="hover:bg-base-200/50 transition-colors">
                         <td class="font-medium text-base-content/50">{{ $classes->firstItem() + $index }}</td>
                         <td>
-                            <div class="font-bold border-l-4 border-primary pl-3">{{ $classItem->name }}</div>
-                            <div class="text-xs text-base-content/40 italic ml-4">Dibuat
+                            <div class="text-base-content">{{ $classItem->name }}</div>
+                            <div class="text-xs text-base-content/40 italic">Dibuat
                                 {{ $classItem->created_at->diffForHumans() }}</div>
                         </td>
+                        <td class="text-center">
+                            @if ($classItem->students_count > 0)
+                                <span class="badge badge-soft badge-primary badge-sm font-mono">
+                                    <x-heroicon-o-user-group class="w-3 h-3 mr-1" />
+                                    {{ $classItem->students_count }} siswa
+                                </span>
+                            @else
+                                <span class="badge badge-soft badge-ghost badge-sm text-base-content/40">Kosong</span>
+                            @endif
+                        </td>
                         <td>
-                            <div @class([
-                                'badge badge-sm gap-1.5',
-                                'badge-success text-white' => $classItem->status,
-                                'badge-ghost' => !$classItem->status,
-                            ])>
-                                <div @class([
-                                    'w-1.5 h-1.5 rounded-full',
-                                    'bg-white' => $classItem->status,
-                                    'bg-base-content/30' => !$classItem->status,
-                                ])></div>
-                                {{ $classItem->status ? 'Aktif' : 'Nonaktif' }}
-                            </div>
+                            @if ($classItem->status)
+                                <span class="badge badge-soft badge-success badge-sm">Aktif</span>
+                            @else
+                                <span class="badge badge-soft badge-error badge-sm">Nonaktif</span>
+                            @endif
                         </td>
                         <td class="text-center">
                             <x-partials.dropdown-action :id="$classItem->id" />
@@ -57,58 +59,19 @@
                 @endforeach
             </x-partials.table>
 
-            <div class="mt-6">
-                <x-partials.pagination :paginator="$classes" :perPage="$perPage" />
+            <div class="mt-6 pt-4 border-t border-base-300">
+                <x-partials.pagination :paginator="$classes" :perPage="$perPage">
+                    <x-slot:center>
+                        Menampilkan <span class="font-semibold">{{ $classes->firstItem() ?? 0 }}</span>
+                        sampai <span class="font-semibold">{{ $classes->lastItem() ?? 0 }}</span>
+                        dari <span class="font-semibold">{{ $classes->total() }}</span> data
+                    </x-slot:center>
+                </x-partials.pagination>
             </div>
         </div>
     </div>
 
-    <!-- Class Modal -->
-    <x-partials.modal id="class-modal" :title="$isEdit ? 'Edit Kelas' : 'Tambah Kelas Baru'">
-        <form wire:submit.prevent="{{ $isEdit ? 'update' : 'store' }}" class="space-y-4">
-            <div class="form-control">
-                <label class="label"><span class="label-text font-semibold">Nama Kelas</span></label>
-                <input type="text" wire:model="name"
-                    class="input input-bordered w-full @error('name') input-error @enderror"
-                    placeholder="Contoh: XII RPL 1, XI AKL 2, dsb..." />
-                @error('name') <span class="text-error text-xs mt-1">{{ $message }}</span> @enderror
-            </div>
-
-            <div class="form-control">
-                <label class="label cursor-pointer justify-start gap-3">
-                    <span class="label-text font-semibold">Status Aktif</span>
-                    <input type="checkbox" wire:model="status" class="toggle toggle-success" />
-                </label>
-            </div>
-
-            <div class="modal-action">
-                <button type="button" class="btn"
-                    onclick="document.getElementById('class-modal').close()">Batal</button>
-                <button type="submit" class="btn btn-primary min-w-[100px]">
-                    <span wire:loading wire:target="{{ $isEdit ? 'update' : 'store' }}"
-                        class="loading loading-spinner loading-xs"></span>
-                    {{ $isEdit ? 'Perbarui' : 'Simpan' }}
-                </button>
-            </div>
-        </form>
-    </x-partials.modal>
-
-    <!-- Delete Confirmation Modal -->
-    <x-partials.modal id="delete-modal" title="Konfirmasi Hapus">
-        <div class="flex flex-col items-center text-center py-4">
-            <div class="w-16 h-16 bg-error/10 text-error rounded-full flex items-center justify-center mb-4">
-                <x-heroicon-o-trash class="w-10 h-10" />
-            </div>
-            <h4 class="text-lg font-bold">Apakah Anda yakin?</h4>
-            <p class="text-base-content/60 mt-1">Data kelas yang dihapus tidak dapat dikembalikan. Pastikan tidak ada
-                siswa yang masih terdaftar di kelas ini.</p>
-        </div>
-        <div class="modal-action justify-center gap-3">
-            <button type="button" class="btn" onclick="document.getElementById('delete-modal').close()">Batal</button>
-            <button wire:click="delete" class="btn btn-error text-white min-w-[100px]">
-                <span wire:loading wire:target="delete" class="loading loading-spinner loading-xs"></span>
-                Hapus Data
-            </button>
-        </div>
-    </x-partials.modal>
+    {{-- Modal Components --}}
+    <livewire:admin.master.classes.modals.edit />
+    <livewire:admin.master.classes.modals.delete />
 </div>

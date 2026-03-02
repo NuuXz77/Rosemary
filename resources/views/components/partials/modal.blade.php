@@ -2,7 +2,7 @@
 
 <dialog id="{{ $id }}" class="modal" x-data
     x-on:open-modal.window="if ($event.detail.id === '{{ $id }}') { $el.showModal(); }"
-    x-on:close-modal.window="if ($event.detail.id === '{{ $id }}') { $el.close(); }">
+    x-on:close-modal.window="if ($event.detail.id === '{{ $id }}') { $el.close(); }" wire:ignore.self>
     <div class="modal-box w-11/12 max-w-5xl">
         <form method="dialog">
             <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>

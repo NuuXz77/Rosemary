@@ -83,10 +83,10 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="form-control">
-                    <label class="label"><span class="label-text font-semibold">PIN POS (6 Digit)</span></label>
+                    <label class="label"><span class="label-text font-semibold">PIN POS (4 Digit)</span></label>
                     <input type="text" wire:model="pin"
                         class="input input-bordered w-full @error('pin') input-error @enderror" placeholder="123456"
-                        maxlength="6" />
+                        maxlength="4" />
                     <span class="text-xs text-base-content/50 mt-1">Digunakan untuk login di sistem kasir.</span>
                     @error('pin') <span class="text-error text-xs mt-1">{{ $message }}</span> @enderror
                 </div>
