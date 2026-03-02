@@ -1,29 +1,23 @@
-<x-form.modal
-    modalId="modal_delete_class"
-    title="Konfirmasi Hapus"
-    saveButtonText="Hapus"
-    saveButtonIcon="heroicon-o-trash"
-    saveAction="delete"
-    saveButtonClass="btn-error"
-    :showButton="false"
-    modalSize="modal-box">
-    
-    <div class="flex flex-col items-center text-center gap-4 py-4">
-        <div class="bg-error/10 p-4 rounded-full">
-            <x-heroicon-o-exclamation-triangle class="w-12 h-12 text-error" />
-        </div>
-        
-        <div>
-            <h3 class="text-lg font-bold">Apakah Anda yakin?</h3>
-            <p class="text-sm opacity-70">
-                Anda akan menghapus data kelas <span class="font-bold text-error">'{{ $name }}'</span>.
-                @if($students_count > 0)
-                    <br><span class="text-error font-semibold text-xs mt-2 italic">* Kelas ini memiliki {{ $students_count }} siswa dan tidak dapat dihapus.</span>
-                @else
-                    <br>Tindakan ini tidak dapat dibatalkan.
-                @endif
+<div>
+    <x-form.modal
+        modalId="delete-class-modal"
+        title="Konfirmasi Hapus"
+        saveAction="delete"
+        saveButtonText="Hapus Data"
+        saveButtonIcon="heroicon-o-trash"
+        saveButtonClass="btn btn-error text-white gap-2 btn-sm"
+        :showButton="false">
+
+        <div class="flex flex-col items-center text-center py-4">
+            <div class="w-16 h-16 bg-error/10 text-error rounded-full flex items-center justify-center mb-4">
+                <x-heroicon-o-trash class="w-10 h-10" />
+            </div>
+            <h4 class="text-lg font-bold">Apakah Anda yakin?</h4>
+            <p class="text-base-content/60 mt-1">
+                Data kelas yang dihapus tidak dapat dikembalikan.
+                Pastikan tidak ada siswa yang masih terdaftar di kelas ini.
             </p>
         </div>
-    </div>
 
-</x-form.modal>
+    </x-form.modal>
+</div>

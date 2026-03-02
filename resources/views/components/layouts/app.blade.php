@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light">
 
 <head>
     <meta charset="utf-8">
@@ -133,8 +133,9 @@
 
     @livewireScripts
     <script>
-        // Global Modal Handler untuk semua modal
-        document.addEventListener('alpine:init', () => {
+        // ── Alpine Global Components ─────────────────────────────────
+        // Dipanggil dari alpine:init (load pertama) DAN livewire:navigated (navigate)
+        function registerAlpineComponents() {
             Alpine.data('modal', (modalId, customEvents = []) => ({
                 open: false,
                 init() {
@@ -143,7 +144,9 @@
                         'close-create-modal',
                         'close-edit-modal',
                         'close-delete-modal',
-                        'close-detail-modal'
+                        'close-detail-modal',
+                        'close-export-excel-modal',
+                        'close-export-pdf-modal',
                     ];
 
                     // Gabungkan default events dengan custom events
@@ -175,10 +178,13 @@
                     });
                 }
             }));
-        });
+        }
 
-        // Active menu highlighting
-        document.addEventListener('DOMContentLoaded', function () {
+        // Load pertama: alpine belum init
+        document.addEventListener('alpine:init', registerAlpineComponents);
+
+        // ── Active menu highlighting ──────────────────────────────────
+        function highlightActiveMenu() {
             const currentPath = window.location.pathname;
             const menuLinks = document.querySelectorAll('.sidebar-menu a');
 
@@ -188,7 +194,10 @@
                     link.parentElement.classList.add('active');
                 }
             });
-        });
+        }
+
+        // Load pertama
+        document.addEventListener('DOMContentLoaded', highlightActiveMenu);
 
         // Toggle sidebar on mobile
         function toggleSidebar() {
@@ -196,12 +205,73 @@
             drawer.checked = !drawer.checked;
         }
 
+        // ── Livewire Navigate: re-init setelah setiap navigate ───────
         document.addEventListener('livewire:navigated', () => {
-            console.log('Halaman telah pindah atau dimuat!');
-        }, { once: true });
+            // Re-register Alpine components (navigate dari guest ke app layout)
+            if (window.Alpine) registerAlpineComponents();
+            // Re-run active menu highlight
+            highlightActiveMenu();
+        });
+
+        document.addEventListener('livewire:navigating', () => {
+            // DESTROY SEMUA QUILL INSTANCES
+            console.log('🔥 DESTROYING ALL QUILL INSTANCES...');
+
+            // Destroy instance globals
+            if (window.quillCreateInstance) {
+                window.quillCreateInstance = null;
+            }
+            if (window.quillEditInstance) {
+                window.quillEditInstance = null;
+            }
+
+            // HAPUS SEMUA ELEMENT YANG BERKAITAN DENGAN QUILL
+            // 1. Hapus semua toolbar
+            document.querySelectorAll('.ql-toolbar').forEach(el => el.remove());
+
+            // 2. Hapus semua container
+            document.querySelectorAll('.ql-container').forEach(el => {
+                el.classList.remove('ql-container', 'ql-snow', 'ql-blank');
+                el.innerHTML = '';
+            });
+
+            // 3. Hapus semua element dengan class ql-*
+            document.querySelectorAll('[class*="ql-"]').forEach(el => {
+                if (el.classList.contains('ql-toolbar') || el.classList.contains('ql-container')) {
+                    el.remove();
+                }
+            });
+
+            // 4. Reset wrapper Create
+            const wrapperCreate = document.getElementById('quill-wrapper-create');
+            if (wrapperCreate) {
+                wrapperCreate.innerHTML = '<div id="quill-editor-create" style="height: 300px;"></div>';
+            }
+
+            // 5. Reset wrapper Edit
+            const wrapperEdit = document.getElementById('quill-wrapper-edit');
+            if (wrapperEdit) {
+                wrapperEdit.innerHTML = '<div id="quill-editor-edit" style="height: 300px;"></div>';
+            }
+
+            console.log('✅ QUILL DESTROYED!');
+
+            // Alpine destroy
+            if (window.Alpine && typeof window.Alpine.destroyTree === 'function') {
+                window.Alpine.destroyTree(document.body);
+            }
+        });
+
+        document.addEventListener('livewire:navigated', () => {
+            if (window.Alpine && typeof window.Alpine.initTree === 'function') {
+                requestAnimationFrame(() => {
+                    window.Alpine.initTree(document.body);
+                });
+            }
+        });
 
         // Pull to Refresh Functionality
-        (function () {
+        (function() {
             let startY = 0;
             let currentY = 0;
             let isPulling = false;
@@ -256,7 +326,9 @@
                     startY = e.touches[0].pageY;
                     isPulling = true;
                 }
-            }, { passive: true });
+            }, {
+                passive: true
+            });
 
             document.addEventListener('touchmove', (e) => {
                 if (!isPulling || isRefreshing) return;
@@ -269,7 +341,9 @@
                     pullIndicator.style.transform = `translateY(${progress * 100 - 100}%)`;
                     pullIndicator.style.opacity = progress;
                 }
-            }, { passive: true });
+            }, {
+                passive: true
+            });
 
             document.addEventListener('touchend', () => {
                 if (!isPulling) return;
@@ -285,7 +359,9 @@
                 isPulling = false;
                 startY = 0;
                 currentY = 0;
-            }, { passive: true });
+            }, {
+                passive: true
+            });
 
             // Mouse events untuk desktop (scroll ke atas dengan scroll wheel)
             let scrollAttempts = 0;
@@ -307,7 +383,9 @@
                         scrollAttempts = 0;
                     }
                 }
-            }, { passive: true });
+            }, {
+                passive: true
+            });
 
             // Keyboard shortcut (Ctrl/Cmd + R tetapi prevent default dan pakai custom refresh)
             document.addEventListener('keydown', (e) => {

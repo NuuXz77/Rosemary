@@ -1,31 +1,31 @@
-<x-form.modal
-    modalId="modal_edit_class"
-    title="Edit Data Kelas"
-    saveButtonText="Update"
-    saveButtonIcon="heroicon-o-check"
-    saveAction="update"
-    :showButton="false"
-    modalSize="modal-box max-w-xl">
-    
-    <div class="grid grid-cols-1 gap-4">
-        {{-- NAMA KELAS --}}
-        <x-form.input 
-            label="Nama Kelas" 
-            name="name" 
-            icon="heroicon-o-academic-cap"
-            placeholder="Contoh: X RPL 1, XI TKJ 2" 
-            wireModel="name" 
-            :required="true" 
-            maxlength="100" />
+<div>
+    <x-form.modal
+        modalId="edit-class-modal"
+        title="Edit Kelas"
+        saveAction="update"
+        saveButtonText="Perbarui"
+        saveButtonIcon="heroicon-o-pencil-square"
+        :showButton="false">
 
-        {{-- STATUS --}}
-        <div class="form-control">
-            <label class="label cursor-pointer justify-start gap-4">
-                <span class="label-text font-semibold">Status Aktif</span>
-                <input type="checkbox" wire:model="status" class="toggle toggle-primary" />
-            </label>
-            <p class="text-xs text-gray-500">Aktifkan jika kelas ini sedang digunakan.</p>
-        </div>
-    </div>
+        {{-- Nama Kelas --}}
+        <x-form.input
+            label="Nama Kelas"
+            name="name"
+            wireModel="name"
+            placeholder="Contoh: XII RPL 1, XI AKL 2..."
+            validatorMessage="Nama kelas wajib diisi."
+            :required="true" />
 
-</x-form.modal>
+        {{-- Status --}}
+        <fieldset class="mt-4">
+            <legend class="fieldset-legend font-semibold">Status</legend>
+            <x-form.checkbox
+                wireModel="status"
+                label="Kelas Aktif"
+                color="checkbox-success"
+                size="checkbox-sm" />
+            <p class="text-xs text-base-content/50 ml-1">Kelas nonaktif tidak akan muncul di pilihan form input lainnya.</p>
+        </fieldset>
+
+    </x-form.modal>
+</div>

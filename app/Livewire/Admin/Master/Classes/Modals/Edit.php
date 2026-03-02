@@ -2,59 +2,51 @@
 
 namespace App\Livewire\Admin\Master\Classes\Modals;
 
-use App\Models\Classes;
+use App\Models\Classes as SchoolClass;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class Edit extends Component
 {
-    public $classId;
-    public $name = '';
-    public $status = true;
+    public ?int $classId = null;
+    public string $name = '';
+    public bool $status = true;
 
-    protected $listeners = ['open-edit-modal' => 'loadClass'];
-
-    protected function rules()
-    {
-        return [
-            'name' => 'required|string|max:100|unique:classes,name,' . $this->classId,
-            'status' => 'required|boolean',
-        ];
-    }
-
-    protected $messages = [
-        'name.required' => 'Nama kelas wajib diisi',
-        'name.unique' => 'Nama kelas sudah ada',
+    protected $rules = [
+        'name'   => 'required|string|max:255',
+        'status' => 'required|boolean',
     ];
 
-    public function loadClass($id)
+    #[On('open-edit-class')]
+    public function loadEdit(int $id): void
     {
-        $this->classId = $id;
-        $class = Classes::findOrFail($id);
-        
-        $this->name = $class->name;
-        $this->status = $class->status;
-        
+        $class = SchoolClass::findOrFail($id);
+        $this->classId = $class->id;
+        $this->name    = $class->name;
+        $this->status  = (bool) $class->status;
         $this->resetValidation();
+        $this->dispatch('open-modal', id: 'edit-class-modal');
     }
 
-    public function update()
+    public function update(): void
     {
+        if (!auth()->user()->can('master.classes.manage')) {
+            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk mengubah kelas.');
+            return;
+        }
+
         $this->validate();
 
         try {
-            $class = Classes::findOrFail($this->classId);
-            
+            $class = SchoolClass::findOrFail($this->classId);
             $class->update([
-                'name' => $this->name,
+                'name'   => $this->name,
                 'status' => $this->status,
             ]);
 
-            $this->dispatch('close-edit-modal');
-            $this->dispatch('show-toast', type: 'success', message: "Kelas '{$class->name}' berhasil diperbarui!");
-            $this->dispatch('class-updated');
-
-            $this->reset(['classId', 'name', 'status']);
-            $this->resetValidation();
+            $this->dispatch('close-create-modal');
+            $this->dispatch('show-toast', type: 'success', message: 'Kelas berhasil diperbarui.');
+            $this->dispatch('class-changed');
         } catch (\Exception $e) {
             $this->dispatch('show-toast', type: 'error', message: 'Gagal memperbarui kelas: ' . $e->getMessage());
         }
@@ -65,4 +57,3 @@ class Edit extends Component
         return view('livewire.admin.master.classes.modals.edit');
     }
 }
-

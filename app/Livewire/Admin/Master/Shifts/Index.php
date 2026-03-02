@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Master\Shifts;
 
 use App\Models\Shift;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -15,26 +16,10 @@ class Index extends Component
 
     #[Title('Master Shifts')]
 
-    // Search & Pagination
     public string $search = '';
     public int $perPage = 10;
 
-    // Form Properties
-    public $shiftId;
-    public $name;
-    public $start_time;
-    public $end_time;
-    public $status = true;
-    public $isEdit = false;
-
-    protected $rules = [
-        'name' => 'required|string|max:255',
-        'start_time' => 'required',
-        'end_time' => 'required',
-        'status' => 'required|boolean',
-    ];
-
-    public function mount()
+    public function mount(): void
     {
         if (!auth()->user()->can('master.shifts.view')) {
             abort(403, 'Anda tidak memiliki akses untuk melihat halaman ini.');
@@ -46,125 +31,46 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function resetFields()
-    {
-        $this->reset(['name', 'start_time', 'end_time', 'status', 'shiftId', 'isEdit']);
-        $this->status = true;
-        $this->resetValidation();
-    }
-
-    public function create()
-    {
-        $this->resetFields();
-        $this->dispatch('open-modal', id: 'shift-modal');
-    }
-
-    public function store()
+    public function openCreate(): void
     {
         if (!auth()->user()->can('master.shifts.manage')) {
-            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk menambah shift.');
+            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki akses untuk menambah shift.');
             return;
         }
-
-        $this->validate();
-
-        try {
-            Shift::create([
-                'name' => $this->name,
-                'start_time' => $this->start_time,
-                'end_time' => $this->end_time,
-                'status' => $this->status,
-            ]);
-
-            $this->dispatch('close-modal', id: 'shift-modal');
-            $this->dispatch('show-toast', type: 'success', message: 'Shift berhasil ditambahkan.');
-            $this->resetFields();
-        } catch (\Exception $e) {
-            $this->dispatch('show-toast', type: 'error', message: 'Gagal menambah shift: ' . $e->getMessage());
-        }
+        $this->dispatch('open-create-shift');
     }
 
-    public function edit($id)
-    {
-        $shift = Shift::findOrFail($id);
-        $this->resetFields();
-
-        $this->shiftId = $shift->id;
-        $this->name = $shift->name;
-        $this->start_time = $shift->start_time;
-        $this->end_time = $shift->end_time;
-        $this->status = (bool) $shift->status;
-        $this->isEdit = true;
-
-        $this->dispatch('open-modal', id: 'shift-modal');
-    }
-
-    public function update()
+    public function edit(int $id): void
     {
         if (!auth()->user()->can('master.shifts.manage')) {
-            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk mengubah shift.');
+            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki akses untuk mengedit shift.');
             return;
         }
-
-        $this->validate();
-
-        try {
-            $shift = Shift::findOrFail($this->shiftId);
-            $shift->update([
-                'name' => $this->name,
-                'start_time' => $this->start_time,
-                'end_time' => $this->end_time,
-                'status' => $this->status,
-            ]);
-
-            $this->dispatch('close-modal', id: 'shift-modal');
-            $this->dispatch('show-toast', type: 'success', message: 'Shift berhasil diperbarui.');
-            $this->resetFields();
-        } catch (\Exception $e) {
-            $this->dispatch('show-toast', type: 'error', message: 'Gagal memperbarui shift: ' . $e->getMessage());
-        }
+        $this->dispatch('open-edit-shift', id: $id);
     }
 
-    public function confirmDelete($id)
-    {
-        $this->shiftId = $id;
-        $this->dispatch('open-modal', id: 'delete-modal');
-    }
-
-    public function delete()
+    public function confirmDelete(int $id): void
     {
         if (!auth()->user()->can('master.shifts.manage')) {
-            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk menghapus shift.');
+            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki akses untuk menghapus shift.');
             return;
         }
+        $this->dispatch('open-delete-shift', id: $id);
+    }
 
-        try {
-            $shift = Shift::findOrFail($this->shiftId);
-
-            // Cek relasi
-            if ($shift->productions()->count() > 0 || $shift->sales()->count() > 0 || $shift->schedules()->count() > 0) {
-                $this->dispatch('show-toast', type: 'error', message: 'Shift tidak bisa dihapus karena sudah memiliki riwayat transaksi atau jadwal.');
-                $this->dispatch('close-modal', id: 'delete-modal');
-                return;
-            }
-
-            $shift->delete();
-            $this->dispatch('close-modal', id: 'delete-modal');
-            $this->dispatch('show-toast', type: 'success', message: 'Shift berhasil dihapus.');
-        } catch (\Exception $e) {
-            $this->dispatch('show-toast', type: 'error', message: 'Gagal menghapus shift: ' . $e->getMessage());
-        }
+    #[On('shift-changed')]
+    public function refreshList(): void
+    {
+        $this->resetPage();
     }
 
     public function render()
     {
         $shifts = Shift::query()
-            ->when($this->search, fn($query) => $query->where('name', 'like', '%' . $this->search . '%'))
+            ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))
             ->orderBy('start_time', 'asc')
             ->paginate($this->perPage);
 
-        return view('livewire.admin.master.shifts.index', [
-            'shifts' => $shifts,
-        ]);
+        return view('livewire.admin.master.shifts.index', compact('shifts'));
     }
 }
