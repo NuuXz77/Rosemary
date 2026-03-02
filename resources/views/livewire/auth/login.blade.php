@@ -2,7 +2,8 @@
 
     {{-- Ilustrasi Kiri - Full Height (Hidden on mobile) --}}
     <div class="hidden lg:block lg:w-3/5 lg:h-screen">
-        <img src="https://wallpapers-clan.com/wp-content/uploads/2026/01/zenitsu-electric-focus-demon-slayer-desktop-wallpaper-preview.jpg" alt="Ilustrasi Login" class="w-full h-full object-cover">
+        <img src="https://wallpapers-clan.com/wp-content/uploads/2026/01/dystopian-ruins-silhouette-dark-mood-desktop-wallpaper-preview.jpg"
+            alt="Ilustrasi Login" class="w-full h-full object-cover">
     </div>
 
     {{-- Form Login Kanan --}}
@@ -10,6 +11,7 @@
 
         <div class="w-full max-w-sm">
             <div class="text-center mb-8">
+                <img class="mx-auto" src="{{ asset('img/logo.png') }}" width="100" alt="">
                 <h1 class="text-3xl lg:text-4xl font-bold text-base-content mb-2">Selamat Datang</h1>
                 <p class="text-base-content/60">Silakan login untuk melanjutkan</p>
             </div>
@@ -32,8 +34,8 @@
                     <label class="input validator w-full input-primary">
                         <x-solar-lock-password-linear class="w-5 opacity-50" />
 
-                        <input type="password" required placeholder="Password"
-                            minlength="3" maxlength="30" title="Isi yang bener" wire:model="password" />
+                        <input type="password" required placeholder="Password" minlength="3" maxlength="30"
+                            title="Isi yang bener" wire:model="password" />
                     </label>
                     <p class="validator-hint hidden">
                         Password Wajib Diisi
@@ -64,14 +66,14 @@
             </form>
         </div>
         {{-- <div class="toast toast-start">
-            @if($showSuccess)
+            @if ($showSuccess)
                 <div wire:key="success-{{ now()->timestamp }}" class="alert alert-success flex flex-row items-center" x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 3000)">
                     <x-heroicon-o-check class="w-5" />
                     <span>Login Berhasil!.</span>
                 </div>
             @endif
             
-            @if($showError)
+            @if ($showError)
                 <div wire:key="error-{{ now()->timestamp }}" class="alert alert-error flex flex-row items-center" x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)">
                     <x-zondicon-close class="w-5"/>
                     <span>Login Gagal! Periksa kembali Username & Password.</span>

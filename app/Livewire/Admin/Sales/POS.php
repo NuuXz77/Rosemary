@@ -23,6 +23,7 @@ class POS extends Component
 
     // Search & Filter
     public $search = '';
+    public $barcode = '';
     public $filterCategory = '';
 
     // Cart State
@@ -69,6 +70,23 @@ class POS extends Component
     public function updatedPaidAmount()
     {
         $this->calculateTotals();
+    }
+
+    public function scanBarcode()
+    {
+        if (empty($this->barcode))
+            return;
+
+        $product = Products::where('barcode', $this->barcode)->where('status', true)->first();
+
+        if ($product) {
+            $this->addToCart($product->id);
+            $this->barcode = '';
+            $this->dispatch('play-beep');
+        } else {
+            $this->dispatch('show-toast', type: 'error', message: 'Barcode tidak terdaftar!');
+            $this->barcode = '';
+        }
     }
 
     public function addToCart($productId)

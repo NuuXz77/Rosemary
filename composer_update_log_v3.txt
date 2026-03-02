@@ -1,0 +1,207 @@
+﻿composer : Loading composer 
+repositories with package 
+information
+At line:1 char:1
++ composer update 
+maatwebsite/excel 
+maennchen/zipstream-php -W 
+--no-int ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: (Loadi  
+  ng compose...age inform   
+ ation:String) [], Remot    
+eException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+Updating dependencies
+Lock file operations: 0 
+installs, 8 updates, 0 
+removals
+  - Upgrading brick/math 
+(0.14.7 => 0.14.8)
+  - Upgrading 
+laravel/framework (v12.50.0 
+=> v12.52.0)
+  - Upgrading 
+laravel/prompts (v0.3.12 => 
+v0.3.13)
+  - Downgrading 
+maennchen/zipstream-php 
+(3.2.1 => 3.1.2)
+  - Upgrading nette/schema 
+(v1.3.4 => v1.3.5)
+  - Upgrading nette/utils 
+(v4.1.2 => v4.1.3)
+  - Upgrading 
+nunomaduro/termwind (v2.3.3 
+=> v2.4.0)
+  - Upgrading 
+phpunit/phpunit (11.5.52 => 
+11.5.55)
+Writing lock file
+Installing dependencies 
+from lock file (including 
+require-dev)
+Package operations: 8 
+installs, 7 updates, 0 
+removals
+  - Downloading brick/math 
+(0.14.8)
+  - Downloading 
+nunomaduro/termwind (v2.4.0)
+  - Downloading nette/utils 
+(v4.1.3)
+  - Downloading 
+nette/schema (v1.3.5)
+  - Downloading 
+laravel/prompts (v0.3.13)
+  - Downloading 
+laravel/framework (v12.52.0)
+  - Downloading 
+markbaker/matrix (3.0.1)
+  - Downloading 
+markbaker/complex (3.0.2)
+  - Downloading 
+maennchen/zipstream-php 
+(3.1.2)
+  - Downloading 
+ezyang/htmlpurifier 
+(v4.19.0)
+  - Downloading 
+composer/pcre (3.3.2)
+  - Downloading 
+phpoffice/phpspreadsheet 
+(1.30.2)
+  - Downloading 
+composer/semver (3.4.4)
+  - Downloading 
+maatwebsite/excel (3.1.67)
+  - Downloading 
+phpunit/phpunit (11.5.55)
+  0/15 [>--------------]   
+0%
+  5/15 [=====>---------]  
+33%
+  8/15 [========>------]  
+53%
+ 10/15 [==========>----]  
+66%
+ 11/15 [===========>---]  
+73%
+ 12/15 [============>--]  
+80%
+ 14/15 [==============>]  
+93%
+ 15/15 [===============] 
+100%
+  - Upgrading brick/math 
+(0.14.7 => 0.14.8): 
+Extracting archive
+  - Upgrading 
+nunomaduro/termwind (v2.3.3 
+=> v2.4.0): Extracting 
+archive
+  - Upgrading nette/utils 
+(v4.1.2 => v4.1.3): 
+Extracting archive
+  - Upgrading nette/schema 
+(v1.3.4 => v1.3.5): 
+Extracting archive
+  - Upgrading 
+laravel/prompts (v0.3.12 => 
+v0.3.13): Extracting archive
+  - Upgrading 
+laravel/framework (v12.50.0 
+=> v12.52.0): Extracting 
+archive
+  - Installing 
+markbaker/matrix (3.0.1): 
+Extracting archive
+  - Installing 
+markbaker/complex (3.0.2): 
+Extracting archive
+  - Installing 
+maennchen/zipstream-php 
+(3.1.2): Extracting archive
+  - Installing 
+ezyang/htmlpurifier 
+(v4.19.0): Extracting 
+archive
+  - Installing 
+composer/pcre (3.3.2): 
+Extracting archive
+  - Installing 
+phpoffice/phpspreadsheet 
+(1.30.2): Extracting archive
+  - Installing 
+composer/semver (3.4.4): 
+Extracting archive
+  - Installing 
+maatwebsite/excel (3.1.67): 
+Extracting archive
+  - Upgrading 
+phpunit/phpunit (11.5.52 => 
+11.5.55): Extracting archive
+  0/15 [>--------------]   
+0%
+  1/15 [=>-------------]   
+6%
+  8/15 [========>------]  
+53%
+ 10/15 [==========>----]  
+66%
+ 11/15 [===========>---]  
+73%
+ 12/15 [============>--]  
+80%
+ 13/15 [=============>-]  
+86%
+ 14/15 [==============>]  
+93%
+ 15/15 [===============] 
+100%
+Generating optimized 
+autoload files
+> Illuminate\Foundation\Comp
+oserScripts::postAutoloadDum
+p
+> @php artisan 
+package:discover --ansi
+
+  [37;44m INFO [39;49m Discovering packages.  
+
+  afatmustafa/blade-hugeicons  [32;1mDONE[39;22m
+  blade-ui-kit/blade-heroicons  [32;1mDONE[39;22m
+  blade-ui-kit/blade-icons  [32;1mDONE[39;22m
+  blade-ui-kit/blade-zondicons  [32;1mDONE[39;22m
+  codeat3/blade-clarity-icons  [32;1mDONE[39;22m
+  codeat3/blade-iconpark  [32;1mDONE[39;22m
+  codeat3/blade-solar-icons  [32;1mDONE[39;22m
+  davidhsianturi/blade-bootstrap-icons  [32;1mDONE[39;22m
+  laravel/pail [90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m [32;1mDONE[39;22m
+  laravel/sail [90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m [32;1mDONE[39;22m
+  laravel/tinker [90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m [32;1mDONE[39;22m
+  livewire/livewire [90m.[39m[90m.[39m [32;1mDONE[39;22m
+  maatwebsite/excel [90m.[39m[90m.[39m [32;1mDONE[39;22m
+  nesbot/carbon [90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m[90m.[39m [32;1mDONE[39;22m
+  nunomaduro/collision  [32;1mDONE[39;22m
+  nunomaduro/termwind  [32;1mDONE[39;22m
+  spatie/laravel-permission  [32;1mDONE[39;22m
+
+92 packages you are using 
+are looking for funding.
+Use the `composer fund` 
+command to find out more!
+> @php artisan 
+vendor:publish 
+--tag=laravel-assets --ansi 
+--force
+
+  [37;44m INFO [39;49m No publishable resources for tag [1m[laravel-assets][22m.  
+
+No security vulnerability 
+advisories found.

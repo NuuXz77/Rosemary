@@ -26,13 +26,13 @@
             <x-partials.table :columns="[
         ['label' => 'No', 'class' => 'w-16'],
         ['label' => 'Nama Produk'],
+        ['label' => 'Barcode'],
         ['label' => 'Kategori & Divisi'],
         ['label' => 'Harga Jual'],
         ['label' => 'Stok', 'class' => 'text-center'],
         ['label' => 'Status'],
         ['label' => 'Aksi', 'class' => 'text-center w-20']
-    ]" :data="$products"
-                emptyMessage="Belum ada data produk.">
+    ]" :data="$products" emptyMessage="Belum ada data produk.">
                 @foreach ($products as $index => $product)
                     <tr wire:key="product-{{ $product->id }}" class="hover:bg-base-200/50 transition-colors">
                         <td class="font-medium text-base-content/50">{{ $products->firstItem() + $index }}</td>
@@ -40,6 +40,16 @@
                             <div class="font-bold">{{ $product->name }}</div>
                             <div class="text-xs text-base-content/40 italic">ID:
                                 PRD-{{ str_pad($product->id, 4, '0', STR_PAD_LEFT) }}</div>
+                        </td>
+                        <td>
+                            @if($product->barcode)
+                                <div class="badge badge-ghost font-mono text-xs gap-1">
+                                    <x-heroicon-o-qr-code class="w-3 h-3" />
+                                    {{ $product->barcode }}
+                                </div>
+                            @else
+                                <span class="text-xs opacity-30 italic">No Barcode</span>
+                            @endif
                         </td>
                         <td>
                             <div class="flex flex-wrap gap-1">
@@ -92,6 +102,19 @@
                     class="input input-bordered w-full @error('name') input-error @enderror"
                     placeholder="Contoh: Espresso, Cappuccino, Croissant, Nasi Goreng..." />
                 @error('name') <span class="text-error text-xs mt-1">{{ $message }}</span> @enderror
+            </div>
+
+            <div class="form-control">
+                <label class="label"><span class="label-text font-semibold">Barcode (Optional)</span></label>
+                <div class="join w-full">
+                    <span class="join-item btn btn-active pointer-events-none px-3">
+                        <x-heroicon-o-qr-code class="w-5 h-5" />
+                    </span>
+                    <input type="text" wire:model="barcode"
+                        class="input input-bordered join-item w-full @error('barcode') input-error @enderror"
+                        placeholder="Scan atau ketik barcode..." />
+                </div>
+                @error('barcode') <span class="text-error text-xs mt-1">{{ $message }}</span> @enderror
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
