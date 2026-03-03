@@ -27,8 +27,8 @@
             <x-partials.table :columns="$header" :data="$classes"
                 :sortField="$sortField" :sortDirection="$sortDirection"
                 emptyMessage="Belum ada data kelas.">
-                @foreach ($classes as $index => $classItem)
-                    <tr wire:key="class-{{ $classItem->id }}" class="hover:bg-base-200/50 transition-colors">
+                @foreach ($classes as $index => $class)
+                    <tr wire:key="class-{{ $class->id }}" class="hover:bg-base-200/50 transition-colors">
                         <td class="font-medium text-base-content/50">{{ $classes->firstItem() + $index }}</td>
                         <td>
                             <div class="text-base-content">{{ $classItem->name }}</div>
@@ -53,7 +53,27 @@
                             @endif
                         </td>
                         <td class="text-center">
-                            <x-partials.dropdown-action :id="$classItem->id" />
+                            <div class="dropdown dropdown-left">
+                                <label tabindex="0" class="btn btn-ghost btn-xs">
+                                    <x-heroicon-o-ellipsis-vertical class="w-4 h-4" />
+                                </label>
+                                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-32">
+                                    <li>
+                                        <button wire:click="$dispatch('open-edit-modal', { id: {{ $class->id }} })"
+                                            onclick="document.getElementById('modal_edit_class').showModal()">
+                                            <x-heroicon-o-pencil-square class="w-4 h-4 text-warning" />
+                                            Edit
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button wire:click="$dispatch('confirm-delete', { id: {{ $class->id }} })"
+                                            onclick="document.getElementById('modal_delete_class').showModal()">
+                                            <x-heroicon-o-trash class="w-4 h-4 text-error" />
+                                            Hapus
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                 @endforeach
