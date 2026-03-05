@@ -57,7 +57,7 @@ class Materials extends Model
      */
     public function stock(): HasOne
     {
-        return $this->hasOne(MaterialStocks::class);
+        return $this->hasOne(MaterialStocks::class, 'material_id');
     }
 
     /**
@@ -66,7 +66,7 @@ class Materials extends Model
      */
     public function stockLogs(): HasMany
     {
-        return $this->hasMany(MaterialStockLogs::class);
+        return $this->hasMany(MaterialStockLogs::class, 'material_id');
     }
 
     /**

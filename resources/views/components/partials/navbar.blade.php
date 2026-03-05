@@ -76,17 +76,18 @@
         </label>
 
         <!-- User Profile Dropdown -->
+        @auth
         <div class="dropdown dropdown-end">
             <div class="flex items-center gap-3 cursor-pointer pr-4" tabindex="0">
                 <div class="avatar avatar-online">
                     <button class="btn btn-primary btn-circle">
                         <div>
-                            @if (Auth::user()->avatar)
+                            {{-- @if (Auth::user()->avatar)
                                 <img src="{{ Auth::user()->avatar }}" alt="User Avatar" />
                             @else
-                                <span
-                                    class="text-lg font-bold">{{ strtoupper(implode('', array_map(fn($word) => substr($word, 0, 1), explode(' ', Auth::user()->username)))) }}</span>
-                            @endif
+                            @endif --}}
+                            <span
+                                class="text-lg font-bold">{{ strtoupper(implode('', array_map(fn($word) => substr($word, 0, 1), explode(' ', Auth::user()->username)))) }}</span>
                         </div>
                     </button>
                 </div>
@@ -117,5 +118,22 @@
                 <livewire:auth.logout />
             </ul>
         </div>
+        @elseif(session('pos_student_id'))
+        {{-- Siswa Kasir (PIN session) — style sama dengan admin --}}
+        <div class="flex items-center gap-3 cursor-pointer pr-4"
+            onclick="document.getElementById('pin-logout-confirm').showModal()">
+            <div class="avatar avatar-online">
+                <button class="btn btn-primary btn-circle">
+                    <div>
+                        <span class="text-lg font-bold">{{ strtoupper(substr(session('pos_student_name', 'K'), 0, 1)) }}</span>
+                    </div>
+                </button>
+            </div>
+            <div class="hidden md:flex flex-col items-start">
+                <p class="font-semibold text-sm">{{ session('pos_student_name') }}</p>
+                <p class="text-xs text-gray-500">Kasir</p>
+            </div>
+        </div>
+        @endauth
     </div>
 </nav>

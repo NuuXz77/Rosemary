@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\ProductStocks;
 
 use App\Models\ProductStocks;
 use App\Models\Products;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -16,73 +17,24 @@ class Index extends Component
 
     #[Title('Stok Produk Jadi')]
 
-    public $search = '';
-    public $perPage = 10;
+    public string $search = '';
+    public int $perPage = 10;
+    public string $filterCategory = '';
+    public string $filterDivision = '';
 
-    // Filter properties
-    public $filterCategory = '';
-    public $filterDivision = '';
+    public function updatingSearch(): void { $this->resetPage(); }
+    public function updatingFilterCategory(): void { $this->resetPage(); }
+    public function updatingFilterDivision(): void { $this->resetPage(); }
 
-    // Adjustment properties
-    public $selectedStockId;
-    public $selectedProductName;
-    public $adjustment_qty;
-    public $adjustment_type = 'add'; // 'add', 'subtract'
-    public $adjustment_note;
+    public function openAdjustment(int $id): void
+    {
+        $this->dispatch('open-adjust-product', id: $id);
+    }
 
-    protected $rules = [
-        'adjustment_qty' => 'required|integer|min:1',
-        'adjustment_type' => 'required|in:add,subtract',
-        'adjustment_note' => 'required|string|max:255',
-    ];
-
-    public function updatingSearch()
+    #[On('stock-changed')]
+    public function refreshList(): void
     {
         $this->resetPage();
-    }
-
-    public function openAdjustment($id)
-    {
-        $stock = ProductStocks::with('product')->findOrFail($id);
-        $this->selectedStockId = $stock->id;
-        $this->selectedProductName = $stock->product->name;
-        $this->reset(['adjustment_qty', 'adjustment_type', 'adjustment_note']);
-        $this->adjustment_type = 'add';
-
-        $this->dispatch('open-modal', id: 'adjustment-modal');
-    }
-
-    public function saveAdjustment()
-    {
-        $this->validate();
-
-        $stock = ProductStocks::findOrFail($this->selectedStockId);
-        $old_qty = $stock->qty_available;
-        $diff = $this->adjustment_qty;
-
-        if ($this->adjustment_type === 'subtract') {
-            if ($old_qty < $diff) {
-                $this->dispatch('show-toast', type: 'error', message: 'Stok tidak mencukupi untuk pengurangan ini.');
-                return;
-            }
-            $stock->qty_available -= $diff;
-        } else {
-            $stock->qty_available += $diff;
-        }
-
-        $stock->save();
-
-        // Log the adjustment
-        \App\Models\ProductStockLogs::create([
-            'product_id' => $stock->product_id,
-            'created_by' => auth()->id(),
-            'type' => 'adjustment',
-            'qty' => ($this->adjustment_type === 'add' ? $diff : -$diff),
-            'description' => $this->adjustment_note,
-        ]);
-
-        $this->dispatch('close-modal', id: 'adjustment-modal');
-        $this->dispatch('show-toast', type: 'success', message: 'Stok produk berhasil disesuaikan.');
     }
 
     public function render()

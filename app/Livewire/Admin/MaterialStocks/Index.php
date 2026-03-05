@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\MaterialStocks;
 
 use App\Models\MaterialStocks;
 use App\Models\Materials;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -16,73 +17,24 @@ class Index extends Component
 
     #[Title('Stok Bahan Baku')]
 
-    public $search = '';
-    public $perPage = 10;
+    public string $search = '';
+    public int $perPage = 10;
+    public string $filterCategory = '';
+    public string $filterStockStatus = '';
 
-    // Filter properties
-    public $filterCategory = '';
-    public $filterStockStatus = ''; // 'low', 'normal'
+    public function updatingSearch(): void { $this->resetPage(); }
+    public function updatingFilterCategory(): void { $this->resetPage(); }
+    public function updatingFilterStockStatus(): void { $this->resetPage(); }
 
-    // Adjustment properties
-    public $selectedStockId;
-    public $selectedMaterialName;
-    public $adjustment_qty;
-    public $adjustment_type = 'add'; // 'add', 'subtract'
-    public $adjustment_note;
+    public function openAdjustment(int $id): void
+    {
+        $this->dispatch('open-adjust-material', id: $id);
+    }
 
-    protected $rules = [
-        'adjustment_qty' => 'required|numeric|min:0.001',
-        'adjustment_type' => 'required|in:add,subtract',
-        'adjustment_note' => 'required|string|max:255',
-    ];
-
-    public function updatingSearch()
+    #[On('material-stock-changed')]
+    public function refreshList(): void
     {
         $this->resetPage();
-    }
-
-    public function openAdjustment($id)
-    {
-        $stock = MaterialStocks::with('material')->findOrFail($id);
-        $this->selectedStockId = $stock->id;
-        $this->selectedMaterialName = $stock->material->name;
-        $this->reset(['adjustment_qty', 'adjustment_type', 'adjustment_note']);
-        $this->adjustment_type = 'add';
-
-        $this->dispatch('open-modal', id: 'adjustment-modal');
-    }
-
-    public function saveAdjustment()
-    {
-        $this->validate();
-
-        $stock = MaterialStocks::findOrFail($this->selectedStockId);
-        $old_qty = $stock->qty_available;
-        $diff = $this->adjustment_qty;
-
-        if ($this->adjustment_type === 'subtract') {
-            if ($old_qty < $diff) {
-                $this->dispatch('show-toast', type: 'error', message: 'Stok tidak mencukupi untuk pengurangan ini.');
-                return;
-            }
-            $stock->qty_available -= $diff;
-        } else {
-            $stock->qty_available += $diff;
-        }
-
-        $stock->save();
-
-        // Log the adjustment
-        \App\Models\MaterialStockLogs::create([
-            'material_id' => $stock->material_id,
-            'created_by' => auth()->id(),
-            'type' => 'adjustment',
-            'qty' => ($this->adjustment_type === 'add' ? $diff : -$diff),
-            'description' => $this->adjustment_note,
-        ]);
-
-        $this->dispatch('close-modal', id: 'adjustment-modal');
-        $this->dispatch('show-toast', type: 'success', message: 'Stok berhasil disesuaikan.');
     }
 
     public function render()
@@ -100,8 +52,8 @@ class Index extends Component
             ->paginate($this->perPage);
 
         return view('livewire.admin.material-stocks.index', [
-            'stocks' => $stocks,
-            'categories' => \App\Models\Categories::where('type', 'material')->get(),
+            'stocks'     => $stocks,
+            'categories' => \App\Models\Categories::where('type', 'material')->orderBy('name')->get(),
         ]);
     }
 }

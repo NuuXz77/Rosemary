@@ -32,7 +32,7 @@ class Index extends Component
     {
         return [
             'name' => 'required|string|max:255',
-            'pin' => 'required|numeric|digits:6|unique:students,pin,' . $this->studentId,
+            'pin' => 'required|numeric|digits:4|unique:students,pin,' . $this->studentId,
             'class_id' => 'required|exists:classes,id',
             'status' => 'required|boolean',
         ];
