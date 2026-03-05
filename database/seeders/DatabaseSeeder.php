@@ -19,6 +19,12 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             RoleSeeder::class,
             UserSeeder::class,
+
+            // Master data — urutan penting (FK chain)
+            UnitSeeder::class,        // independent
+            CategorySeeder::class,    // independent
+            ProductSeeder::class,     // butuh categories + divisions (auto-created di dalam)
+            StockSeeder::class,       // butuh products
         ]);
     }
 }

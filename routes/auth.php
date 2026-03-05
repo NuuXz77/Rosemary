@@ -11,6 +11,25 @@ Route::middleware('guest')->group(function () {
 });
 
 // ============================================
+// KASIR SISWA — Login PIN
+// Autentikasi berbasis sesi (bukan Laravel Auth).
+// Sidebar Spatie otomatis kosong karena siswa
+// bukan user Laravel → @can selalu false.
+// Layout sama dengan admin (app.blade.php).
+// ============================================
+Route::get('/login/pin', App\Livewire\Auth\LoginPin::class)->name('pos.login');
+
+Route::middleware('pin.auth')->group(function () {
+    Route::get('/kasir/pos', App\Livewire\Kasir\POS::class)->name('kasir.pos');
+    Route::get('/kasir/checkout', App\Livewire\Admin\Sales\Checkout::class)->name('kasir.checkout');
+
+    Route::get('/kasir/logout', function () {
+        session()->forget(['pos_student_id', 'pos_student_name']);
+        return redirect()->route('pos.login');
+    })->name('kasir.logout');
+});
+
+// ============================================
 // AUTHENTICATED ROUTES (Sudah Login)
 //
 // PENJELASAN MIDDLEWARE PERMISSION:
@@ -116,6 +135,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:sales.view')->group(function () {
         Route::get('/sales', App\Livewire\Admin\Sales\Index::class)->name('sales.index');
         Route::get('/sales/pos', App\Livewire\Admin\Sales\POS::class)->name('sales.pos');
+        Route::get('/sales/checkout', App\Livewire\Admin\Sales\Checkout::class)->name('sales.checkout');
     });
 
     // --------------------------------------------

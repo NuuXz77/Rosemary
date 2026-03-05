@@ -2,18 +2,7 @@
     <div class="card bg-base-100 shadow-sm border border-base-200">
         <div class="card-body p-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                <div class="flex items-center gap-2">
-                    <x-heroicon-o-document-magnifying-glass class="w-6 h-6 text-primary" />
-                    <h2 class="text-xl font-bold">Log Mutasi Bahan Baku</h2>
-                </div>
-                <div class="flex flex-wrap gap-3 w-full md:w-auto">
-                    <select wire:model.live="filterType" class="select select-sm select-bordered">
-                        <option value="">Semua Tipe</option>
-                        <option value="in">Masuk (In)</option>
-                        <option value="out">Keluar (Out)</option>
-                        <option value="adjustment">Penyesuaian</option>
-                    </select>
-
+                <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                     <div class="join w-full md:w-64">
                         <label class="input input-sm input-bordered join-item flex items-center gap-2 w-full">
                             <x-heroicon-o-magnifying-glass class="w-4 h-4 text-base-content/50" />
@@ -21,17 +10,40 @@
                                 placeholder="Cari bahan..." />
                         </label>
                     </div>
+                    <div class="dropdown dropdown-end">
+                        <label tabindex="0" class="btn btn-ghost btn-sm gap-2">
+                            <x-heroicon-o-funnel class="w-5 h-5" />
+                            Filter
+                            @if($filterType)
+                                <span class="badge badge-primary badge-sm">1</span>
+                            @endif
+                        </label>
+                        <div tabindex="0" class="dropdown-content z-10 card card-compact w-56 p-4 bg-base-100 border border-base-300 mt-2 shadow-md">
+                            <div class="space-y-3">
+                                <x-form.select label="Tipe Mutasi" name="filterType" wire:model.live="filterType" placeholder="Semua Tipe" class="select-sm">
+                                    <option value="in">Masuk (In)</option>
+                                    <option value="out">Keluar (Out)</option>
+                                    <option value="adjustment">Penyesuaian</option>
+                                </x-form.select>
+                                <button wire:click="$set('filterType', '')" class="btn btn-ghost btn-sm w-full">Reset Filter</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <x-partials.table :columns="[
-        ['label' => 'Waktu', 'class' => 'w-48'],
-        ['label' => 'Bahan Baku'],
-        ['label' => 'Tipe', 'class' => 'text-center'],
-        ['label' => 'Jumlah', 'class' => 'text-right'],
-        ['label' => 'Keterangan'],
-        ['label' => 'Petugas']
-    ]" :data="$logs" emptyMessage="Belum ada riwayat mutasi stok.">
+            @php
+                $columns = [
+                    ['label' => 'Waktu', 'class' => 'w-48'],
+                    ['label' => 'Bahan Baku'],
+                    ['label' => 'Tipe', 'class' => 'text-center'],
+                    ['label' => 'Jumlah', 'class' => 'text-right'],
+                    ['label' => 'Keterangan'],
+                    ['label' => 'Petugas'],
+                ];
+            @endphp
+
+            <x-partials.table :columns="$columns" :data="$logs" emptyMessage="Belum ada riwayat mutasi stok.">
                 @foreach ($logs as $log)
                     <tr wire:key="log-{{ $log->id }}" class="hover:bg-base-200/50 transition-colors">
                         <td>
@@ -79,8 +91,14 @@
                 @endforeach
             </x-partials.table>
 
-            <div class="mt-6">
-                <x-partials.pagination :paginator="$logs" :perPage="$perPage" />
+            <div class="mt-6 pt-4 border-t border-base-300">
+                <x-partials.pagination :paginator="$logs" :perPage="$perPage">
+                    <x-slot:center>
+                        Menampilkan <span class="font-semibold">{{ $logs->firstItem() ?? 0 }}</span>
+                        sampai <span class="font-semibold">{{ $logs->lastItem() ?? 0 }}</span>
+                        dari <span class="font-semibold">{{ $logs->total() }}</span> data
+                    </x-slot:center>
+                </x-partials.pagination>
             </div>
         </div>
     </div>

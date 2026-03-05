@@ -18,6 +18,7 @@ class Sales extends Model
     protected $fillable = [
         'invoice_number',    // Nomor invoice unik
         'customer_id',       // FK ke customers (optional, untuk pelanggan umum)
+        'guest_name',        // Nama pembeli jika Guest (tidak terdaftar)
         'shift_id',          // FK ke shifts (shift saat transaksi)
         'cashier_student_id',// FK ke students (siswa kasir)
         'subtotal',          // Subtotal belanja

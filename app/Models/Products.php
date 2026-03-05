@@ -17,12 +17,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Products extends Model
 {
     protected $fillable = [
-        'category_id',  // FK ke categories
-        'division_id',  // FK ke divisions (divisi yang produksi)
-        'name',         // Nama produk
-        'barcode',      // Kode barcode produk
-        'price',        // Harga jual
-        'status',       // Boolean: aktif/nonaktif
+        'category_id',   // FK ke categories
+        'division_id',   // FK ke divisions (divisi yang produksi)
+        'name',          // Nama produk
+        'barcode',       // Kode barcode produk
+        'foto_product',  // Path foto produk (nullable)
+        'price',         // Harga jual
+        'status',        // Boolean: aktif/nonaktif
     ];
 
     protected $casts = [
@@ -51,7 +52,7 @@ class Products extends Model
      */
     public function stock(): HasOne
     {
-        return $this->hasOne(ProductStocks::class);
+        return $this->hasOne(ProductStocks::class, 'product_id');
     }
 
     /**
@@ -60,7 +61,7 @@ class Products extends Model
      */
     public function stockLogs(): HasMany
     {
-        return $this->hasMany(ProductStockLogs::class);
+        return $this->hasMany(ProductStockLogs::class, 'product_id');
     }
 
     /**
@@ -79,7 +80,7 @@ class Products extends Model
      */
     public function productions(): HasMany
     {
-        return $this->hasMany(Productions::class);
+        return $this->hasMany(Productions::class, 'product_id');
     }
 
     /**
@@ -88,6 +89,6 @@ class Products extends Model
      */
     public function saleItems(): HasMany
     {
-        return $this->hasMany(SaleItems::class);
+        return $this->hasMany(SaleItems::class, 'product_id');
     }
 }
