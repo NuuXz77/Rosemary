@@ -90,4 +90,13 @@ class Products extends Model
     {
         return $this->hasMany(SaleItems::class);
     }
+
+    /**
+     * Relasi One-to-Many ke ProductWastes
+     * Catatan produk terbuang
+     */
+    public function productWastes(): HasMany
+    {
+        return $this->hasMany(ProductWastes::class, 'product_id');
+    }
 }

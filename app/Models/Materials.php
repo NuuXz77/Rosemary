@@ -76,6 +76,24 @@ class Materials extends Model
     public function products()
     {
         return $this->belongsToMany(Products::class, 'product_materials', 'material_id', 'product_id')
-                    ->withPivot('qty_used');
+            ->withPivot('qty_used');
+    }
+
+    /**
+     * Relasi One-to-Many ke MaterialWastes
+     * Catatan bahan terbuang
+     */
+    public function materialWastes(): HasMany
+    {
+        return $this->hasMany(MaterialWastes::class, 'material_id');
+    }
+
+    /**
+     * Relasi One-to-Many ke PurchaseItems
+     * Riwayat pembelian bahan ini
+     */
+    public function purchaseItems(): HasMany
+    {
+        return $this->hasMany(PurchaseItems::class, 'material_id');
     }
 }

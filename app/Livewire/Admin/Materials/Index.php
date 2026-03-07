@@ -126,9 +126,14 @@ class Index extends Component
     {
         $material = Materials::findOrFail($this->materialId);
 
-        // Cek relasi (resep produk atau logs)
-        if ($material->products()->count() > 0 || $material->stockLogs()->count() > 0) {
-            $this->dispatch('show-toast', type: 'error', message: 'Material tidak bisa dihapus karena sudah digunakan dalam resep atau memiliki riwayat stok.');
+        // Cek relasi (resep produk atau logs/transaksi)
+        if (
+            $material->products()->count() > 0 ||
+            $material->stockLogs()->count() > 0 ||
+            $material->purchaseItems()->count() > 0 ||
+            $material->materialWastes()->count() > 0
+        ) {
+            $this->dispatch('show-toast', type: 'error', message: 'Material tidak bisa dihapus karena sudah digunakan dalam resep, transaksi pembelian, atau limbah.');
             $this->dispatch('close-modal', id: 'delete-modal');
             return;
         }

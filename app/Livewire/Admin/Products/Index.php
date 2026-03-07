@@ -169,8 +169,13 @@ class Index extends Component
             $product = Products::findOrFail($this->productId);
 
             // Cek relasi
-            if ($product->saleItems()->count() > 0 || $product->productions()->count() > 0 || $product->stockLogs()->count() > 0) {
-                $this->dispatch('show-toast', type: 'error', message: 'Produk tidak bisa dihapus karena sudah memiliki riwayat transaksi atau produksi.');
+            if (
+                $product->saleItems()->count() > 0 ||
+                $product->productions()->count() > 0 ||
+                $product->stockLogs()->count() > 0 ||
+                $product->productWastes()->count() > 0
+            ) {
+                $this->dispatch('show-toast', type: 'error', message: 'Produk tidak bisa dihapus karena sudah memiliki riwayat transaksi, produksi, atau limbah.');
                 $this->dispatch('close-modal', id: 'delete-modal');
                 return;
             }

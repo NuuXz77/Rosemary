@@ -45,6 +45,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/product-stocks', \App\Livewire\Admin\ProductStocks\Index::class)->name('product-stocks.index');       // ✅ class ada
     Route::get('/product-stock-logs', \App\Livewire\Admin\ProductStockLogs\Index::class)->name('product-stock-logs.index');   // ✅ class ada
     Route::get('/product-materials', \App\Livewire\Admin\ProductMaterials\Index::class)->name('product-materials.index');     // ✅ class ada
+    Route::get('/material-wastes', \App\Livewire\Admin\MaterialWastes\Index::class)->name('material-wastes.index');       // ✅ NEW
+    Route::get('/product-wastes', \App\Livewire\Admin\ProductWastes\Index::class)->name('product-wastes.index');         // ✅ NEW
 
     // ============= TRANSACTION MANAGEMENT =============
     Route::get('/purchases', \App\Livewire\Admin\Purchases\Index::class)->name('purchases.index');                     // ✅ class ada
