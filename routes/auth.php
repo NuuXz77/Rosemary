@@ -38,7 +38,6 @@ Route::middleware('pin.auth')->group(function () {
 // - CRUD operations di-check lagi di dalam komponen Livewire
 // ============================================
 Route::middleware('auth')->group(function () {
-
     // --------------------------------------------
     // DASHBOARD & PROFILE
     // --------------------------------------------
@@ -210,6 +209,5 @@ Route::middleware('auth')->group(function () {
         request()->session()->regenerateToken();
         return redirect('/login');
     })->name('logout');
-
 });
 
