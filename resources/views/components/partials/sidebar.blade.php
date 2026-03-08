@@ -210,7 +210,7 @@
                 @canany(['materials.view', 'material-stocks.view', 'material-stock-logs.view', 'products.view', 'product-stocks.view', 'product-stock-logs.view', 'product-materials.view'])
                     <li>
                         <details
-                            {{ request()->is('materials*', 'material-stocks*', 'material-stock-logs*', 'products*', 'product-stocks*', 'product-stock-logs*', 'product-materials*') ? 'open' : '' }}>
+                            {{ request()->is('materials*', 'material-stocks*', 'material-stock-logs*', 'material-wastes*', 'products*', 'product-stocks*', 'product-stock-logs*', 'product-wastes*', 'product-materials*') ? 'open' : '' }}>
                             <summary>
                                 <x-heroicon-o-archive-box class="w-5" />
                                 Manajemen Inventaris
@@ -218,7 +218,7 @@
                             <ul>
                                 @canany(['materials.view', 'material-stocks.view', 'material-stock-logs.view'])
                                     <li>
-                                        <details {{ request()->is('materials*', 'material-stocks*', 'material-stock-logs*') ? 'open' : '' }}>
+                                        <details {{ request()->is('materials*', 'material-stocks*', 'material-stock-logs*', 'material-wastes*') ? 'open' : '' }}>
                                             <summary>
                                                 <x-heroicon-o-cube class="w-5" />
                                                 Material
@@ -245,13 +245,19 @@
                                                             Stok Material</a>
                                                     </li>
                                                 @endcan
+                                                @can('materials.view')
+                                                    <li>
+                                                        <a wire:navigate href="/material-wastes"
+                                                            class="{{ request()->is('material-wastes*') ? 'bg-base-300' : '' }}">Limbah Bahan (Waste)</a>
+                                                    </li>
+                                                @endcan
                                             </ul>
                                         </details>
                                     </li>
                                 @endcanany
                                 @canany(['products.view', 'product-stocks.view', 'product-stock-logs.view'])
                                     <li>
-                                        <details {{ request()->is('products*', 'product-stocks*', 'product-stock-logs*') ? 'open' : '' }}>
+                                        <details {{ request()->is('products*', 'product-stocks*', 'product-stock-logs*', 'product-wastes*') ? 'open' : '' }}>
                                             <summary>
                                                 <x-heroicon-o-shopping-bag class="w-5" />
                                                 Produk
@@ -276,6 +282,12 @@
                                                         <a wire:navigate href="/product-stock-logs"
                                                             class="{{ request()->is('product-stock-logs*') ? 'bg-base-300' : '' }}">Riwayat
                                                             Stok Produk</a>
+                                                    </li>
+                                                @endcan
+                                                @can('products.view')
+                                                    <li>
+                                                        <a wire:navigate href="/product-wastes"
+                                                            class="{{ request()->is('product-wastes*') ? 'bg-base-300' : '' }}">Limbah Produk (Waste)</a>
                                                     </li>
                                                 @endcan
                                             </ul>

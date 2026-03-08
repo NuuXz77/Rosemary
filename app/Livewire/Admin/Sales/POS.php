@@ -96,8 +96,9 @@ class POS extends Component
     public function addToCart($productId)
     {
         $product = Products::with('stock')->findOrFail($productId);
+        $stockAvailable = optional($product->stock)->qty_available ?? 0;
 
-        if ($product->stock->qty_available <= 0) {
+        if ($stockAvailable <= 0) {
             $this->dispatch('show-toast', type: 'error', message: 'Stok produk habis!');
             return;
         }
@@ -105,7 +106,7 @@ class POS extends Component
         $existingIndex = collect($this->cart)->search(fn($item) => $item['id'] == $productId);
 
         if ($existingIndex !== false) {
-            if ($this->cart[$existingIndex]['qty'] + 1 > $product->stock->qty_available) {
+            if ($this->cart[$existingIndex]['qty'] + 1 > $stockAvailable) {
                 $this->dispatch('show-toast', type: 'error', message: 'Stok tidak mencukupi!');
                 return;
             }
@@ -132,9 +133,11 @@ class POS extends Component
         }
 
         $product = Products::with('stock')->findOrFail($this->cart[$index]['id']);
-        if ($qty > $product->stock->qty_available) {
+        $stockAvailable = optional($product->stock)->qty_available ?? 0;
+
+        if ($qty > $stockAvailable) {
             $this->dispatch('show-toast', type: 'error', message: 'Stok tidak mencukupi!');
-            $this->cart[$index]['qty'] = $product->stock->qty_available;
+            $this->cart[$index]['qty'] = $stockAvailable > 0 ? $stockAvailable : 1;
         } else {
             $this->cart[$index]['qty'] = $qty;
         }
@@ -222,8 +225,22 @@ class POS extends Component
 
         DB::beginTransaction();
         try {
-            // Generate Invoice Number: INV-YYYYMMDD-XXXX
-            $invoiceNumber = 'INV-' . now()->format('Ymd') . '-' . str_pad(Sales::count() + 1, 4, '0', STR_PAD_LEFT);
+            $todayDate = now()->format('Ymd');
+
+            // Ambil transaksi terakhir di hari ini dan KUNCI datanya (lockForUpdate) 
+            // agar kalau ada 2 kasir ngeklik barengan, kasir ke-2 akan disuruh antri dulu (cegah kembar/race condition)
+            $lastSaleToday = Sales::whereDate('created_at', now()->toDateString())
+                ->lockForUpdate()
+                ->latest('id')
+                ->first();
+
+            $nextNumber = 1;
+            if ($lastSaleToday && preg_match('/-(\d{4})$/', $lastSaleToday->invoice_number, $matches)) {
+                $nextNumber = (int) $matches[1] + 1;
+            }
+
+            // Generate Invoice Number: INV-YYYYMMDD-0001
+            $invoiceNumber = 'INV-' . $todayDate . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
             $sale = Sales::create([
                 'invoice_number' => $invoiceNumber,

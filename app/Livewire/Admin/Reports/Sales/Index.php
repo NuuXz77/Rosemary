@@ -3,7 +3,8 @@
 namespace App\Livewire\Admin\Reports\Sales;
 
 use App\Models\Sales;
-use App\Models\SaleItems;
+use App\Models\Shift;
+use App\Models\Students;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -20,6 +21,9 @@ class Index extends Component
     public $startDate;
     public $endDate;
     public $filterPayment = '';
+    public $filterShift = '';
+    public $filterCashier = '';
+    public $filterStatus = '';
     public $search = '';
     public $perPage = 10;
 
@@ -31,35 +35,78 @@ class Index extends Component
 
     public function updated($property)
     {
-        if (in_array($property, ['startDate', 'endDate', 'filterPayment', 'search'])) {
+        if (in_array($property, ['startDate', 'endDate', 'filterPayment', 'filterShift', 'filterCashier', 'filterStatus', 'search'])) {
             $this->resetPage();
         }
     }
 
     public function render()
     {
-        $query = Sales::query()
+        // Base query (tanpa filter status — supaya summary bisa hitung paid+cancelled)
+        $baseQuery = Sales::query()
             ->with(['customer', 'cashier', 'shift'])
             ->whereBetween(DB::raw('DATE(created_at)'), [$this->startDate, $this->endDate])
             ->when($this->filterPayment, fn($q) => $q->where('payment_method', $this->filterPayment))
+            ->when($this->filterShift, fn($q) => $q->where('shift_id', $this->filterShift))
+            ->when($this->filterCashier, fn($q) => $q->where('cashier_student_id', $this->filterCashier))
             ->when($this->search, function ($q) {
-                $q->where('invoice_number', 'like', '%' . $this->search . '%')
-                    ->orWhereHas('customer', fn($c) => $c->where('name', 'like', '%' . $this->search . '%'));
+                $q->where(function ($sub) {
+                    $sub->where('invoice_number', 'like', '%' . $this->search . '%')
+                        ->orWhereHas('customer', fn($c) => $c->where('name', 'like', '%' . $this->search . '%'));
+                });
             });
 
-        // Summary Stats
+        // Summary dari base query (sebelum filter status)
         $summary = [
-            'total_sales' => (clone $query)->where('status', 'paid')->sum('total_amount'),
-            'total_count' => (clone $query)->count(),
-            'paid_count' => (clone $query)->where('status', 'paid')->count(),
-            'cancelled_count' => (clone $query)->where('status', 'cancelled')->count(),
+            'total_sales' => (clone $baseQuery)->where('status', 'paid')->sum('total_amount'),
+            'total_count' => (clone $baseQuery)->count(),
+            'paid_count' => (clone $baseQuery)->where('status', 'paid')->count(),
+            'cancelled_count' => (clone $baseQuery)->where('status', 'cancelled')->count(),
         ];
+        $summary['avg_per_sale'] = $summary['paid_count'] > 0
+            ? round($summary['total_sales'] / $summary['paid_count'])
+            : 0;
 
+        // Full query (dengan filter status) untuk tabel
+        $query = clone $baseQuery;
+        if ($this->filterStatus) {
+            $query->where('status', $this->filterStatus);
+        }
         $sales = $query->orderBy('created_at', 'desc')->paginate($this->perPage);
+
+        // Daily sales chart
+        $dailySales = Sales::select(
+            DB::raw('DATE(created_at) as date'),
+            DB::raw('SUM(total_amount) as total'),
+            DB::raw('COUNT(*) as count')
+        )
+            ->whereBetween(DB::raw('DATE(created_at)'), [$this->startDate, $this->endDate])
+            ->where('status', 'paid')
+            ->when($this->filterPayment, fn($q) => $q->where('payment_method', $this->filterPayment))
+            ->when($this->filterShift, fn($q) => $q->where('shift_id', $this->filterShift))
+            ->when($this->filterCashier, fn($q) => $q->where('cashier_student_id', $this->filterCashier))
+            ->groupBy('date')->orderBy('date')->get();
+
+        // Top products in period
+        $topProducts = DB::table('sale_items')
+            ->join('sales', 'sale_items.sale_id', '=', 'sales.id')
+            ->join('products', 'sale_items.product_id', '=', 'products.id')
+            ->where('sales.status', 'paid')
+            ->whereBetween(DB::raw('DATE(sales.created_at)'), [$this->startDate, $this->endDate])
+            ->when($this->filterPayment, fn($q) => $q->where('sales.payment_method', $this->filterPayment))
+            ->when($this->filterShift, fn($q) => $q->where('sales.shift_id', $this->filterShift))
+            ->when($this->filterCashier, fn($q) => $q->where('sales.cashier_student_id', $this->filterCashier))
+            ->select('products.name', DB::raw('SUM(sale_items.qty) as total_qty'), DB::raw('SUM(sale_items.subtotal) as total_revenue'))
+            ->groupBy('products.id', 'products.name')
+            ->orderByDesc('total_qty')->limit(5)->get();
 
         return view('livewire.admin.reports.sales.index', [
             'sales' => $sales,
-            'summary' => $summary
+            'summary' => $summary,
+            'dailySales' => $dailySales,
+            'topProducts' => $topProducts,
+            'shifts' => Shift::where('status', true)->get(),
+            'students' => Students::where('status', true)->get(),
         ]);
     }
 }
