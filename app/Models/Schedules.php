@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+// type: 'cashier' | 'production'
+
 /**
  * Schedule Model
  * 
@@ -13,10 +15,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Schedules extends Model
 {
     protected $fillable = [
+        'type',               // 'cashier' | 'production'
         'date',               // Tanggal jadwal
         'shift_id',           // FK ke shifts
-        'student_group_id',   // FK ke student_groups
-        'division_id',        // FK ke divisions
+        'student_id',         // FK ke students (cashier only)
+        'student_group_id',   // FK ke student_groups (production only)
+        'division_id',        // FK ke divisions (production only)
         'status',             // Boolean: aktif/nonaktif
     ];
 
@@ -24,6 +28,14 @@ class Schedules extends Model
         'date'   => 'date',
         'status' => 'boolean',
     ];
+
+    /**
+     * Relasi Many-to-One ke Students (kasir only)
+     */
+    public function student(): BelongsTo
+    {
+        return $this->belongsTo(Students::class);
+    }
 
     /**
      * Relasi Many-to-One ke Shifts

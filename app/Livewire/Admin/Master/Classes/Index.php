@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Admin\Master\Classes;
 
-use App\Models\Classes;
+use App\Models\Classes as SchoolClass;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;

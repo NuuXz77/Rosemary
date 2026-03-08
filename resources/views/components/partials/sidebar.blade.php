@@ -191,7 +191,7 @@
                 {{-- PENJADWALAN --}}
                 @can('schedules.view')
                     <li>
-                        <details {{ request()->is('schedules*') ? 'open' : '' }}>
+                        <details {{ request()->is('schedules*', 'student-attendances*') ? 'open' : '' }}>
                             <summary>
                                 <x-heroicon-o-calendar class="w-5" />
                                 Penjadwalan
@@ -200,6 +200,10 @@
                                 <li>
                                     <a wire:navigate href="/schedules"
                                         class="{{ request()->is('schedules*') ? 'bg-base-300' : '' }}">Jadwal Harian</a>
+                                </li>
+                                <li>
+                                    <a wire:navigate href="/student-attendances"
+                                        class="{{ request()->is('student-attendances*') ? 'bg-base-300' : '' }}">Kehadiran Siswa</a>
                                 </li>
                             </ul>
                         </details>
