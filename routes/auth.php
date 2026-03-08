@@ -22,6 +22,7 @@ Route::get('/login/pin', App\Livewire\Auth\LoginPin::class)->name('pos.login');
 Route::middleware('pin.auth')->group(function () {
     Route::get('/kasir/pos', App\Livewire\Kasir\POS::class)->name('kasir.pos');
     Route::get('/kasir/checkout', App\Livewire\Admin\Sales\Checkout::class)->name('kasir.checkout');
+    Route::get('/kasir/invoice/{sale}', App\Livewire\Admin\Sales\Invoice::class)->name('kasir.invoice');
 
     Route::get('/kasir/logout', function () {
         session()->forget(['pos_student_id', 'pos_student_name']);
@@ -136,6 +137,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/sales', App\Livewire\Admin\Sales\Index::class)->name('sales.index');
         Route::get('/sales/pos', App\Livewire\Admin\Sales\POS::class)->name('sales.pos');
         Route::get('/sales/checkout', App\Livewire\Admin\Sales\Checkout::class)->name('sales.checkout');
+        Route::get('/sales/invoice/{sale}', App\Livewire\Admin\Sales\Invoice::class)->name('sales.invoice');
     });
 
     // --------------------------------------------

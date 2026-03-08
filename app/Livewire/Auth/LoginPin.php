@@ -153,9 +153,18 @@ class LoginPin extends Component
 
     private function loginSuccess(Students $student): void
     {
+        // Get shift_id from today's cashier schedule
+        $schedule = Schedules::with('shift')
+            ->where('type', 'cashier')
+            ->where('student_id', $student->id)
+            ->whereDate('date', now()->toDateString())
+            ->where('status', true)
+            ->first();
+
         session([
             'pos_student_id'   => $student->id,
             'pos_student_name' => $student->name,
+            'pos_shift_id'     => $schedule?->shift_id,
         ]);
 
         $this->studentName = $student->name;
