@@ -6,6 +6,7 @@ use App\Models\Products;
 use App\Models\Categories;
 use App\Models\Divisions;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -17,31 +18,13 @@ class Index extends Component
 
     #[Title('Manajemen Produk')]
 
-    // Search & Pagination
     public string $search = '';
     public int $perPage = 10;
-
-    // Form Properties
-    public $productId;
-    public $name;
-    public $barcode;
-    public $category_id;
-    public $division_id;
-    public $price = 0;
-    public $status = true;
-    public $isEdit = false;
-
-    protected function rules()
-    {
-        return [
-            'name' => 'required|string|max:255',
-            'barcode' => 'nullable|string|max:100|unique:products,barcode,' . $this->productId,
-            'category_id' => 'required|exists:categories,id',
-            'division_id' => 'required|exists:divisions,id',
-            'price' => 'required|numeric|min:0',
-            'status' => 'required|boolean',
-        ];
-    }
+    public string $filterCategory = '';
+    public string $filterDivision = '';
+    public string $filterStatus = '';
+    public string $sortField = 'created_at';
+    public string $sortDirection = 'desc';
 
     public function mount()
     {
@@ -50,109 +33,42 @@ class Index extends Component
         }
     }
 
-    public function updatingSearch(): void
+    public function updatingSearch(): void { $this->resetPage(); }
+    public function updatingFilterCategory(): void { $this->resetPage(); }
+    public function updatingFilterDivision(): void { $this->resetPage(); }
+    public function updatingFilterStatus(): void { $this->resetPage(); }
+
+    public function sortBy(string $field): void
     {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
         $this->resetPage();
     }
 
-    public function resetFields()
-    {
-        $this->reset(['name', 'barcode', 'category_id', 'division_id', 'price', 'status', 'productId', 'isEdit']);
-        $this->status = true;
-        $this->price = 0;
-        $this->resetValidation();
-    }
-
-    public function create()
-    {
-        if (!auth()->user()->can('users.manage')) { // Menggunakan users.manage sebagai proxy untuk admin privilege atau definisikan products.manage
-            // Sebaiknya pakai permission spesifik
-        }
-        $this->resetFields();
-        $this->dispatch('open-modal', id: 'product-modal');
-    }
-
-    public function store()
+    public function edit(int $id): void
     {
         if (!auth()->user()->can('users.manage')) {
-            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk menambah produk.');
+            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk mengedit produk.');
             return;
         }
-
-        $this->validate();
-
-        try {
-            \Illuminate\Support\Facades\DB::beginTransaction();
-
-            $product = Products::create([
-                'name' => $this->name,
-                'barcode' => $this->barcode,
-                'category_id' => $this->category_id,
-                'division_id' => $this->division_id,
-                'price' => $this->price,
-                'status' => $this->status,
-            ]);
-
-            // Otomatis buat record stok kosong jika belum ada
-            $product->stock()->create(['qty_available' => 0]);
-
-            \Illuminate\Support\Facades\DB::commit();
-
-            $this->dispatch('close-modal', id: 'product-modal');
-            $this->dispatch('show-toast', type: 'success', message: 'Produk berhasil ditambahkan.');
-            $this->resetFields();
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\DB::rollBack();
-            $this->dispatch('show-toast', type: 'error', message: 'Gagal menambah produk: ' . $e->getMessage());
-        }
+        $this->dispatch('open-edit-product', id: $id);
     }
 
-    public function edit($id)
-    {
-        $product = Products::findOrFail($id);
-        $this->resetFields();
-
-        $this->productId = $product->id;
-        $this->name = $product->name;
-        $this->barcode = $product->barcode;
-        $this->category_id = $product->category_id;
-        $this->division_id = $product->division_id;
-        $this->price = $product->price;
-        $this->status = (bool) $product->status;
-        $this->isEdit = true;
-
-        $this->dispatch('open-modal', id: 'product-modal');
-    }
-
-    public function update()
+    public function confirmDelete(int $id): void
     {
         if (!auth()->user()->can('users.manage')) {
-            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk mengubah produk.');
+            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk menghapus produk.');
             return;
         }
-
-        $this->validate();
-
-        try {
-            $product = Products::findOrFail($this->productId);
-            $product->update([
-                'name' => $this->name,
-                'barcode' => $this->barcode,
-                'category_id' => $this->category_id,
-                'division_id' => $this->division_id,
-                'price' => $this->price,
-                'status' => $this->status,
-            ]);
-
-            $this->dispatch('close-modal', id: 'product-modal');
-            $this->dispatch('show-toast', type: 'success', message: 'Produk berhasil diperbarui.');
-            $this->resetFields();
-        } catch (\Exception $e) {
-            $this->dispatch('show-toast', type: 'error', message: 'Gagal memperbarui produk: ' . $e->getMessage());
-        }
+        $this->dispatch('open-delete-product', id: $id);
     }
 
-    public function confirmDelete($id)
+    #[On('product-changed')]
+    public function refreshList(): void
     {
         $this->productId = $id;
         $this->dispatch('open-modal', id: 'delete-modal');
@@ -191,6 +107,8 @@ class Index extends Component
             \Illuminate\Support\Facades\DB::rollBack();
             $this->dispatch('show-toast', type: 'error', message: 'Gagal menghapus produk: ' . $e->getMessage());
         }
+        $this->resetPage();
+
     }
 
     public function render()
@@ -198,18 +116,31 @@ class Index extends Component
         $products = Products::query()
             ->with(['category', 'division', 'stock'])
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhere('barcode', 'like', '%' . $this->search . '%')
-                    ->orWhereHas('category', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'))
-                    ->orWhereHas('division', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'));
+                $query->where(function ($q) {
+                    $q->where('name', 'like', '%' . $this->search . '%')
+                        ->orWhere('barcode', 'like', '%' . $this->search . '%')
+                        ->orWhereHas('category', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'))
+                        ->orWhereHas('division', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'));
+                });
             })
-            ->orderBy('created_at', 'desc')
+            ->when($this->filterCategory, fn($q) => $q->where('category_id', $this->filterCategory))
+            ->when($this->filterDivision, fn($q) => $q->where('division_id', $this->filterDivision))
+            ->when($this->filterStatus !== '', fn($q) => $q->where('status', (bool) $this->filterStatus))
+            ->when($this->sortField === 'stock', fn($q) =>
+                $q->orderByRaw('(SELECT qty_available FROM product_stocks WHERE product_id = products.id LIMIT 1) ' . $this->sortDirection)
+            )
+            ->when($this->sortField !== 'stock', fn($q) =>
+                $q->orderBy($this->sortField, $this->sortDirection)
+            )
             ->paginate($this->perPage);
 
+        $categories = Categories::where('type', 'product')->where('status', true)->orderBy('name')->get();
+        $divisions  = Divisions::where('status', true)->orderBy('name')->get();
+
         return view('livewire.admin.products.index', [
-            'products' => $products,
-            'categories' => Categories::where('type', 'product')->where('status', true)->get(),
-            'divisions' => Divisions::where('status', true)->get(),
+            'products'   => $products,
+            'categories' => $categories,
+            'divisions'  => $divisions,
         ]);
     }
 }

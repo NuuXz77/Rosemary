@@ -78,11 +78,12 @@
                     'master.shifts.view',
                     'master.divisions.view',
                     'master.classes.view',
+                    'discounts.manage',
                     'settings.app.view'
                 ])
-                    <li class="menu-title">
+                    {{-- <li class="menu-title">
                         <span>Administrator</span>
-                    </li>
+                    </li> --}}
                 @endcanany
 
                 {{-- DASHBOARD --}}
@@ -150,14 +151,20 @@
                 @endcanany
 
                 {{-- MANAJEMEN SISWA --}}
-                @canany(['students.view', 'student-groups.view', 'student-group-members.view'])
+                @canany(['students.view', 'student-groups.view', 'student-group-members.view', 'master.classes.view'])
                     <li>
-                        <details {{ request()->is('students*', 'student-groups*', 'student-group-members*') ? 'open' : '' }}>
+                        <details {{ request()->is('students*', 'student-groups*', 'student-group-members*', 'master/classes*') ? 'open' : '' }}>
                             <summary>
                                 <x-heroicon-o-academic-cap class="w-5" />
                                 Manajemen Siswa
                             </summary>
                             <ul>
+                                @can('master.classes.view')
+                                    <li>
+                                        <a wire:navigate href="/master/classes"
+                                            class="{{ request()->is('master/classes*') ? 'bg-base-300' : '' }}">Kelas</a>
+                                    </li>
+                                @endcan
                                 @can('students.view')
                                     <li>
                                         <a wire:navigate href="/students"
@@ -383,7 +390,7 @@
                 @endcanany
 
                 {{-- PENGATURAN --}}
-                @canany(['master.categories.view', 'master.units.view', 'master.suppliers.view', 'master.customers.view', 'master.shifts.view', 'master.divisions.view', 'master.classes.view', 'settings.app.view'])
+                @canany(['master.categories.view', 'master.units.view', 'master.suppliers.view', 'master.customers.view', 'master.shifts.view', 'master.divisions.view', 'master.classes.view', 'discounts.manage', 'settings.app.view'])
                     <li>
                         <details
                             {{ request()->is('settings*', 'master*') ? 'open' : '' }}>
@@ -437,12 +444,7 @@
                                                             class="{{ request()->is('master/divisions*') ? 'bg-base-300' : '' }}">Divisi</a>
                                                     </li>
                                                 @endcan
-                                                @can('master.classes.view')
-                                                    <li>
-                                                        <a wire:navigate href="/master/classes"
-                                                            class="{{ request()->is('master/classes*') ? 'bg-base-300' : '' }}">Kelas</a>
-                                                    </li>
-                                                @endcan
+
                                             </ul>
                                         </details>
                                     </li>
@@ -452,6 +454,14 @@
                                         <a wire:navigate href="/settings/app"
                                             class="{{ request()->is('settings/app*') ? 'bg-base-300' : '' }}">
                                             Pengaturan Aplikasi
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('discounts.manage')
+                                    <li>
+                                        <a wire:navigate href="/settings/discounts"
+                                            class="{{ request()->is('settings/discounts*') ? 'bg-base-300' : '' }}">
+                                            Set Diskon
                                         </a>
                                     </li>
                                 @endcan

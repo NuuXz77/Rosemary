@@ -15,14 +15,12 @@ class Index extends Component
 
     #[Title('Log Mutasi Produk Jadi')]
 
-    public $search = '';
-    public $perPage = 15;
-    public $filterType = '';
+    public string $search = '';
+    public int $perPage = 15;
+    public string $filterType = '';
 
-    public function updatingSearch()
-    {
-        $this->resetPage();
-    }
+    public function updatingSearch(): void { $this->resetPage(); }
+    public function updatingFilterType(): void { $this->resetPage(); }
 
     public function render()
     {

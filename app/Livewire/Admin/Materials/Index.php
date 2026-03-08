@@ -3,10 +3,8 @@
 namespace App\Livewire\Admin\Materials;
 
 use App\Models\Materials;
-use App\Models\Categories;
-use App\Models\Unit;
-use App\Models\Suppliers;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -18,49 +16,27 @@ class Index extends Component
 
     #[Title('Manajemen Material')]
 
-    // Search & Pagination
     public string $search = '';
     public int $perPage = 10;
+    public string $filterCategory = '';
+    public string $filterStatus = '';
 
-    // Form Properties
-    public $materialId;
-    public $name;
-    public $category_id;
-    public $unit_id;
-    public $supplier_id;
-    public $minimum_stock = 0;
-    public $status = true;
-    public $isEdit = false;
+    public function updatingSearch(): void { $this->resetPage(); }
+    public function updatingFilterCategory(): void { $this->resetPage(); }
+    public function updatingFilterStatus(): void { $this->resetPage(); }
 
-    protected $rules = [
-        'name' => 'required|string|max:255',
-        'category_id' => 'required|exists:categories,id',
-        'unit_id' => 'required|exists:units,id',
-        'supplier_id' => 'nullable|exists:suppliers,id',
-        'minimum_stock' => 'required|numeric|min:0',
-        'status' => 'required|boolean',
-    ];
-
-    public function updatingSearch(): void
+    public function edit(int $id): void
     {
-        $this->resetPage();
+        $this->dispatch('open-edit-material', id: $id);
     }
 
-    public function resetFields()
+    public function confirmDelete(int $id): void
     {
-        $this->reset(['name', 'category_id', 'unit_id', 'supplier_id', 'minimum_stock', 'status', 'materialId', 'isEdit']);
-        $this->status = true;
-        $this->minimum_stock = 0;
-        $this->resetValidation();
+        $this->dispatch('open-delete-material', id: $id);
     }
 
-    public function create()
-    {
-        $this->resetFields();
-        $this->dispatch('open-modal', id: 'material-modal');
-    }
-
-    public function store()
+    #[On('material-changed')]
+    public function refreshList(): void
     {
         $this->validate();
 
@@ -143,6 +119,9 @@ class Index extends Component
 
         $this->dispatch('close-modal', id: 'delete-modal');
         $this->dispatch('show-toast', type: 'success', message: 'Material berhasil dihapus.');
+
+        $this->resetPage();
+
     }
 
     public function render()
@@ -150,18 +129,20 @@ class Index extends Component
         $materials = Materials::query()
             ->with(['category', 'unit', 'supplier', 'stock'])
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhereHas('category', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'))
-                    ->orWhereHas('supplier', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'));
+                $query->where(function ($q) {
+                    $q->where('name', 'like', '%' . $this->search . '%')
+                        ->orWhereHas('category', fn($s) => $s->where('name', 'like', '%' . $this->search . '%'))
+                        ->orWhereHas('supplier', fn($s) => $s->where('name', 'like', '%' . $this->search . '%'));
+                });
             })
+            ->when($this->filterCategory, fn($q) => $q->where('category_id', $this->filterCategory))
+            ->when($this->filterStatus !== '', fn($q) => $q->where('status', (bool) $this->filterStatus))
             ->orderBy('created_at', 'desc')
             ->paginate($this->perPage);
 
         return view('livewire.admin.materials.index', [
-            'materials' => $materials,
-            'categories' => Categories::where('type', 'material')->where('status', true)->get(),
-            'units' => Unit::where('status', true)->get(),
-            'suppliers' => Suppliers::all(),
+            'materials'  => $materials,
+            'categories' => \App\Models\Categories::where('type', 'material')->where('status', true)->orderBy('name')->get(),
         ]);
     }
 }

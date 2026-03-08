@@ -29,7 +29,7 @@ class Suppliers extends Model
      */
     public function materials(): HasMany
     {
-        return $this->hasMany(Materials::class);
+        return $this->hasMany(Materials::class, 'supplier_id');
     }
 
     /**
@@ -38,6 +38,6 @@ class Suppliers extends Model
      */
     public function purchases(): HasMany
     {
-        return $this->hasMany(Purchases::class);
+        return $this->hasMany(Purchases::class, 'supplier_id');
     }
 }

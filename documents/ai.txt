@@ -234,10 +234,29 @@ PRODUCT MANAGEMENT
       - timestamps
 
 ========================
+DISKON & PROMO (BARU)
+========================
+
+26. Table: discounts
+    Deskripsi: Menyimpan promo diskon yang di-set manual oleh admin dan bisa hangus.
+    Struktur:
+      - id
+      - product_id (foreign -> products.id)
+      - name (string)
+      - type (enum: percent, fixed)
+      - value (decimal 15,2)
+      - start_date (date)
+      - end_date (date)
+      - status (enum: active, expired, disabled)
+      - created_by (foreign -> users.id, nullable)
+      - timestamps
+    Catatan: Diskon berlaku hanya pada rentang tanggal start_date - end_date dan otomatis dianggap hangus jika lewat end_date.
+
+========================
 BILL OF MATERIAL (RESEP)
 ========================
 
-26. Table: product_materials
+27. Table: product_materials
     Deskripsi: Menyimpan resep/bahan yang diperlukan untuk membuat satu satuan produk.
     Struktur:
       - id
@@ -250,7 +269,7 @@ BILL OF MATERIAL (RESEP)
 PRODUCTION SYSTEM
 ========================
 
-27. Table: productions
+28. Table: productions
     Deskripsi: Record setiap kali aktivitas produksi dilakukan.
     Struktur:
       - id
@@ -267,7 +286,7 @@ PRODUCTION SYSTEM
 POS SYSTEM
 ========================
 
-28. Table: sales
+29. Table: sales
     Deskripsi: Header/induk dari transaksi penjualan di kasir.
     Struktur:
       - id
@@ -285,7 +304,7 @@ POS SYSTEM
       - status (enum: paid, cancelled)
       - timestamps
 
-29. Table: sale_items
+30. Table: sale_items
     Deskripsi: Detail setiap produk yang terjual dalam satu transaksi.
     Struktur:
       - id
@@ -324,13 +343,20 @@ ALUR BISNIS & LOGIKA OTOMATIS (VERSI REVISI)
         - Mengurangi qty_available di product_stocks untuk setiap produk yang terjual.
         - Mencatat log di product_stock_logs dengan type: 'out'. reference_type & reference_id menunjuk ke sales.id.
 
-4. PENYESUAIAN & WASTE (BARU)
+4. DISKON (BARU)
+  Trigger: Admin membuat/menonaktifkan promo diskon.
+  Alur:
+    1. Admin menentukan produk, tipe diskon, nilai, start_date, dan end_date.
+    2. Diskon aktif hanya di rentang tanggal promo.
+    3. Saat end_date terlewati, diskon dianggap hangus (status: expired).
+
+5. PENYESUAIAN & WASTE (BARU)
    Trigger: Ada barang rusak, expired, atau kesalahan hitung stok.
    Alur:
      1. Staf (User) secara manual membuat entri baru di material_stock_logs atau product_stock_logs dengan type: 'adjustment'.
      2. PENTING: Log ini TIDAK mengubah stok secara otomatis. Ini berfungsi sebagai catatan audit resmi. Koreksi stok di tabel *_stocks harus dilakukan secara terpisah oleh staf berdasarkan log ini untuk menjaga integritas data.
 
-5. ADMIN & LAPORAN
+6. ADMIN & LAPORAN
    Dengan struktur ini, Admin dapat melihat berbagai laporan terperinci:
      - Laporan Penjualan: Filter per shift, tanggal, cashier, customer, atau produk.
      - Laporan Produksi: Lihat efisiensi produksi per divisi, kelompok, atau shift.

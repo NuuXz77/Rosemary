@@ -38,8 +38,8 @@
             @if($disabled)
                 disabled
             @endif
-            class="select select-bordered w-full @if($icon) pl-10 @endif @error($name) select-error @enderror"
-            {{ $attributes }}
+            {{ $attributes->merge(['class' => 'select select-bordered w-full' . ($icon ? ' pl-10' : '')]) }}
+            @error($name) class="select-error" @enderror
         >
             @if($placeholder)
                 <option value="">{{ $placeholder }}</option>

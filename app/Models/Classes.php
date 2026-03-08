@@ -31,7 +31,7 @@ class Classes extends Model
      */
     public function students(): HasMany
     {
-        return $this->hasMany(Students::class);
+        return $this->hasMany(Students::class, 'class_id');
     }
 
     /**
@@ -40,6 +40,6 @@ class Classes extends Model
      */
     public function studentGroups(): HasMany
     {
-        return $this->hasMany(StudentGroups::class);
+        return $this->hasMany(StudentGroups::class, 'class_id');
     }
 }

@@ -6,6 +6,7 @@
     'icon' => null,
     'required' => false,
     'wireModel' => '',
+    'wireModelModifier' => '',
     'value' => '',
     'disabled' => false,
     'readonly' => false,
@@ -35,7 +36,9 @@
         <input 
             type="{{ $type }}"
             name="{{ $name }}"
-            @if($wireModel)
+            @if($wireModel && $wireModelModifier)
+                wire:model.{{ $wireModelModifier }}="{{ $wireModel }}"
+            @elseif($wireModel)
                 wire:model="{{ $wireModel }}"
             @endif
             @if($placeholder)

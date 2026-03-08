@@ -5,6 +5,11 @@ use App\Livewire\Auth\Login;
 
 // Route untuk homepage - redirect ke login
 Route::get('/', function () {
+    // Student PIN session takes priority
+    if (session()->has('pos_student_id')) {
+        return redirect()->route('kasir.pos');
+    }
+
     if (auth()->check()) {
         $user = auth()->user();
         if ($user->hasRole('Production')) {

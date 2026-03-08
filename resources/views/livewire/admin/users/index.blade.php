@@ -23,15 +23,16 @@
                         </label>
                         <div tabindex="0" class="dropdown-content z-10 card card-compact w-64 p-4 bg-base-100 border border-base-300 mt-2">
                             <div class="space-y-3">
-                                <div class="form-control">
-                                    <label class="label"><span class="label-text font-semibold">Role</span></label>
-                                    <select wire:model.live="filterRole" class="select select-bordered select-sm">
-                                        <option value="">Semua Role</option>
-                                        @foreach($roles as $role)
-                                            <option value="{{ $role->id }}">{{ $role->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                <x-form.select
+                                    label="Role"
+                                    name="filterRole"
+                                    placeholder="Semua Role"
+                                    wire:model.live="filterRole"
+                                    class="select-sm">
+                                    @foreach($roles as $role)
+                                        <option value="{{ $role->id }}">{{ $role->name }}</option>
+                                    @endforeach
+                                </x-form.select>
                                 <button wire:click="resetFilters" class="btn btn-ghost btn-sm w-full">Reset Filter</button>
                             </div>
                         </div>
