@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Auth;
 
+use App\Models\Schedules;
+use App\Models\StudentAttendance;
 use App\Models\Students;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -18,7 +20,6 @@ class LoginPin extends Component
 
     public function mount(): void
     {
-        // If already PIN-authenticated, skip the login screen
         if (session()->has('pos_student_id')) {
             $this->redirect(route('kasir.pos'), navigate: true);
         }
@@ -59,24 +60,109 @@ class LoginPin extends Component
             ->where('status', true)
             ->first();
 
-        if ($student) {
-            // Store student identity in session for POS access
-            session([
-                'pos_student_id'   => $student->id,
-                'pos_student_name' => $student->name,
-            ]);
-
-            $this->studentName = $student->name;
-
-            $this->dispatch('show-toast', type: 'success', message: "Selamat datang, {$student->name}! Mengalihkan...");
-
-            // Small delay so user can see the toast before redirect
-            $this->js("setTimeout(() => { Livewire.navigate('/kasir/pos') }, 1200)");
-        } else {
+        if (!$student) {
             $this->dispatch('show-toast', type: 'error', message: 'PIN salah atau akun tidak aktif!');
             $this->digits = [];
             $this->studentName = null;
+            return;
         }
+
+        // Check if student has cashier schedule for today
+        $today = now()->toDateString();
+        $schedule = Schedules::with('shift')
+            ->where('type', 'cashier')
+            ->where('student_id', $student->id)
+            ->whereDate('date', $today)
+            ->where('status', true)
+            ->first();
+
+        if (!$schedule) {
+            $this->dispatch('show-toast',
+                type: 'error',
+                message: 'Kamu tidak memiliki jadwal kasir hari ini. Silakan cek jadwal kamu!');
+            $this->digits = [];
+            $this->studentName = null;
+            return;
+        }
+
+        // Check if already logged in today for this schedule
+        $existingAttendance = StudentAttendance::where('student_id', $student->id)
+            ->where('schedule_id', $schedule->id)
+            ->first();
+
+        if ($existingAttendance && $existingAttendance->login_time) {
+            // Already logged in, just let them through
+            $this->loginSuccess($student);
+            return;
+        }
+
+        // Validate shift time and record attendance
+        $currentTime = now();
+        $shift = $schedule->shift;
+
+        $shiftStart = now()->setTimeFromTimeString($shift->start_time->format('H:i:s'));
+        $shiftEnd = now()->setTimeFromTimeString($shift->end_time->format('H:i:s'));
+        $toleranceMinutes = $shift->tolerance ?? 15;
+        $maxAllowedTime = $shiftStart->copy()->addMinutes($toleranceMinutes);
+
+        // Past shift end - deny login
+        if ($currentTime->isAfter($shiftEnd)) {
+            $this->dispatch('show-toast',
+                type: 'error',
+                message: 'Shift sudah berakhir. Kamu tidak bisa login lagi!');
+            $this->digits = [];
+            $this->studentName = null;
+            return;
+        }
+
+        // Determine attendance status
+        $lateMinutes = 0;
+        if ($currentTime->lte($shiftStart)) {
+            $attendanceStatus = 'on_time';
+        } elseif ($currentTime->lte($maxAllowedTime)) {
+            $attendanceStatus = 'on_time';
+        } else {
+            $attendanceStatus = 'late';
+            $lateMinutes = (int) $currentTime->diffInMinutes($shiftStart);
+        }
+
+        // Record attendance
+        StudentAttendance::updateOrCreate(
+            [
+                'student_id' => $student->id,
+                'schedule_id' => $schedule->id,
+            ],
+            [
+                'shift_id' => $shift->id,
+                'date' => $today,
+                'login_time' => $currentTime->format('H:i:s'),
+                'shift_start' => $shift->start_time->format('H:i:s'),
+                'status' => $attendanceStatus,
+                'late_minutes' => $lateMinutes,
+            ]
+        );
+
+        if ($attendanceStatus === 'late') {
+            $this->dispatch('show-toast',
+                type: 'warning',
+                message: "Kamu terlambat {$lateMinutes} menit. Kehadiran tetap dicatat.");
+        }
+
+        $this->loginSuccess($student);
+    }
+
+    private function loginSuccess(Students $student): void
+    {
+        session([
+            'pos_student_id'   => $student->id,
+            'pos_student_name' => $student->name,
+        ]);
+
+        $this->studentName = $student->name;
+
+        $this->dispatch('show-toast', type: 'success', message: "Selamat datang, {$student->name}! Mengalihkan...");
+
+        $this->js("setTimeout(() => { Livewire.navigate('/kasir/pos') }, 1200)");
     }
 
     public function render()

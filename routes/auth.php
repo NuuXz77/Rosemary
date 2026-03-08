@@ -88,6 +88,7 @@ Route::middleware('auth')->group(function () {
     // --------------------------------------------
     Route::middleware('can:schedules.view')->group(function () {
         Route::get('/schedules', App\Livewire\Admin\Schedules\Index::class)->name('schedules.index');
+        Route::get('/student-attendances', App\Livewire\Admin\StudentAttendances\Index::class)->name('student-attendances.index');
     });
 
     // --------------------------------------------
