@@ -16,7 +16,7 @@
 </head>
 
 <body class="min-h-screen">
-    <div class="drawer lg:drawer-open">
+    <div class="{{ Auth::check() ? 'drawer lg:drawer-open' : 'drawer' }}">
         <input id="sidebar-drawer" type="checkbox" class="drawer-toggle" />
 
         <!-- Content -->
@@ -124,12 +124,33 @@
             </footer>
         </div>
 
-        {{-- Admin Sidebar --}}
-        <x-partials.sidebar />
+        {{-- Admin Sidebar: hanya muncul untuk user yang login via Laravel Auth.
+             Untuk siswa yang login via PIN, sidebar tidak dirender → Spatie @can
+             otomatis mengembalikan false untuk guest, menu kosong. --}}
+        @auth
+            <x-partials.sidebar />
+        @endauth
     </div>
 
     {{-- Global Toast Notification --}}
     <x-partials.toast :success="session('success')" :error="session('error')" />
+
+    {{-- PIN Student Logout Confirmation Dialog --}}
+    @if(session('pos_student_id'))
+        <dialog id="pin-logout-confirm" class="modal">
+            <div class="modal-box max-w-xs rounded-3xl text-center">
+                <x-heroicon-o-arrow-right-on-rectangle class="w-12 h-12 mx-auto text-error mb-2" />
+                <h3 class="font-bold text-lg">Keluar dari Kasir?</h3>
+                <p class="text-sm text-base-content/60 mt-1">Sesi kasir akan ditutup. Kamu perlu PIN lagi untuk masuk.</p>
+                <div class="modal-action justify-center gap-3 mt-4">
+                    <button class="btn btn-ghost btn-sm rounded-xl"
+                        onclick="document.getElementById('pin-logout-confirm').close()">Batal</button>
+                    <a href="{{ route('kasir.logout') }}" class="btn btn-error btn-sm rounded-xl">Ya, Keluar</a>
+                </div>
+            </div>
+            <form method="dialog" class="modal-backdrop"><button>close</button></form>
+        </dialog>
+    @endif
 
     @livewireScripts
     <script>
