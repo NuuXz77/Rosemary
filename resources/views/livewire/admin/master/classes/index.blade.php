@@ -31,22 +31,22 @@
                     <tr wire:key="class-{{ $class->id }}" class="hover:bg-base-200/50 transition-colors">
                         <td class="font-medium text-base-content/50">{{ $classes->firstItem() + $index }}</td>
                         <td>
-                            <div class="text-base-content">{{ $classItem->name }}</div>
+                            <div class="text-base-content">{{ $class->name }}</div>
                             <div class="text-xs text-base-content/40 italic">Dibuat
-                                {{ $classItem->created_at->diffForHumans() }}</div>
+                                {{ $class->created_at->diffForHumans() }}</div>
                         </td>
                         <td class="text-center">
-                            @if ($classItem->students_count > 0)
+                            @if ($class->students_count > 0)
                                 <span class="badge badge-soft badge-primary badge-sm font-mono">
                                     <x-heroicon-o-user-group class="w-3 h-3 mr-1" />
-                                    {{ $classItem->students_count }} siswa
+                                    {{ $class->students_count }} siswa
                                 </span>
                             @else
                                 <span class="badge badge-soft badge-ghost badge-sm text-base-content/40">Kosong</span>
                             @endif
                         </td>
                         <td>
-                            @if ($classItem->status)
+                            @if ($class->status)
                                 <span class="badge badge-soft badge-success badge-sm">Aktif</span>
                             @else
                                 <span class="badge badge-soft badge-error badge-sm">Nonaktif</span>

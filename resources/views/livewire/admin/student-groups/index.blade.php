@@ -38,7 +38,7 @@
                                 {{ $group->created_at->diffForHumans() }}</div>
                         </td>
                         <td>
-                            <span class="badge badge-sm badge-ghost">{{ $group->class->name ?? '-' }}</span>
+                            <span class="badge badge-sm badge-ghost">{{ $group->schoolClass->name ?? '-' }}</span>
                         </td>
                         <td>
                             <div class="flex items-center gap-1.5">
@@ -61,7 +61,9 @@
                             </div>
                         </td>
                         <td class="text-center">
-                            <x-partials.dropdown-action :id="$group->id" />
+                            <x-partials.dropdown-action :id="$group->id" :customActions="[
+                                ['label' => 'Kelola Anggota', 'method' => 'manageMembers', 'icon' => 'heroicon-o-users', 'class' => 'text-primary']
+                            ]" />
                         </td>
                     </tr>
                 @endforeach
@@ -130,6 +132,42 @@
             <button wire:click="delete" class="btn btn-error text-white min-w-[100px]">
                 <span wire:loading wire:target="delete" class="loading loading-spinner loading-xs"></span>
                 Hapus Data
+            </button>
+        </div>
+    </x-partials.modal>
+
+    <!-- Manage Members Modal -->
+    <x-partials.modal id="manage-members-modal" title="Kelola Anggota: {{ $manageGroupTitle }}">
+        <div class="mb-4">
+            <p class="text-sm text-base-content/70">
+                Pilih siswa yang akan dimasukkan ke dalam kelompok <strong>{{ $manageGroupTitle }}</strong>.
+                Hanya siswa yang aktif dan berada di kelas yang sama yang ditampilkan.
+            </p>
+        </div>
+
+        <div class="space-y-2 max-h-[400px] overflow-y-auto bg-base-200/50 p-4 rounded-lg border border-base-200">
+            @forelse($availableStudents as $student)
+                <label class="label cursor-pointer justify-start gap-4 p-2 hover:bg-base-200 rounded-lg transition-colors">
+                    <input type="checkbox" wire:model="selectedStudents" value="{{ $student['id'] }}" class="checkbox checkbox-primary" />
+                    <div>
+                        <div class="font-semibold">{{ $student['name'] }}</div>
+                        <div class="text-xs text-base-content/50">PIN: {{ $student['pin'] ?? '-' }}</div>
+                    </div>
+                </label>
+            @empty
+                <div class="py-12 text-center text-base-content/50">
+                    <x-heroicon-o-users class="w-12 h-12 mx-auto opacity-30 mb-3" />
+                    <p class="font-semibold">Tidak ada siswa</p>
+                    <p class="text-sm">Silakan tambahkan siswa aktif ke kelas ini terlebih dahulu.</p>
+                </div>
+            @endforelse
+        </div>
+
+        <div class="modal-action">
+            <button type="button" class="btn" onclick="document.getElementById('manage-members-modal').close()">Batal</button>
+            <button wire:click="saveMembers" class="btn btn-primary min-w-[100px]">
+                <span wire:loading wire:target="saveMembers" class="loading loading-spinner loading-xs"></span>
+                Simpan Perubahan
             </button>
         </div>
     </x-partials.modal>

@@ -41,7 +41,7 @@
                             </div>
                         </td>
                         <td>
-                            <span class="badge badge-sm badge-ghost">{{ $student->class->name ?? '-' }}</span>
+                            <span class="badge badge-sm badge-ghost">{{ $student->schoolClass->name ?? '-' }}</span>
                         </td>
                         <td>
                             <div @class([

@@ -128,11 +128,11 @@ class Index extends Component
     public function render()
     {
         $students = Students::query()
-            ->with(['class'])
+            ->with(['schoolClass'])
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
                     ->orWhere('pin', 'like', '%' . $this->search . '%')
-                    ->orWhereHas('class', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'));
+                    ->orWhereHas('schoolClass', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'));
             })
             ->orderBy('created_at', 'desc')
             ->paginate($this->perPage);
