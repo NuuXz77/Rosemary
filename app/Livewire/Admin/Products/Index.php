@@ -70,7 +70,45 @@ class Index extends Component
     #[On('product-changed')]
     public function refreshList(): void
     {
+        $this->productId = $id;
+        $this->dispatch('open-modal', id: 'delete-modal');
+    }
+
+    public function delete()
+    {
+        if (!auth()->user()->can('users.manage')) {
+            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk menghapus produk.');
+            return;
+        }
+
+        try {
+            $product = Products::findOrFail($this->productId);
+
+            // Cek relasi
+            if (
+                $product->saleItems()->count() > 0 ||
+                $product->productions()->count() > 0 ||
+                $product->stockLogs()->count() > 0 ||
+                $product->productWastes()->count() > 0
+            ) {
+                $this->dispatch('show-toast', type: 'error', message: 'Produk tidak bisa dihapus karena sudah memiliki riwayat transaksi, produksi, atau limbah.');
+                $this->dispatch('close-modal', id: 'delete-modal');
+                return;
+            }
+
+            \Illuminate\Support\Facades\DB::beginTransaction();
+            $product->stock()->delete();
+            $product->delete();
+            \Illuminate\Support\Facades\DB::commit();
+
+            $this->dispatch('close-modal', id: 'delete-modal');
+            $this->dispatch('show-toast', type: 'success', message: 'Produk berhasil dihapus.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            $this->dispatch('show-toast', type: 'error', message: 'Gagal menghapus produk: ' . $e->getMessage());
+        }
         $this->resetPage();
+
     }
 
     public function render()

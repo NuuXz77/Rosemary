@@ -1,94 +1,143 @@
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-base-300 via-base-200 to-base-300 px-4"
+<div class="min-h-screen flex items-center justify-center bg-base-200 px-4 py-8 relative overflow-hidden"
     x-data>
 
-    {{-- Toast (inline so guest layout gets it too) --}}
+    {{-- Toast --}}
     <x-partials.toast />
 
-    {{-- Subtle grid overlay --}}
-    <div class="pointer-events-none fixed inset-0 opacity-[0.03]"
-        style="background-image:linear-gradient(#000 1px,transparent 1px),linear-gradient(90deg,#000 1px,transparent 1px);background-size:40px 40px">
+    {{-- Bloop gradient blobs --}}
+    <div class="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
+        {{-- Blob 1 – orange top-left --}}
+        <div class="absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full
+                    bg-orange-500/20 blur-[100px]
+                    animate-[bloop1_8s_ease-in-out_infinite]"></div>
+
+        {{-- Blob 2 – amber bottom-right --}}
+        <div class="absolute -bottom-40 -right-40 w-[520px] h-[520px] rounded-full
+                    bg-amber-400/15 blur-[120px]
+                    animate-[bloop2_10s_ease-in-out_infinite]"></div>
+
+        {{-- Blob 3 – rose center subtle --}}
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                    w-[360px] h-[360px] rounded-full
+                    bg-rose-500/10 blur-[90px]
+                    animate-[bloop3_12s_ease-in-out_infinite]"></div>
     </div>
 
-    <div class="relative z-10 w-full max-w-sm">
+    {{-- Subtle dot-grid overlay --}}
+    <div class="pointer-events-none fixed inset-0 opacity-[0.035]"
+        style="background-image:radial-gradient(circle,#888 1px,transparent 1px);background-size:24px 24px">
+    </div>
+
+    <style>
+        @keyframes bloop1 {
+            0%,100% { transform: translate(0,0) scale(1); }
+            33%      { transform: translate(60px,40px) scale(1.12); }
+            66%      { transform: translate(-30px,70px) scale(0.92); }
+        }
+        @keyframes bloop2 {
+            0%,100% { transform: translate(0,0) scale(1); }
+            40%      { transform: translate(-70px,-50px) scale(1.1); }
+            70%      { transform: translate(40px,-80px) scale(0.95); }
+        }
+        @keyframes bloop3 {
+            0%,100% { transform: translate(-50%,-50%) scale(1); }
+            50%      { transform: translate(-50%,-50%) scale(1.18); }
+        }
+    </style>
+
+    <div class="relative z-10 w-full max-w-[420px]">
 
         {{-- Card --}}
-        <div class="card bg-base-100/90 backdrop-blur-xl shadow-2xl border border-base-200 rounded-3xl overflow-hidden">
+        <div class="border border-white/20 shadow-xl rounded-3xl overflow-hidden"
+            style="background:rgba(255,255,255,0.15);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%)">
 
-            {{-- Header Band --}}
-            <div class="bg-gradient-to-r from-primary to-primary-focus px-6 py-5 flex flex-col items-center gap-1">
-                <img src="{{ asset('img/logo.png') }}" class="w-14 h-14 object-contain drop-shadow" alt="Logo">
-                <h1 class="text-primary-content font-black text-xl tracking-tight mt-1">Kasir POS</h1>
-                <p class="text-primary-content/70 text-xs">Masukkan PIN 4 digit kamu</p>
+            {{-- Header --}}
+            <div class="relative bg-gradient-to-br from-orange-500/90 to-orange-600/30 px-6 pt-8 pb-7 flex flex-col items-center gap-2">
+                {{-- Decorative ring behind logo --}}
+                <div class="absolute inset-0 rounded-t-3xl overflow-hidden pointer-events-none">
+                    <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/5 blur-2xl"></div>
+                    <div class="absolute -bottom-6 -left-6 w-32 h-32 rounded-full bg-orange-300/10 blur-2xl"></div>
+                </div>
+
+                <div class="relative z-10 w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg ring-1 ring-white/30">
+                    <img src="{{ asset('img/logo.png') }}" class="w-10 h-10 object-contain drop-shadow" alt="Logo">
+                </div>
+
+                <div class="relative z-10 text-center">
+                    <h1 class="text-white font-semibold text-xl tracking-tight leading-none">Kasir POS</h1>
+                    <p class="text-white/70 text-xs mt-1">Masukkan PIN 4 digit kamu</p>
+                </div>
             </div>
 
-            <div class="p-6 space-y-6">
+            {{-- Body --}}
+            <div class="px-6 pt-6 pb-7 space-y-6">
 
                 {{-- PIN Dots --}}
-                <div class="flex justify-center gap-4">
+                <div class="flex justify-center gap-5">
                     @foreach (range(0, 3) as $i)
-                        <div
-                            @class([
-                                'w-4 h-4 rounded-full border-2 transition-all duration-200',
-                                'bg-primary border-primary scale-110 shadow-[0_0_12px_2px] shadow-primary/40' => $i < count($digits),
-                                'bg-transparent border-base-content/30' => $i >= count($digits),
-                            ])>
-                        </div>
+                        <div @class([
+                            'w-4 h-4 rounded-full border-2 transition-all duration-200',
+                            $i < count($digits)
+                                ? 'bg-orange-500 border-orange-500 scale-110 shadow-[0_0_10px_2px_rgba(249,115,22,0.45)]'
+                                : 'bg-transparent border-base-content/25',
+                        ])></div>
                     @endforeach
                 </div>
 
                 {{-- Student greeting --}}
-                <div class="min-h-[1.5rem] text-center">
+                <div class="min-h-[1.5rem] text-center -mb-1">
                     @if ($studentName)
-                        <p class="text-success font-bold text-sm animate-pulse">
-                            <x-heroicon-o-check-circle class="w-4 h-4 inline mr-1" />
+                        <p class="text-emerald-500 font-semibold text-sm animate-pulse inline-flex items-center gap-1">
+                            <x-heroicon-o-check-circle class="w-4 h-4 shrink-0" />
                             {{ $studentName }}
                         </p>
                     @endif
                 </div>
 
                 {{-- Keypad --}}
-                <div class="grid grid-cols-3 gap-3">
+                <div class="grid grid-cols-3 gap-4">
                     @foreach (['1','2','3','4','5','6','7','8','9'] as $digit)
-                        <button wire:click="addDigit('{{ $digit }}')"
-                            class="btn btn-ghost border border-base-300 text-xl font-bold h-14 rounded-2xl hover:bg-primary hover:text-primary-content hover:border-primary active:scale-90 transition-all duration-150 shadow-sm"
-                            {{ count($digits) >= 4 ? 'disabled' : '' }}>
+                        <button
+                            wire:click="addDigit('{{ $digit }}')"
+                            @disabled(count($digits) >= 4)
+                            class="h-14 rounded-2xl border border-base-300/40 bg-base-100 text-base-content text-xl font-semibold shadow-sm
+                                   hover:bg-base-200 active:scale-95 transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed">
                             {{ $digit }}
                         </button>
                     @endforeach
 
-                    {{-- Bottom row: Clear | 0 | Backspace --}}
-                    <button wire:click="clearPin"
-                        class="btn btn-ghost border border-base-300 text-xs font-semibold h-14 rounded-2xl hover:bg-error hover:text-error-content hover:border-error active:scale-90 transition-all duration-150 shadow-sm">
+                    {{-- CLR --}}
+                    <button
+                        wire:click="clearPin"
+                        class="h-14 rounded-2xl border border-base-300/40 bg-base-100 text-yellow-400 text-sm font-semibold shadow-sm
+                               hover:bg-yellow-400/10 active:scale-95 transition-all duration-150">
                         CLR
                     </button>
 
-                    <button wire:click="addDigit('0')"
-                        class="btn btn-ghost border border-base-300 text-xl font-bold h-14 rounded-2xl hover:bg-primary hover:text-primary-content hover:border-primary active:scale-90 transition-all duration-150 shadow-sm"
-                        {{ count($digits) >= 4 ? 'disabled' : '' }}>
+                    {{-- 0 --}}
+                    <button
+                        wire:click="addDigit('0')"
+                        @disabled(count($digits) >= 4)
+                        class="h-14 rounded-2xl border border-base-300/40 bg-base-100 text-base-content text-xl font-semibold shadow-sm
+                               hover:bg-base-200 active:scale-95 transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed">
                         0
                     </button>
 
-                    <button wire:click="removeDigit"
-                        class="btn btn-ghost border border-base-300 h-14 rounded-2xl hover:bg-warning hover:text-warning-content hover:border-warning active:scale-90 transition-all duration-150 shadow-sm">
+                    {{-- Backspace --}}
+                    <button
+                        wire:click="removeDigit"
+                        class="h-14 rounded-2xl border border-base-300/40 bg-base-100 text-red-400 shadow-sm
+                               hover:bg-red-400/10 active:scale-95 transition-all duration-150 flex items-center justify-center">
                         <x-heroicon-o-backspace class="w-6 h-6" />
                     </button>
                 </div>
-
-                {{-- Divider --}}
-                <div class="divider text-xs opacity-40 my-0">atau</div>
-
-                {{-- Back to normal login --}}
-                <a href="{{ route('login') }}" wire:navigate
-                    class="btn btn-ghost btn-sm w-full rounded-xl text-xs opacity-60 hover:opacity-100 gap-2">
-                    <x-heroicon-o-arrow-left class="w-4 h-4" />
-                    Login sebagai Admin
-                </a>
             </div>
         </div>
 
-        {{-- Bottom watermark --}}
-        <p class="text-center text-[10px] text-base-content/30 mt-4">
-            {{ config('app.name') }} &copy; {{ date('Y') }}
+        {{-- Footer --}}
+        <p class="text-center text-xs text-base-content/40 mt-5">
+            Rosemary &copy; 2026
         </p>
+
     </div>
 </div>

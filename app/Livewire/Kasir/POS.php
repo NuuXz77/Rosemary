@@ -33,6 +33,11 @@ class POS extends BasePOS
         if ($studentId = session('pos_student_id')) {
             $this->cashier_student_id = $studentId;
         }
+
+        // Fallback: use shift from PIN login session if auto-detect failed
+        if (!$this->shift_id && session('pos_shift_id')) {
+            $this->shift_id = session('pos_shift_id');
+        }
     }
 
     /**
@@ -40,7 +45,7 @@ class POS extends BasePOS
      */
     public function pinLogout(): void
     {
-        session()->forget(['pos_student_id', 'pos_student_name']);
+        session()->forget(['pos_student_id', 'pos_student_name', 'pos_shift_id']);
 
         $this->redirect(route('pos.login'), navigate: true);
     }
