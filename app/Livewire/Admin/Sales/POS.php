@@ -40,6 +40,7 @@ class POS extends Component
     // Transaction State
     public $customer_id = null;
     public $guest_name = '';
+    public $table_number = '';
     public $shift_id = null;
     public $cashier_student_id = null;
     public $payment_method = 'cash';
@@ -161,15 +162,6 @@ class POS extends Component
         $this->change_amount = max(0, $this->paid_amount - $this->total_amount);
     }
 
-    public function openConfirmModal()
-    {
-        if (empty($this->cart)) {
-            $this->dispatch('show-toast', type: 'error', message: 'Keranjang belanja masih kosong!');
-            return;
-        }
-        $this->dispatch('open-modal', id: 'confirm-modal');
-    }
-
     public function proceedToCheckout()
     {
         if (empty($this->cart)) {
@@ -181,6 +173,7 @@ class POS extends Component
             'pos_checkout_cart'             => $this->cart,
             'pos_checkout_customer_id'      => $this->customer_id,
             'pos_checkout_guest_name'       => $this->customer_id ? null : ($this->guest_name ?: 'Guest'),
+            'pos_checkout_table_number'     => $this->table_number,
             'pos_checkout_shift_id'         => $this->shift_id,
             'pos_checkout_cashier_id'       => $this->cashier_student_id,
             'pos_checkout_subtotal'         => $this->subtotal,
@@ -190,11 +183,7 @@ class POS extends Component
             'pos_checkout_pine_mode'        => $this->pinMode,
         ]);
 
-        if ($this->pinMode) {
-            $this->redirect(route('kasir.checkout'), navigate: true);
-        } else {
-            $this->redirect(route('sales.checkout'), navigate: true);
-        }
+        $this->redirect(route('kasir.checkout'), navigate: true);
     }
 
     public function openPayment()
@@ -244,7 +233,9 @@ class POS extends Component
 
             $sale = Sales::create([
                 'invoice_number' => $invoiceNumber,
-                'customer_id' => $this->customer_id,
+                'customer_id' => $this->customer_id ?: null,
+                'guest_name'  => $this->customer_id ? null : ($this->guest_name ?: null),
+                'table_number' => $this->table_number ?: null,
                 'shift_id' => $this->shift_id,
                 'cashier_student_id' => $this->cashier_student_id,
                 'subtotal' => $this->subtotal,

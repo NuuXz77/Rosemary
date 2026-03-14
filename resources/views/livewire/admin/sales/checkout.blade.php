@@ -101,6 +101,17 @@
                                 {{ $customer_id ? 'Member' : 'Guest' }}
                             </span>
                         </div>
+                        @if($table_number)
+                            <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-base-200/60 border border-base-300 mt-2">
+                                <div class="w-8 h-8 rounded-full bg-secondary/15 flex items-center justify-center shrink-0">
+                                    <x-heroicon-s-table-cells class="w-4 h-4 text-secondary" />
+                                </div>
+                                <div class="grow min-w-0">
+                                    <p class="font-bold text-sm truncate">{{ $table_number }}</p>
+                                    <p class="text-[10px] text-base-content/40">Nomor Meja</p>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -157,6 +168,59 @@
                     </div>
                 </div>
 
+                {{-- Payment Status card --}}
+                <div class="card bg-base-100 shadow-sm border border-base-200">
+                    <div class="card-body p-6">
+                        <h2 class="font-bold mb-4 flex items-center gap-2">
+                            <x-heroicon-o-clipboard-document-check class="w-5 h-5 text-primary" />
+                            Status Pembayaran
+                        </h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                            {{-- Lunas --}}
+                            <label wire:click="$set('payment_status','paid')"
+                                class="flex items-center gap-4 p-4 border-2 rounded-2xl cursor-pointer transition-all
+                                    {{ $payment_status === 'paid' ? 'border-success bg-success/5' : 'border-base-300 hover:border-base-400' }}">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center
+                                    {{ $payment_status === 'paid' ? 'bg-success text-success-content' : 'bg-base-200 text-base-content/40' }}">
+                                    <x-heroicon-o-check-circle class="w-6 h-6" />
+                                </div>
+                                <div class="grow">
+                                    <div class="font-bold text-sm">Lunas</div>
+                                    <div class="text-xs text-base-content/50">Pembayaran langsung lunas</div>
+                                </div>
+                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0
+                                    {{ $payment_status === 'paid' ? 'border-success' : 'border-base-300' }}">
+                                    @if($payment_status === 'paid')
+                                        <div class="w-3 h-3 rounded-full bg-success"></div>
+                                    @endif
+                                </div>
+                            </label>
+
+                            {{-- Hutang --}}
+                            <label wire:click="$set('payment_status','unpaid')"
+                                class="flex items-center gap-4 p-4 border-2 rounded-2xl cursor-pointer transition-all
+                                    {{ $payment_status === 'unpaid' ? 'border-warning bg-warning/5' : 'border-base-300 hover:border-base-400' }}">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center
+                                    {{ $payment_status === 'unpaid' ? 'bg-warning text-warning-content' : 'bg-base-200 text-base-content/40' }}">
+                                    <x-heroicon-o-clock class="w-6 h-6" />
+                                </div>
+                                <div class="grow">
+                                    <div class="font-bold text-sm">Hutang</div>
+                                    <div class="text-xs text-base-content/50">Belum bayar / bayar nanti</div>
+                                </div>
+                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0
+                                    {{ $payment_status === 'unpaid' ? 'border-warning' : 'border-base-300' }}">
+                                    @if($payment_status === 'unpaid')
+                                        <div class="w-3 h-3 rounded-full bg-warning"></div>
+                                    @endif
+                                </div>
+                            </label>
+
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             {{-- ===== RIGHT: Payment Panel ===== --}}
@@ -195,8 +259,8 @@
                     </div>
                 </div>
 
-                {{-- Cash input (only when cash) --}}
-                @if($payment_method === 'cash')
+                {{-- Cash input (only when cash & paid) --}}
+                @if($payment_status === 'paid' && $payment_method === 'cash')
                     <div class="card bg-base-100 shadow-sm border border-base-200">
                         <div class="card-body p-6">
                             <h2 class="font-bold mb-4 flex items-center gap-2">
@@ -237,6 +301,21 @@
                                 <div class="w-9 h-9 rounded-full bg-base-300 flex items-center justify-center text-base-content/30">
                                     <x-heroicon-o-arrow-path class="w-4 h-4" />
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                @elseif($payment_status === 'unpaid')
+                    <div class="card bg-base-100 shadow-sm border border-warning/30">
+                        <div class="card-body p-6 flex flex-col items-center text-center gap-3">
+                            <x-heroicon-o-exclamation-triangle class="w-16 h-16 text-warning opacity-60" />
+                            <div>
+                                <div class="font-bold">Transaksi Hutang</div>
+                                <div class="text-sm text-base-content/50 mt-1">
+                                    Pesanan akan tercatat sebagai <span class="font-bold text-warning">belum lunas</span>
+                                </div>
+                            </div>
+                            <div class="badge badge-warning badge-lg font-black px-4 py-3 text-base">
+                                Rp {{ number_format($total_amount, 0, ',', '.') }}
                             </div>
                         </div>
                     </div>

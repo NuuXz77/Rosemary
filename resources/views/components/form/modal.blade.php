@@ -5,6 +5,8 @@
     'buttonIcon' => 'heroicon-o-plus',
     'buttonClass' => 'btn btn-primary btn-sm gap-2',
     'buttonHiddenText' => true, // Hide text on mobile
+    'buttonBadge' => null,
+    'buttonBadgeClass' => 'badge badge-secondary badge-sm absolute -top-1 -right-1',
     'saveButtonText' => 'Simpan',
     'saveButtonIcon' => 'heroicon-o-check',
     'saveButtonClass' => 'btn btn-primary gap-2 btn-sm',
@@ -24,6 +26,9 @@
                 <x-dynamic-component :component="$buttonIcon" class="w-5 h-5" />
             @endif
             <span class="{{ $buttonHiddenText ? 'hidden sm:inline' : '' }}">{{ $buttonText }}</span>
+            @if($buttonBadge !== null && $buttonBadge !== '')
+                <span class="{{ $buttonBadgeClass }}">{{ $buttonBadge }}</span>
+            @endif
         </button>
     @endif
 

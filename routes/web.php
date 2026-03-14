@@ -17,7 +17,7 @@ Route::get('/', function () {
         } elseif ($user->hasRole('Inventory')) {
             return redirect()->route('material-stocks.index');
         } elseif ($user->hasRole('Cashier')) {
-            return redirect()->route('sales.pos');
+            return redirect()->route('dashboard.index');
         }
         return redirect()->route('dashboard.index');
     }

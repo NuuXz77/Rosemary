@@ -383,7 +383,7 @@
                     </h3>
                     <p class="text-xs opacity-80 mb-6">Mulai transaksi baru atau produksi harian sekarang.</p>
                     <div class="grid grid-cols-1 gap-3">
-                        <a href="{{ route('sales.pos') }}" wire:navigate
+                        <a href="{{ route('kasir.pos') }}" wire:navigate
                             class="btn btn-sm bg-white/20 hover:bg-white/30 border-none text-white gap-2 justify-start">
                             <x-heroicon-s-shopping-cart class="w-4 h-4" /> Buka Kasir (POS)
                         </a>

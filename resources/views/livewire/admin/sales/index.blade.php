@@ -11,7 +11,7 @@
                 </div>
 
                 <div>
-                    <a href="{{ route('sales.pos') }}" wire:navigate class="btn btn-primary btn-sm gap-2">
+                    <a href="{{ route('kasir.pos') }}" wire:navigate class="btn btn-primary btn-sm gap-2">
                         <x-heroicon-o-plus-circle class="w-4 h-4" />
                         Buka POS (Kasir)
                     </a>
@@ -19,9 +19,10 @@
             </div>
 
             <x-partials.table :columns="[
-        ['label' => 'No', 'class' => 'w-12'],
+        // ['label' => 'No', 'class' => 'w-12'],
         ['label' => 'Invoice', 'field' => 'invoice_number', 'sortable' => true],
         ['label' => 'Customer'],
+        ['label' => 'Meja'],
         ['label' => 'Total', 'field' => 'total_amount', 'sortable' => true],
         ['label' => 'Payment', 'field' => 'payment_method'],
         ['label' => 'Status', 'field' => 'status'],
@@ -32,26 +33,33 @@
 
                 @foreach ($sales as $index => $sale)
                     <tr wire:key="sale-{{ $sale->id }}" class="hover:bg-base-200 transition-colors duration-150">
-                        <td>{{ $sales->firstItem() + $index }}</td>
+                        {{-- <td>{{ $sales->firstItem() + $index }}</td> --}}
                         <td>{{ $sale->invoice_number }}</td>
-                        <td>{{ $sale->customer?->name ?? '-' }}</td>
+                        <td>{{ $sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)') }}</td>
+                        <td>{{ $sale->table_number ?: '-' }}</td>
                         <td>Rp {{ number_format($sale->total_amount, 0, ',', '.') }}</td>
                         <td>{{ ucfirst($sale->payment_method ?? '-') }}</td>
                         <td>
                             @if($sale->status === 'paid')
-                                <span class="badge badge-success badge-sm">Lunas</span>
+                                <span class="badge badge-soft badge-success badge-sm">Lunas</span>
+                            @elseif($sale->status === 'unpaid')
+                                <span class="badge badge-soft badge-warning badge-sm">Hutang</span>
                             @else
-                                <span class="badge badge-sm">{{ ucfirst($sale->status) }}</span>
+                                <span class="badge badge-soft badge-error badge-sm">Dibatalkan</span>
                             @endif
                         </td>
                         <td class="text-xs">{{ $sale->created_at->format('d/m/y H:i') }}</td>
                         <td class="text-center">
-                            <div class="flex justify-center gap-2">
-                                <button wire:click="viewReceipt({{ $sale->id }})" class="btn btn-xs btn-ghost text-primary tooltip" data-tip="Cetak Struk">
-                                    <x-heroicon-o-printer class="w-4 h-4" />
-                                </button>
-                                <x-partials.dropdown-action :id="$sale->id" :showEdit="false" :showDelete="false" />
-                            </div>
+                            <x-partials.dropdown-action
+                                :id="$sale->id"
+                                :showView="true"
+                                :viewRoute="route('sales.detail', $sale->id)"
+                                :showEdit="false"
+                                :showDelete="false"
+                                :customActions="[
+                                    ['method' => 'viewReceipt', 'label' => 'Cetak Struk', 'icon' => 'heroicon-o-printer'],
+                                ]"
+                            />
                         </td>
                     </tr>
                 @endforeach
@@ -148,8 +156,21 @@
                     <head>
                         <title>Print Receipt</title>
                         <style>
-                            @page { size: 80mm auto; margin: 0; }
-                            body { font-family: monospace; width: 80mm; padding: 10px; font-size: 12px; }
+                            @page { size: 80mm auto; margin: 2mm; }
+                            html, body {
+                                width: 80mm;
+                                margin: 0;
+                                padding: 0;
+                                font-family: monospace;
+                                font-size: 12px;
+                                color: #000;
+                                background: #fff;
+                            }
+                            .receipt-wrap {
+                                width: 76mm;
+                                margin: 0 auto;
+                                padding: 2mm 0;
+                            }
                             .text-center { text-align: center; }
                             .font-bold { font-weight: bold; }
                             .flex { display: flex; }
@@ -157,9 +178,12 @@
                             .border-b { border-bottom: 1px dashed black; }
                             .my-2 { margin: 8px 0; }
                             .uppercase { text-transform: uppercase; }
+                            @media print {
+                                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                            }
                         </style>
                     </head>
-                    <body>${printContent}</body>
+                    <body><div class="receipt-wrap">${printContent}</div></body>
                 </html>
             `);
             doc.close();

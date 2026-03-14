@@ -31,49 +31,29 @@
                     <tr wire:key="class-{{ $class->id }}" class="hover:bg-base-200/50 transition-colors">
                         <td class="font-medium text-base-content/50">{{ $classes->firstItem() + $index }}</td>
                         <td>
-                            <div class="text-base-content">{{ $classItem->name }}</div>
+                            <div class="text-base-content">{{ $class->name }}</div>
                             <div class="text-xs text-base-content/40 italic">Dibuat
-                                {{ $classItem->created_at->diffForHumans() }}</div>
+                                {{ $class->created_at->diffForHumans() }}</div>
                         </td>
                         <td class="text-center">
-                            @if ($classItem->students_count > 0)
+                            @if ($class->students_count > 0)
                                 <span class="badge badge-soft badge-primary badge-sm font-mono">
                                     <x-heroicon-o-user-group class="w-3 h-3 mr-1" />
-                                    {{ $classItem->students_count }} siswa
+                                    {{ $class->students_count }} siswa
                                 </span>
                             @else
                                 <span class="badge badge-soft badge-ghost badge-sm text-base-content/40">Kosong</span>
                             @endif
                         </td>
                         <td>
-                            @if ($classItem->status)
+                            @if ($class->status)
                                 <span class="badge badge-soft badge-success badge-sm">Aktif</span>
                             @else
                                 <span class="badge badge-soft badge-error badge-sm">Nonaktif</span>
                             @endif
                         </td>
                         <td class="text-center">
-                            <div class="dropdown dropdown-left">
-                                <label tabindex="0" class="btn btn-ghost btn-xs">
-                                    <x-heroicon-o-ellipsis-vertical class="w-4 h-4" />
-                                </label>
-                                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-32">
-                                    <li>
-                                        <button wire:click="$dispatch('open-edit-modal', { id: {{ $class->id }} })"
-                                            onclick="document.getElementById('modal_edit_class').showModal()">
-                                            <x-heroicon-o-pencil-square class="w-4 h-4 text-warning" />
-                                            Edit
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button wire:click="$dispatch('confirm-delete', { id: {{ $class->id }} })"
-                                            onclick="document.getElementById('modal_delete_class').showModal()">
-                                            <x-heroicon-o-trash class="w-4 h-4 text-error" />
-                                            Hapus
-                                        </button>
-                                    </li>
-                                </ul>
-                            </div>
+                            <x-partials.dropdown-action :id="$class->id" />
                         </td>
                     </tr>
                 @endforeach
