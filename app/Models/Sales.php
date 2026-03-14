@@ -65,6 +65,22 @@ class Sales extends Model
      */
     public function items(): HasMany
     {
-        return $this->hasMany(SaleItems::class);
+        return $this->hasMany(SaleItems::class, 'sale_id');
+    }
+
+    /**
+     * Scope: Hanya transaksi yang sudah dibayar
+     */
+    public function scopePaid($query)
+    {
+        return $query->where('status', 'paid');
+    }
+
+    /**
+     * Scope: Filter berdasarkan rentang tanggal
+     */
+    public function scopeByDateRange($query, $startDate, $endDate)
+    {
+        return $query->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
     }
 }

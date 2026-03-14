@@ -33,10 +33,22 @@ class Index extends Component
         }
     }
 
-    public function updatingSearch(): void { $this->resetPage(); }
-    public function updatingFilterCategory(): void { $this->resetPage(); }
-    public function updatingFilterDivision(): void { $this->resetPage(); }
-    public function updatingFilterStatus(): void { $this->resetPage(); }
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+    public function updatingFilterCategory(): void
+    {
+        $this->resetPage();
+    }
+    public function updatingFilterDivision(): void
+    {
+        $this->resetPage();
+    }
+    public function updatingFilterStatus(): void
+    {
+        $this->resetPage();
+    }
 
     public function sortBy(string $field): void
     {
@@ -70,7 +82,7 @@ class Index extends Component
     #[On('product-changed')]
     public function refreshList(): void
     {
-        $this->resetPage();
+        // Re-render handled by Livewire automatically
     }
 
     public function render()
@@ -88,21 +100,25 @@ class Index extends Component
             ->when($this->filterCategory, fn($q) => $q->where('category_id', $this->filterCategory))
             ->when($this->filterDivision, fn($q) => $q->where('division_id', $this->filterDivision))
             ->when($this->filterStatus !== '', fn($q) => $q->where('status', (bool) $this->filterStatus))
-            ->when($this->sortField === 'stock', fn($q) =>
+            ->when(
+                $this->sortField === 'stock',
+                fn($q) =>
                 $q->orderByRaw('(SELECT qty_available FROM product_stocks WHERE product_id = products.id LIMIT 1) ' . $this->sortDirection)
             )
-            ->when($this->sortField !== 'stock', fn($q) =>
+            ->when(
+                $this->sortField !== 'stock',
+                fn($q) =>
                 $q->orderBy($this->sortField, $this->sortDirection)
             )
             ->paginate($this->perPage);
 
         $categories = Categories::where('type', 'product')->where('status', true)->orderBy('name')->get();
-        $divisions  = Divisions::where('status', true)->orderBy('name')->get();
+        $divisions = Divisions::where('status', true)->orderBy('name')->get();
 
         return view('livewire.admin.products.index', [
-            'products'   => $products,
+            'products' => $products,
             'categories' => $categories,
-            'divisions'  => $divisions,
+            'divisions' => $divisions,
         ]);
     }
 }

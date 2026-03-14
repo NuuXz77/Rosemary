@@ -25,8 +25,8 @@ class Index extends Component
     public function render()
     {
         $stocks = ProductStocks::query()
-            ->when($this->search, fn($q) => $q->whereHas('product', fn($s) => $s->where('name', 'like', '%'.$this->search.'%')))
-            ->orderBy('quantity', 'desc')
+            ->when($this->search, fn($q) => $q->whereHas('product', fn($s) => $s->where('name', 'like', '%' . $this->search . '%')))
+            ->orderBy('qty_available', 'desc')
             ->paginate($this->perPage);
 
         return view('livewire.admin.reports.stocks.index', [
