@@ -21,9 +21,18 @@ class Index extends Component
     public string $filterCategory = '';
     public string $filterStatus = '';
 
-    public function updatingSearch(): void { $this->resetPage(); }
-    public function updatingFilterCategory(): void { $this->resetPage(); }
-    public function updatingFilterStatus(): void { $this->resetPage(); }
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+    public function updatingFilterCategory(): void
+    {
+        $this->resetPage();
+    }
+    public function updatingFilterStatus(): void
+    {
+        $this->resetPage();
+    }
 
     public function edit(int $id): void
     {
@@ -38,7 +47,7 @@ class Index extends Component
     #[On('material-changed')]
     public function refreshList(): void
     {
-        $this->resetPage();
+        // Re-render handled inherently by component updates
     }
 
     public function render()
@@ -58,7 +67,7 @@ class Index extends Component
             ->paginate($this->perPage);
 
         return view('livewire.admin.materials.index', [
-            'materials'  => $materials,
+            'materials' => $materials,
             'categories' => \App\Models\Categories::where('type', 'material')->where('status', true)->orderBy('name')->get(),
         ]);
     }

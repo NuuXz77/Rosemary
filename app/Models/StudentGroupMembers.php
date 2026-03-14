@@ -26,7 +26,7 @@ class StudentGroupMembers extends Model
      */
     public function studentGroup(): BelongsTo
     {
-        return $this->belongsTo(StudentGroups::class);
+        return $this->belongsTo(StudentGroups::class, 'student_group_id');
     }
 
     /**

@@ -28,7 +28,7 @@ class StudentGroups extends Model
      * Relasi Many-to-One ke Classes
      * Banyak kelompok dalam satu kelas
      */
-    public function class(): BelongsTo
+    public function schoolClass(): BelongsTo
     {
         return $this->belongsTo(Classes::class, 'class_id');
     }
@@ -39,7 +39,7 @@ class StudentGroups extends Model
      */
     public function students(): BelongsToMany
     {
-        return $this->belongsToMany(Students::class, 'student_group_members');
+        return $this->belongsToMany(Students::class, 'student_group_members', 'student_group_id', 'student_id');
     }
 
     /**
@@ -48,7 +48,7 @@ class StudentGroups extends Model
      */
     public function members(): HasMany
     {
-        return $this->hasMany(StudentGroupMembers::class);
+        return $this->hasMany(StudentGroupMembers::class, 'student_group_id');
     }
 
     /**

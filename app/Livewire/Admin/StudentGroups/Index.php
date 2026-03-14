@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\StudentGroups;
 
 use App\Models\StudentGroups;
 use App\Models\Classes;
+use App\Models\Students;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -27,6 +28,12 @@ class Index extends Component
     public $status = true;
     public $isEdit = false;
 
+    // Member Management Properties
+    public $manageGroupId;
+    public $manageGroupTitle = '';
+    public $availableStudents = [];
+    public $selectedStudents = [];
+
     protected $rules = [
         'name' => 'required|string|max:255',
         'class_id' => 'required|exists:classes,id',
@@ -43,6 +50,12 @@ class Index extends Component
         $this->reset(['name', 'class_id', 'status', 'groupId', 'isEdit']);
         $this->status = true;
         $this->resetValidation();
+        $this->resetMembers();
+    }
+
+    public function resetMembers()
+    {
+        $this->reset(['manageGroupId', 'manageGroupTitle', 'availableStudents', 'selectedStudents']);
     }
 
     public function create()
@@ -95,6 +108,37 @@ class Index extends Component
         $this->resetFields();
     }
 
+    public function manageMembers($id)
+    {
+        $this->resetMembers();
+        $group = StudentGroups::findOrFail($id);
+        $this->manageGroupId = $group->id;
+        $this->manageGroupTitle = $group->name;
+        
+        $this->availableStudents = Students::where('class_id', $group->class_id)
+            ->where('status', true)
+            ->get()
+            ->toArray();
+            
+        $this->selectedStudents = $group->students()->pluck('students.id')->map(fn($id) => (string) $id)->toArray();
+        
+        $this->dispatch('open-modal', id: 'manage-members-modal');
+    }
+
+    public function saveMembers()
+    {
+        $group = StudentGroups::findOrFail($this->manageGroupId);
+        
+        // Prepare pivot data to include timestamps since we are using sync
+        $pivotData = array_fill_keys($this->selectedStudents, ['created_at' => now(), 'updated_at' => now()]);
+        
+        $group->students()->sync($pivotData);
+
+        $this->dispatch('close-modal', id: 'manage-members-modal');
+        $this->dispatch('show-toast', type: 'success', message: 'Anggota kelompok berhasil diperbarui.');
+        $this->resetMembers();
+    }
+
     public function confirmDelete($id)
     {
         $this->groupId = $id;
@@ -120,17 +164,17 @@ class Index extends Component
     public function render()
     {
         $groups = StudentGroups::query()
-            ->with(['class'])
+            ->with(['schoolClass'])
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhereHas('class', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'));
+                    ->orWhereHas('schoolClass', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'));
             })
             ->orderBy('created_at', 'desc')
             ->paginate($this->perPage);
 
         return view('livewire.admin.student-groups.index', [
             'groups' => $groups,
-            'classes' => Classes::where('status', true)->get(),
+            'classes' => Classes::where('status', true)->whereHas('students')->get(),
         ]);
     }
 }

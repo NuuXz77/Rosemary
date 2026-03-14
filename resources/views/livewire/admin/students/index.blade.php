@@ -48,7 +48,7 @@
                             </div>
                         </td>
                         <td>
-                            <span class="badge badge-primary badge-outline badge-sm">{{ $student->class->name ?? '-' }}</span>
+                            <span class="badge badge-sm badge-ghost">{{ $student->schoolClass->name ?? '-' }}</span>
                         </td>
                         <td>
                             @if ($student->status === true)

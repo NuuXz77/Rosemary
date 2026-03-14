@@ -187,27 +187,100 @@
                             @endforeach
                         </div>
                     </div>
-                    <div class="flex items-end gap-2 h-48 pt-4">
-                        @php $maxVal = $salesTrend->max('total') ?: 1; @endphp
-                        @foreach($salesTrend as $trend)
-                            <div class="flex-1 flex flex-col items-center group relative">
-                                <div class="w-full bg-primary/20 rounded-t-lg group-hover:bg-primary/40 transition-all relative"
-                                    style="height: {{ ($trend->total / $maxVal) * 100 }}%">
-                                    <div
-                                        class="absolute -top-12 left-1/2 -translate-x-1/2 bg-base-content text-base-100 text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 font-bold">
-                                        Rp {{ number_format($trend->total, 0, ',', '.') }}
-                                        <br><span class="opacity-60">{{ $trend->count }} nota</span>
-                                    </div>
-                                </div>
-                                <span
-                                    class="text-[10px] mt-2 opacity-50 font-bold">{{ date('d/m', strtotime($trend->date)) }}</span>
-                            </div>
-                        @endforeach
-                        @if($salesTrend->isEmpty())
-                            <div class="w-full h-full flex items-center justify-center italic opacity-30 text-sm">
-                                Belum ada data penjualan
-                            </div>
-                        @endif
+                    <div class="pt-4 relative"
+                        x-data="{
+                            chart: null,
+                            isEmpty: false,
+                            init() {
+                                // Tunggu sampai window.ApexCharts tersedia
+                                if (!window.ApexCharts) {
+                                    setTimeout(() => this.init(), 100);
+                                    return;
+                                }
+
+                                let options = {
+                                    series: [{ name: 'Total Penjualan', data: [] }],
+                                    chart: {
+                                        type: 'area',
+                                        height: 250,
+                                        toolbar: { show: false },
+                                        fontFamily: 'inherit',
+                                        background: 'transparent',
+                                        zoom: { enabled: false }
+                                    },
+                                    colors: ['#f97316'], // Orange-500
+                                    fill: {
+                                        type: 'gradient',
+                                        gradient: {
+                                            shadeIntensity: 1,
+                                            opacityFrom: 0.4,
+                                            opacityTo: 0.05,
+                                            stops: [0, 90, 100]
+                                        }
+                                    },
+                                    dataLabels: { enabled: false },
+                                    stroke: { curve: 'smooth', width: 3 },
+                                    xaxis: {
+                                        categories: [],
+                                        labels: { 
+                                            style: { colors: '#9ca3af', fontFamily: 'inherit' }
+                                        },
+                                        axisBorder: { show: false },
+                                        axisTicks: { show: false }
+                                    },
+                                    yaxis: {
+                                        labels: {
+                                            formatter: (val) => 'Rp ' + new Intl.NumberFormat('id-ID').format(val),
+                                            style: { colors: '#9ca3af', fontFamily: 'inherit' }
+                                        }
+                                    },
+                                    grid: {
+                                        borderColor: 'rgba(156, 163, 175, 0.1)',
+                                        strokeDashArray: 4,
+                                    },
+                                    tooltip: {
+                                        theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light',
+                                        y: {
+                                            formatter: (val) => 'Rp ' + new Intl.NumberFormat('id-ID').format(val) 
+                                        }
+                                    }
+                                };
+
+                                this.chart = new window.ApexCharts(this.$refs.chart, options);
+                                this.chart.render();
+                                
+                                this.updateChart();
+
+                                // Observe changes from Livewire morphing
+                                let observer = new MutationObserver(() => this.updateChart());
+                                observer.observe(this.$refs.dataContainer, { childList: true, subtree: true, characterData: true });
+                            },
+                            updateChart() {
+                                if(!this.chart) return;
+                                let labels = JSON.parse(this.$refs.dataLabels.textContent.trim() || '[]');
+                                let series = JSON.parse(this.$refs.dataSeries.textContent.trim() || '[]');
+                                
+                                this.isEmpty = series.length === 0;
+
+                                this.chart.updateSeries([{ data: series }]);
+                                this.chart.updateOptions({ xaxis: { categories: labels } });
+                            }
+                        }"
+                    >
+                        <!-- Hidden Data Container for Livewire bindings -->
+                        <div x-ref="dataContainer" class="hidden">
+                            <span x-ref="dataLabels">{{ $salesTrend->map(fn($t) => date('d/m', strtotime($t->date)))->toJson() }}</span>
+                            <span x-ref="dataSeries">{{ $salesTrend->map(fn($t) => (int)$t->total)->toJson() }}</span>
+                        </div>
+
+                        <!-- Chart rendered here -->
+                        <div wire:ignore x-ref="chart" class="min-h-[250px]"></div>
+
+                        <!-- Empty State Overlay via Alpine -->
+                        <div x-cloak x-show="isEmpty" 
+                             class="absolute inset-x-0 bottom-0 top-4 z-10 flex items-center justify-center bg-base-100/80 backdrop-blur-[2px] italic opacity-80 text-sm font-medium rounded-xl">
+                            Belum ada data penjualan
+                        </div>
                     </div>
                 </div>
             </div>

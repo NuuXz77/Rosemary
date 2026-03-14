@@ -15,7 +15,7 @@ class Delete extends Component
     public function loadDelete(int $id): void
     {
         $material = Materials::findOrFail($id);
-        $this->materialId   = $material->id;
+        $this->materialId = $material->id;
         $this->materialName = $material->name;
         $this->dispatch('open-modal', id: 'delete-material-modal');
     }
@@ -24,8 +24,8 @@ class Delete extends Component
     {
         $material = Materials::findOrFail($this->materialId);
 
-        if ($material->products()->count() > 0 || $material->stockLogs()->count() > 0) {
-            $this->dispatch('show-toast', type: 'error', message: 'Material tidak bisa dihapus karena sudah digunakan dalam resep atau memiliki riwayat stok.');
+        if ($material->products()->count() > 0 || $material->stockLogs()->count() > 0 || $material->purchaseItems()->count() > 0 || $material->materialWastes()->count() > 0) {
+            $this->dispatch('show-toast', type: 'error', message: 'Material tidak bisa dihapus karena sudah digunakan dalam resep, transaksi pembelian, stok, atau limbah.');
             $this->dispatch('close-modal', id: 'delete-material-modal');
             return;
         }
