@@ -12,7 +12,7 @@
         <div class="w-full max-w-sm">
             <div class="text-center mb-8">
                 <img class="mx-auto" src="{{ asset('img/logo.png') }}" width="100" alt="">
-                <h1 class="text-3xl lg:text-4xl font-bold text-base-content mb-2">Selamat Datang</h1>
+                <h1 class="text-3xl lg:text-4xl font-bold text-base-content mb-2">Selamat Datang Bos</h1>
                 <p class="text-base-content/60">Silakan login untuk melanjutkan</p>
             </div>
 
