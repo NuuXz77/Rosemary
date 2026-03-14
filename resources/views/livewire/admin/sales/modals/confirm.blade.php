@@ -3,7 +3,13 @@
 <x-form.modal
     modalId="confirm-modal"
     title="Konfirmasi Pesanan"
-    :showButton="false"
+    buttonText=""
+    buttonIcon="heroicon-o-shopping-cart"
+    buttonClass="btn btn-circle btn-primary btn-lg shadow-2xl relative active:scale-90 transition-all !fixed !bottom-6 !right-6 !left-auto !z-50"
+    :buttonHiddenText="false"
+    :buttonBadge="count($cart) > 0 ? count($cart) : null"
+    buttonBadgeClass="badge badge-secondary badge-sm absolute -top-1 -right-1 animate-bounce"
+    :showButton="true"
     saveAction="proceedToCheckout"
     saveButtonText="Lanjut ke Pembayaran"
     saveButtonIcon="heroicon-o-arrow-right-circle"
@@ -11,10 +17,10 @@
     :showSaveButton="!empty($cart)"
     modalSize="modal-box w-11/12 max-w-5xl">
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-0 -mx-6 -mt-4 border-t border-base-200">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-0 -mx-6 -mt-4 border-t border-base-200 h-[60vh] sm:h-[65vh] lg:h-[70vh] overflow-hidden">
 
         {{-- Left: Item List --}}
-        <div class="lg:col-span-2 overflow-y-auto max-h-[55vh] p-6 border-r border-base-200">
+        <div class="lg:col-span-2 h-full overflow-y-auto p-6 border-r border-base-200">
             <p class="text-xs font-bold text-base-content/50 uppercase tracking-widest mb-4">
                 Daftar Pesanan ({{ collect($cart)->sum('qty') }} item)
             </p>
@@ -79,7 +85,7 @@
         </div>
 
         {{-- Right: Summary --}}
-        <div class="flex flex-col p-6 gap-4">
+        <div class="h-full overflow-y-auto flex flex-col p-6 gap-4">
 
             {{-- Customer select --}}
             <x-form.select
@@ -102,6 +108,15 @@
                 placeholder="Nama pembeli (kosongkan jika Guest)"
                 :hint="$guest_name ? 'Akan dicatat sebagai: ' . $guest_name : 'Akan dicatat sebagai: Guest'" />
             @endif
+
+            {{-- Table number input --}}
+            <x-form.input
+                name="table_number"
+                wireModel="table_number"
+                wireModelModifier="live"
+                label="Nomor Meja"
+                placeholder="Contoh: A1, Meja 3, Take Away..."
+                :hint="$table_number ? 'Meja: ' . $table_number : 'Kosongkan jika Take Away / tidak ada meja'" />
 
             <div class="divider my-0"></div>
 

@@ -16,6 +16,8 @@ class AutoGenerate extends Component
 {
     public int $month;
     public int $year;
+    public string $start_date          = '';
+    public string $end_date            = '';
     public string $type                 = 'production';
     public int|string $shift_id         = '';
     // Cashier
@@ -30,6 +32,8 @@ class AutoGenerate extends Component
     {
         $this->month = now()->month;
         $this->year  = now()->year;
+        $this->start_date = now()->startOfMonth()->toDateString();
+        $this->end_date = now()->endOfMonth()->toDateString();
     }
 
     #[On('open-autogenerate-schedule')]
@@ -37,6 +41,8 @@ class AutoGenerate extends Component
     {
         $this->month            = $month;
         $this->year             = $year;
+        $this->start_date       = Carbon::create($year, $month, 1)->toDateString();
+        $this->end_date         = Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
         $this->type             = 'production';
         $this->shift_id         = '';
         $this->class_id         = '';
@@ -57,8 +63,8 @@ class AutoGenerate extends Component
 
         $base = [
             'type'     => 'required|in:cashier,production',
-            'month'    => 'required|integer|min:1|max:12',
-            'year'     => 'required|integer|min:2020|max:2099',
+            'start_date' => 'required|date',
+            'end_date'   => 'required|date|after_or_equal:start_date',
             'shift_id' => 'required|exists:shifts,id',
         ];
 
@@ -74,8 +80,8 @@ class AutoGenerate extends Component
         }
 
         try {
-            $startDate = Carbon::create($this->year, $this->month, 1);
-            $endDate   = $startDate->copy()->endOfMonth();
+            $startDate = Carbon::parse($this->start_date)->startOfDay();
+            $endDate   = Carbon::parse($this->end_date)->startOfDay();
             $created   = 0;
             $skipped   = 0;
 
@@ -203,7 +209,6 @@ class AutoGenerate extends Component
             'classes'       => Classes::where('status', true)->orderBy('name')->get(),
             'studentGroups' => StudentGroups::where('status', true)->orderBy('name')->get(),
             'divisions'     => Divisions::where('status', true)->where('type', 'production')->orderBy('name')->get(),
-            'monthName'     => Carbon::create($this->year, $this->month)->locale('id')->isoFormat('MMMM YYYY'),
         ]);
     }
 }

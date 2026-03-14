@@ -21,15 +21,14 @@ use Livewire\Attributes\Title;
 #[Title('Kasir POS')]
 class POS extends BasePOS
 {
-    /** Marks this as student PIN mode — hides admin-only selectors in the blade. */
-    public bool $pinMode = true;
-
     public function mount(): void
     {
-        // Run parent mount (auto-detects current shift, etc.)
         parent::mount();
 
-        // Override: always set cashier from the authenticated PIN session
+        // Set PIN mode only when using PIN session (not regular auth)
+        $this->pinMode = session()->has('pos_student_id');
+
+        // Override: set cashier from the authenticated PIN session
         if ($studentId = session('pos_student_id')) {
             $this->cashier_student_id = $studentId;
         }

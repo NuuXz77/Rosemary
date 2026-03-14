@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -18,7 +19,8 @@ class PinAuthenticated
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (! session()->has('pos_student_id')) {
+        // Izinkan akses jika ada sesi PIN student ATAU user terautentikasi dengan permission sales.view
+        if (! session()->has('pos_student_id') && ! (Auth::check() && Auth::user()->can('sales.view'))) {
             return redirect()->route('pos.login')
                 ->with('error', 'Silakan login dengan PIN terlebih dahulu.');
         }

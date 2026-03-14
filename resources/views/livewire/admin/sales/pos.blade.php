@@ -78,7 +78,7 @@
         </div>
 
         {{-- Product Cards --}}
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-3 overflow-y-auto overflow-x-visible pr-1 pt-2 pb-24">
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-6 gap-3 overflow-y-auto overflow-x-visible pr-1 pt-2 pb-24">
             @forelse($products as $product)
                 @php
                     $qty        = $product->stock->qty_available ?? 0;
@@ -103,13 +103,9 @@
                 <div
                     @if($isAvail && !$inCart) wire:click="addToCart({{ $product->id }})" @endif
                     wire:key="product-{{ $product->id }}"
-                    @class([
-                        'group relative flex flex-col rounded-2xl border bg-base-100 overflow-hidden',
-                        'transition-all duration-300',
-                        'cursor-pointer shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-primary/40' => $isAvail && !$inCart,
-                        'cursor-default shadow-md border-primary/50 ring-1 ring-primary/20 -translate-y-0.5'   => $isAvail && $inCart,
-                        'shadow-sm opacity-55 grayscale cursor-not-allowed border-base-300/60'                  => !$isAvail,
-                    ])>
+                    class="group cursor-pointer flex flex-col rounded-lg border border-base-200 bg-base-100 shadow-sm overflow-hidden
+                           {{ $isAvail && !$inCart ? 'hover:shadow-md hover:border-primary/30' : 'cursor-not-allowed opacity-70' }}
+                           transition-shadow duration-200">
 
                     {{-- ── Image Section ── --}}
                     <div class="relative aspect-square overflow-hidden bg-base-200">
@@ -235,17 +231,6 @@
                 </div>
             @endforelse
         </div>
-    </div>
-
-    <!-- Floating Cart Button -->
-    <div class="fixed bottom-6 right-6 z-40">
-        <button wire:click="openConfirmModal"
-            class="btn btn-circle btn-primary btn-lg shadow-2xl relative active:scale-90 transition-all">
-            <x-heroicon-o-shopping-cart class="w-8 h-8" />
-            @if(count($cart) > 0)
-                <span class="badge badge-secondary badge-sm absolute -top-1 -right-1 animate-bounce">{{ count($cart) }}</span>
-            @endif
-        </button>
     </div>
 
     @include('livewire.admin.sales.modals.confirm')

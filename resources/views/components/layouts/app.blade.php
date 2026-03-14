@@ -126,23 +126,23 @@
         </div>
 
         {{-- Admin Sidebar: hanya muncul untuk user yang login via Laravel Auth.
-        Untuk siswa yang login via PIN, sidebar tidak dirender → Spatie @can
-        otomatis mengembalikan false untuk guest, menu kosong. --}}
-        @auth
-            <x-partials.sidebar />
-        @endauth
+             Untuk siswa yang login via PIN, sidebar tidak dirender → Spatie @can
+             otomatis mengembalikan false untuk guest, menu kosong. --}}
+        <x-partials.sidebar />
+
     </div>
 
     {{-- Global Toast Notification --}}
     <x-partials.toast :success="session('success')" :error="session('error')" />
 
     {{-- PIN Student Logout Confirmation Dialog --}}
-    @if(session('pos_student_id'))
+    @if (session('pos_student_id'))
         <dialog id="pin-logout-confirm" class="modal">
             <div class="modal-box max-w-xs rounded-3xl text-center">
                 <x-heroicon-o-arrow-right-on-rectangle class="w-12 h-12 mx-auto text-error mb-2" />
                 <h3 class="font-bold text-lg">Keluar dari Kasir?</h3>
-                <p class="text-sm text-base-content/60 mt-1">Sesi kasir akan ditutup. Kamu perlu PIN lagi untuk masuk.</p>
+                <p class="text-sm text-base-content/60 mt-1">Sesi kasir akan ditutup. Kamu perlu PIN lagi untuk masuk.
+                </p>
                 <div class="modal-action justify-center gap-3 mt-4">
                     <button class="btn btn-ghost btn-sm rounded-xl"
                         onclick="document.getElementById('pin-logout-confirm').close()">Batal</button>

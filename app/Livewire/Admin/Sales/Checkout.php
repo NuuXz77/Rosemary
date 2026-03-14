@@ -25,10 +25,12 @@ class Checkout extends Component
     public float $discount_amount   = 0;
     public float $total_amount      = 0;
     public string $payment_method   = 'cash';
+    public string $payment_status   = 'paid';
     public float $paid_amount       = 0;
     public float $change_amount     = 0;
     public string $note             = '';
     public string $guest_name       = '';
+    public string $table_number     = '';
     public bool $isPinMode          = false;
 
     public function mount()
@@ -51,17 +53,14 @@ class Checkout extends Component
         $this->total_amount     = (float) session('pos_checkout_total', 0);
         $this->isPinMode        = (bool) session('pos_checkout_pine_mode', false);
         $this->guest_name       = session('pos_checkout_guest_name') ?? '';
+        $this->table_number     = session('pos_checkout_table_number') ?? '';
         $this->paid_amount      = $this->total_amount;
         $this->calculateChange();
     }
 
     protected function redirectBack(): void
     {
-        if ($this->isPinMode || session()->has('pos_student_id')) {
-            $this->redirect(route('kasir.pos'), navigate: true);
-        } else {
-            $this->redirect(route('sales.pos'), navigate: true);
-        }
+        $this->redirect(route('kasir.pos'), navigate: true);
     }
 
     public function updatedPaidAmount()
@@ -85,14 +84,26 @@ class Checkout extends Component
         $this->redirectBack();
     }
 
+    public function updatedPaymentStatus()
+    {
+        if ($this->payment_status === 'unpaid') {
+            $this->paid_amount = 0;
+            $this->calculateChange();
+        } else {
+            $this->paid_amount = $this->total_amount;
+            $this->calculateChange();
+        }
+    }
+
     public function submitOrder()
     {
         $this->validate([
             'payment_method' => 'required|in:cash,qris,transfer',
+            'payment_status' => 'required|in:paid,unpaid',
             'paid_amount'    => 'required|numeric|min:0',
         ]);
 
-        if ($this->payment_method === 'cash' && $this->paid_amount < $this->total_amount) {
+        if ($this->payment_status === 'paid' && $this->payment_method === 'cash' && $this->paid_amount < $this->total_amount) {
             $this->dispatch('show-toast', type: 'error', message: 'Uang yang dibayar kurang dari total!');
             return;
         }
@@ -114,7 +125,8 @@ class Checkout extends Component
             $sale = Sales::create([
                 'invoice_number'     => $invoiceNumber,
                 'customer_id'        => $this->customer_id ?: null,
-                'guest_name'         => $this->customer_id ? null : $this->guest_name,
+                'guest_name'         => $this->customer_id ? null : ($this->guest_name ?: null),
+                'table_number'       => $this->table_number ?: null,
                 'shift_id'           => $this->shift_id,
                 'cashier_student_id' => $this->cashier_student_id,
                 'subtotal'           => $this->subtotal,
@@ -124,7 +136,7 @@ class Checkout extends Component
                 'paid_amount'        => $this->paid_amount,
                 'change_amount'      => $this->change_amount,
                 'payment_method'     => $this->payment_method,
-                'status'             => 'paid',
+                'status'             => $this->payment_status,
             ]);
 
             foreach ($this->cart as $item) {
@@ -155,7 +167,8 @@ class Checkout extends Component
 
             // Clear checkout session
             session()->forget([
-                'pos_checkout_cart', 'pos_checkout_customer_id', 'pos_checkout_guest_name', 'pos_checkout_shift_id',
+                'pos_checkout_cart', 'pos_checkout_customer_id', 'pos_checkout_guest_name',
+                'pos_checkout_table_number', 'pos_checkout_shift_id',
                 'pos_checkout_cashier_id', 'pos_checkout_total', 'pos_checkout_subtotal',
                 'pos_checkout_tax_amount', 'pos_checkout_discount_amount', 'pos_checkout_pine_mode',
             ]);
@@ -164,11 +177,7 @@ class Checkout extends Component
                 message: "Transaksi #{$invoiceNumber} berhasil disimpan!");
 
             // Redirect to invoice page
-            if ($this->isPinMode) {
-                $this->redirect(route('kasir.invoice', $sale), navigate: true);
-            } else {
-                $this->redirect(route('sales.invoice', $sale), navigate: true);
-            }
+            $this->redirect(route('kasir.invoice', $sale), navigate: true);
 
         } catch (\Exception $e) {
             DB::rollBack();
