@@ -17,10 +17,10 @@ class RoleSeeder extends Seeder
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $roles = [
-            'admin',
-            'production',
-            'inventory',
-            'cashier',
+            'Admin',
+            'Production',
+            'Inventory',
+            'Cashier',
         ];
 
         foreach ($roles as $roleName) {

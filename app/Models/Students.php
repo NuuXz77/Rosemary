@@ -29,7 +29,7 @@ class Students extends Model
      * Relasi Many-to-One ke Classes
      * Banyak siswa dalam satu kelas
      */
-    public function class(): BelongsTo
+    public function schoolClass(): BelongsTo
     {
         return $this->belongsTo(Classes::class, 'class_id');
     }
