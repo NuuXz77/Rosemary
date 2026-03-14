@@ -60,4 +60,12 @@ class Students extends Model
     {
         return $this->hasMany(Sales::class, 'cashier_student_id');
     }
+
+    /**
+     * Relasi One-to-Many ke StudentAttendances
+     */
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(StudentAttendance::class, 'student_id');
+    }
 }

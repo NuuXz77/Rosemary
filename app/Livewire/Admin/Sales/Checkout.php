@@ -102,6 +102,11 @@ class Checkout extends Component
             return;
         }
 
+        if (!$this->shift_id) {
+            $this->dispatch('show-toast', type: 'error', message: 'Shift tidak terdeteksi! Silakan login ulang.');
+            return;
+        }
+
         DB::beginTransaction();
         try {
             $invoiceNumber = 'INV-' . now()->format('Ymd') . '-' . str_pad(Sales::count() + 1, 4, '0', STR_PAD_LEFT);
@@ -158,7 +163,12 @@ class Checkout extends Component
             $this->dispatch('show-toast', type: 'success',
                 message: "Transaksi #{$invoiceNumber} berhasil disimpan!");
 
-            $this->redirectBack();
+            // Redirect to invoice page
+            if ($this->isPinMode) {
+                $this->redirect(route('kasir.invoice', $sale), navigate: true);
+            } else {
+                $this->redirect(route('sales.invoice', $sale), navigate: true);
+            }
 
         } catch (\Exception $e) {
             DB::rollBack();

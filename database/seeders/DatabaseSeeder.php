@@ -25,6 +25,10 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,    // independent
             ProductSeeder::class,     // butuh categories + divisions (auto-created di dalam)
             StockSeeder::class,       // butuh products
+            
+            // Class & Student data
+            ClassSeeder::class,       // independent
+            StudentSeeder::class,     // butuh classes
         ]);
     }
 }
