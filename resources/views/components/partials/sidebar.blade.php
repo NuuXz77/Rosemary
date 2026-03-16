@@ -63,6 +63,8 @@
                     'product-stocks.view',
                     'product-stock-logs.view',
                     'product-materials.view',
+                    'material-wastes.view',
+                    'product-wastes.view',
                     'purchases.view',
                     'productions.view',
                     'sales.view',
@@ -211,7 +213,7 @@
                 @endcan
 
                 {{-- MANAJEMEN INVENTARIS --}}
-                @canany(['materials.view', 'material-stocks.view', 'material-stock-logs.view', 'products.view', 'product-stocks.view', 'product-stock-logs.view', 'product-materials.view'])
+                @canany(['materials.view', 'material-stocks.view', 'material-stock-logs.view', 'material-wastes.view', 'products.view', 'product-stocks.view', 'product-stock-logs.view', 'product-wastes.view', 'product-materials.view'])
                     <li>
                         <details
                             {{ request()->is('materials*', 'material-stocks*', 'material-stock-logs*', 'material-wastes*', 'products*', 'product-stocks*', 'product-stock-logs*', 'product-wastes*', 'product-materials*') ? 'open' : '' }}>
@@ -249,7 +251,7 @@
                                                             Stok Material</a>
                                                     </li>
                                                 @endcan
-                                                @can('materials.view')
+                                                @can('material-wastes.view')
                                                     <li>
                                                         <a wire:navigate href="/material-wastes"
                                                             class="{{ request()->is('material-wastes*') ? 'bg-base-300' : '' }}">Limbah Bahan (Waste)</a>
@@ -288,7 +290,7 @@
                                                             Stok Produk</a>
                                                     </li>
                                                 @endcan
-                                                @can('products.view')
+                                                @can('product-wastes.view')
                                                     <li>
                                                         <a wire:navigate href="/product-wastes"
                                                             class="{{ request()->is('product-wastes*') ? 'bg-base-300' : '' }}">Limbah Produk (Waste)</a>

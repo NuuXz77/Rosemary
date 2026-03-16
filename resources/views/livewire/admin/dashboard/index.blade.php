@@ -39,8 +39,29 @@
         </div>
     @endif
 
+    {{-- Low Stock Product Alert --}}
+    @if($lowStockProducts > 0)
+        <div
+            class="alert alert-error shadow-lg border-none bg-gradient-to-r from-error/20 to-red-500/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 rounded-2xl">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-error text-error-content rounded-xl animate-pulse">
+                    <x-heroicon-o-shopping-bag class="w-6 h-6" />
+                </div>
+                <div>
+                    <h4 class="font-black text-sm uppercase tracking-wider text-red-800">Peringatan Stok Produk</h4>
+                    <p class="text-xs text-red-700/80">Ada <span class="font-bold underline">{{ $lowStockProducts }}
+                            produk</span> dengan stok ≤ 5 pcs. Segera lakukan produksi!</p>
+                </div>
+            </div>
+            <a href="{{ route('product-stocks.index') }}" wire:navigate
+                class="btn btn-sm btn-error font-bold rounded-xl shadow-sm">
+                Cek Stok Produk <x-heroicon-m-arrow-right class="w-4 h-4" />
+            </a>
+        </div>
+    @endif
+
     {{-- Stat Cards --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         {{-- Total Penjualan --}}
         <div class="card bg-base-100 shadow-sm border border-base-200">
             <div class="card-body p-5">
@@ -100,7 +121,7 @@
             </div>
         </div>
 
-        {{-- Stok Menipis --}}
+        {{-- Stok Bahan Menipis --}}
         <div class="card bg-base-100 shadow-sm border border-base-200 relative overflow-hidden">
             @if($lowStockMaterials > 0)
                 <div class="absolute top-0 right-0 p-1">
@@ -114,7 +135,7 @@
             <div class="card-body p-5">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-bold text-base-content/50 uppercase tracking-widest">Stok Menipis</p>
+                        <p class="text-xs font-bold text-base-content/50 uppercase tracking-widest">Bahan Menipis</p>
                         <h2 @class(['text-2xl font-black mt-1', 'text-error' => $lowStockMaterials > 0])>
                             {{ $lowStockMaterials }} <span class="text-sm font-medium">Item</span>
                         </h2>
@@ -127,6 +148,38 @@
                     <a href="{{ route('material-stocks.index') }}" wire:navigate
                         class="text-[10px] font-bold text-primary hover:underline flex items-center gap-1">
                         Lihat detail stok <x-heroicon-m-chevron-right class="w-3 h-3" />
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {{-- Stok Produk Menipis --}}
+        <div class="card bg-base-100 shadow-sm border border-base-200 relative overflow-hidden">
+            @if($lowStockProducts > 0)
+                <div class="absolute top-0 right-0 p-1">
+                    <span class="relative flex h-3 w-3">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-warning opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-warning"></span>
+                    </span>
+                </div>
+            @endif
+            <div class="card-body p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-base-content/50 uppercase tracking-widest">Produk Menipis</p>
+                        <h2 @class(['text-2xl font-black mt-1', 'text-warning' => $lowStockProducts > 0])>
+                            {{ $lowStockProducts }} <span class="text-sm font-medium">Produk</span>
+                        </h2>
+                    </div>
+                    <div @class(['p-3 rounded-2xl', 'bg-warning/10 text-warning' => $lowStockProducts > 0, 'bg-success/10 text-success' => $lowStockProducts == 0])>
+                        <x-heroicon-o-shopping-bag class="w-8 h-8" />
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="{{ route('product-stocks.index') }}" wire:navigate
+                        class="text-[10px] font-bold text-primary hover:underline flex items-center gap-1">
+                        Lihat stok produk <x-heroicon-m-chevron-right class="w-3 h-3" />
                     </a>
                 </div>
             </div>
@@ -413,6 +466,48 @@
                         <div class="mt-6 pt-4 border-t border-base-200">
                             <a href="{{ route('material-stocks.index') }}" wire:navigate
                                 class="btn btn-xs btn-block btn-ghost text-error">Kelola Stok Kritis</a>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Reorder Point Produk --}}
+            <div class="card bg-base-100 shadow-sm border border-base-200 overflow-hidden">
+                <div class="card-body p-6">
+                    <h3 class="font-bold text-lg flex items-center gap-2 mb-4">
+                        <x-heroicon-o-shopping-bag class="w-5 h-5 text-warning" />
+                        Stok Produk Kritis
+                    </h3>
+                    <div class="space-y-5">
+                        @forelse($lowStockProductItems as $item)
+                            @php
+                                $percentage = ($item->qty_available / 5) * 100;
+                                $statusColor = $item->qty_available <= 1 ? 'progress-error' : 'progress-warning';
+                            @endphp
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between items-end text-xs">
+                                    <span class="font-bold truncate max-w-[120px]">{{ $item->product->name }}</span>
+                                    <span class="font-mono text-[10px]">
+                                        <span
+                                            class="{{ $item->qty_available <= 1 ? 'text-error' : 'text-warning' }} font-black">{{ $item->qty_available }}</span>
+                                        <span class="opacity-40">pcs</span>
+                                    </span>
+                                </div>
+                                <progress class="progress {{ $statusColor }} w-full h-1.5" value="{{ max($percentage, 0) }}"
+                                    max="100"></progress>
+                            </div>
+                        @empty
+                            <div
+                                class="py-10 text-center flex flex-col items-center justify-center gap-2 bg-success/5 rounded-2xl border border-dashed border-success/20">
+                                <x-heroicon-o-check-circle class="w-8 h-8 text-success opacity-40" />
+                                <p class="text-xs text-success/60 font-medium italic">Semua stok produk aman!</p>
+                            </div>
+                        @endforelse
+                    </div>
+                    @if(!$lowStockProductItems->isEmpty())
+                        <div class="mt-6 pt-4 border-t border-base-200">
+                            <a href="{{ route('product-stocks.index') }}" wire:navigate
+                                class="btn btn-xs btn-block btn-ghost text-warning">Kelola Stok Produk</a>
                         </div>
                     @endif
                 </div>
