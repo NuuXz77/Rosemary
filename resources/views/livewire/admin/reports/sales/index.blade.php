@@ -1,48 +1,49 @@
 <div class="space-y-6">
     {{-- Summary Cards --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <div class="card bg-primary text-primary-content shadow-lg">
-            <div class="card-body p-5 flex flex-row items-center justify-between">
+            <div class="card-body p-4 flex flex-row items-center justify-between">
                 <div>
-                    <p class="text-xs font-bold uppercase tracking-widest opacity-70">Total Omzet</p>
-                    <h2 class="text-2xl font-black">Rp {{ number_format($summary['total_sales'], 0, ',', '.') }}</h2>
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-70">Total Omzet</p>
+                    <h2 class="text-xl font-black">Rp {{ number_format($summary['total_sales'], 0, ',', '.') }}</h2>
                 </div>
-                <x-heroicon-o-presentation-chart-line class="w-10 h-10 opacity-20" />
+                <x-heroicon-o-presentation-chart-line class="w-8 h-8 opacity-20" />
             </div>
         </div>
         <div class="card bg-base-100 border border-base-200 shadow-sm">
-            <div class="card-body p-5 flex flex-row items-center justify-between">
+            <div class="card-body p-4 flex flex-row items-center justify-between">
                 <div>
-                    <p class="text-xs font-bold text-base-content/50 uppercase tracking-widest">Transaksi Berhasil</p>
-                    <h2 class="text-2xl font-black">{{ $summary['paid_count'] }} <span
-                            class="text-sm font-medium">Nota</span></h2>
+                    <p class="text-[10px] font-bold text-base-content/50 uppercase tracking-widest">Modal (HPP)</p>
+                    <h2 class="text-xl font-black text-error">Rp {{ number_format($summary['total_hpp'], 0, ',', '.') }}</h2>
                 </div>
-                <div class="p-3 bg-success/10 text-success rounded-2xl">
-                    <x-heroicon-o-check-circle class="w-7 h-7" />
+                <x-heroicon-o-shopping-bag class="w-8 h-8 opacity-10" />
+            </div>
+        </div>
+        <div class="card bg-success text-success-content shadow-lg">
+            <div class="card-body p-4 flex flex-row items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-70">Laba Kotor</p>
+                    <h2 class="text-xl font-black">Rp {{ number_format($summary['total_profit'], 0, ',', '.') }}</h2>
                 </div>
+                <x-heroicon-o-banknotes class="w-8 h-8 opacity-20" />
             </div>
         </div>
         <div class="card bg-base-100 border border-base-200 shadow-sm">
-            <div class="card-body p-5 flex flex-row items-center justify-between">
+            <div class="card-body p-4 flex flex-row items-center justify-between">
                 <div>
-                    <p class="text-xs font-bold text-base-content/50 uppercase tracking-widest">Dibatalkan</p>
-                    <h2 class="text-2xl font-black">{{ $summary['cancelled_count'] }} <span
-                            class="text-sm font-medium">Nota</span></h2>
+                    <p class="text-[10px] font-bold text-base-content/50 uppercase tracking-widest">Transaksi</p>
+                    <h2 class="text-xl font-black text-success">{{ $summary['paid_count'] }} <span class="text-xs font-medium">Nota</span></h2>
                 </div>
-                <div class="p-3 bg-error/10 text-error rounded-2xl">
-                    <x-heroicon-o-x-circle class="w-7 h-7" />
-                </div>
+                <x-heroicon-o-check-circle class="w-8 h-8 opacity-10" />
             </div>
         </div>
         <div class="card bg-base-100 border border-base-200 shadow-sm">
-            <div class="card-body p-5 flex flex-row items-center justify-between">
+            <div class="card-body p-4 flex flex-row items-center justify-between">
                 <div>
-                    <p class="text-xs font-bold text-base-content/50 uppercase tracking-widest">Rata-rata / Nota</p>
-                    <h2 class="text-2xl font-black">Rp {{ number_format($summary['avg_per_sale'], 0, ',', '.') }}</h2>
+                    <p class="text-[10px] font-bold text-base-content/50 uppercase tracking-widest">Rata-rata/Nota</p>
+                    <h2 class="text-xl font-black text-info">Rp {{ number_format($summary['avg_per_sale'], 0, ',', '.') }}</h2>
                 </div>
-                <div class="p-3 bg-info/10 text-info rounded-2xl">
-                    <x-heroicon-o-calculator class="w-7 h-7" />
-                </div>
+                <x-heroicon-o-calculator class="w-8 h-8 opacity-10" />
             </div>
         </div>
     </div>
@@ -56,57 +57,142 @@
                     <x-heroicon-o-chart-bar class="w-5 h-5 text-primary" />
                     Tren Penjualan Harian
                 </h3>
-                <div class="flex items-end gap-1 h-40 pt-4">
-                    @php $maxVal = $dailySales->max('total') ?: 1; @endphp
-                    @foreach($dailySales as $day)
-                        <div class="flex-1 flex flex-col items-center group relative min-w-[4px]">
-                            <div class="w-full bg-primary/20 rounded-t-md group-hover:bg-primary/40 transition-all relative"
-                                style="height: {{ ($day->total / $maxVal) * 100 }}%">
-                                <div
-                                    class="absolute -top-12 left-1/2 -translate-x-1/2 bg-base-content text-base-100 text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 font-bold">
-                                    Rp {{ number_format($day->total, 0, ',', '.') }}<br>
-                                    <span class="opacity-60">{{ $day->count }} nota</span>
-                                </div>
-                            </div>
-                            @if($dailySales->count() <= 15)
-                                <span
-                                    class="text-[8px] mt-1 opacity-40 font-bold">{{ date('d/m', strtotime($day->date)) }}</span>
-                            @endif
-                        </div>
-                    @endforeach
+                <div class="relative min-h-[250px]"
+                    x-data="{
+                        chart: null,
+                        init() {
+                            let options = {
+                                series: [{ name: 'Total Penjualan', data: [] }],
+                                chart: {
+                                    type: 'area',
+                                    height: 250,
+                                    toolbar: { show: false },
+                                    fontFamily: 'inherit',
+                                    zoom: { enabled: false }
+                                },
+                                colors: ['#f97316'], {{-- Orange-500 matching brand --}}
+                                fill: {
+                                    type: 'gradient',
+                                    gradient: {
+                                        shadeIntensity: 1,
+                                        opacityFrom: 0.4,
+                                        opacityTo: 0.05,
+                                        stops: [0, 90, 100]
+                                    }
+                                },
+                                dataLabels: { enabled: false },
+                                stroke: { curve: 'smooth', width: 3 },
+                                xaxis: {
+                                    categories: [],
+                                    labels: { style: { colors: '#9ca3af', fontFamily: 'inherit' } },
+                                    axisBorder: { show: false },
+                                    axisTicks: { show: false }
+                                },
+                                yaxis: {
+                                    labels: {
+                                        formatter: (val) => 'Rp ' + new Intl.NumberFormat('id-ID').format(val),
+                                        style: { colors: '#9ca3af', fontFamily: 'inherit' }
+                                    }
+                                },
+                                grid: {
+                                    borderColor: 'rgba(156, 163, 175, 0.1)',
+                                    strokeDashArray: 4,
+                                },
+                                tooltip: {
+                                    y: { formatter: (val) => 'Rp ' + new Intl.NumberFormat('id-ID').format(val) }
+                                }
+                            };
+                            this.chart = new window.ApexCharts(this.$refs.chart, options);
+                            this.chart.render();
+                            this.updateChart();
+
+                            let observer = new MutationObserver(() => this.updateChart());
+                            observer.observe(this.$refs.dataContainer, { childList: true, subtree: true, characterData: true });
+                        },
+                        updateChart() {
+                            if(!this.chart) return;
+                            let labels = JSON.parse(this.$refs.dataLabels.textContent.trim() || '[]');
+                            let series = JSON.parse(this.$refs.dataSeries.textContent.trim() || '[]');
+                            this.chart.updateSeries([{ data: series }]);
+                            this.chart.updateOptions({ xaxis: { categories: labels } });
+                        }
+                    }"
+                >
+                    <div x-ref="dataContainer" class="hidden">
+                        <span x-ref="dataLabels">{{ $dailySales->map(fn($t) => date('d/m', strtotime($t->date)))->toJson() }}</span>
+                        <span x-ref="dataSeries">{{ $dailySales->map(fn($t) => (int)$t->total)->toJson() }}</span>
+                    </div>
+                    <div wire:ignore x-ref="chart"></div>
                     @if($dailySales->isEmpty())
-                        <div class="w-full h-full flex items-center justify-center italic opacity-30 text-sm">Tidak ada data
-                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center bg-base-100/50 italic opacity-30 text-sm">Tidak ada data</div>
                     @endif
                 </div>
             </div>
         </div>
 
-        {{-- Top Products --}}
+        {{-- Top Products Chart --}}
         <div class="card bg-base-100 border border-base-200 shadow-sm">
             <div class="card-body p-6">
                 <h3 class="font-bold text-lg flex items-center gap-2 mb-4">
                     <x-heroicon-o-fire class="w-5 h-5 text-orange-500" />
                     Produk Terlaris
                 </h3>
-                <div class="space-y-3">
-                    @forelse($topProducts as $i => $product)
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-black">
-                                {{ $i + 1 }}</div>
-                            <div class="flex-1 min-w-0">
-                                <div class="text-sm font-bold truncate">{{ $product->name }}</div>
-                                <div class="text-[10px] opacity-40">{{ $product->total_qty }} pcs</div>
-                            </div>
-                            <div class="text-xs font-black text-secondary whitespace-nowrap">Rp
-                                {{ number_format($product->total_revenue, 0, ',', '.') }}</div>
-                        </div>
-                        @if(!$loop->last)
-                        <div class="divider my-0 opacity-10"></div> @endif
-                    @empty
-                        <div class="py-8 text-center opacity-30 italic text-sm">Belum ada data</div>
-                    @endforelse
+                <div class="relative min-h-[250px]"
+                    x-data="{
+                        chart: null,
+                        init() {
+                            let options = {
+                                series: [{ name: 'Qty Terjual', data: [] }],
+                                chart: {
+                                    type: 'bar',
+                                    height: 250,
+                                    toolbar: { show: false },
+                                    fontFamily: 'inherit'
+                                },
+                                plotOptions: {
+                                    bar: {
+                                        horizontal: true,
+                                        borderRadius: 4,
+                                        barHeight: '60%'
+                                    }
+                                },
+                                colors: ['#0ea5e9'], {{-- Sky-500 --}}
+                                dataLabels: { enabled: true, style: { fontSize: '10px' } },
+                                xaxis: {
+                                    categories: [],
+                                    labels: { show: false },
+                                    axisBorder: { show: false },
+                                    axisTicks: { show: false }
+                                },
+                                grid: { show: false },
+                                tooltip: {
+                                    y: { formatter: (val) => val + ' pcs' }
+                                }
+                            };
+                            this.chart = new window.ApexCharts(this.$refs.chart, options);
+                            this.chart.render();
+                            this.updateChart();
+
+                            let observer = new MutationObserver(() => this.updateChart());
+                            observer.observe(this.$refs.dataContainer, { childList: true, subtree: true, characterData: true });
+                        },
+                        updateChart() {
+                            if(!this.chart) return;
+                            let labels = JSON.parse(this.$refs.dataLabels.textContent.trim() || '[]');
+                            let series = JSON.parse(this.$refs.dataSeries.textContent.trim() || '[]');
+                            this.chart.updateSeries([{ data: series }]);
+                            this.chart.updateOptions({ xaxis: { categories: labels } });
+                        }
+                    }"
+                >
+                    <div x-ref="dataContainer" class="hidden">
+                        <span x-ref="dataLabels">{{ $topProducts->map(fn($p) => $p->name)->toJson() }}</span>
+                        <span x-ref="dataSeries">{{ $topProducts->map(fn($p) => (int)$p->total_qty)->toJson() }}</span>
+                    </div>
+                    <div wire:ignore x-ref="chart"></div>
+                    @if($topProducts->isEmpty())
+                        <div class="absolute inset-0 flex items-center justify-center bg-base-100/50 italic opacity-30 text-sm">Belum ada data</div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -180,10 +266,10 @@
                                 <th>Invoice</th>
                                 <th>Waktu</th>
                                 <th>Pelanggan</th>
-                                <th>Shift</th>
-                                <th>Kasir</th>
-                                <th>Status</th>
+                                <th class="text-right">HPP</th>
                                 <th class="text-right">Total</th>
+                                <th class="text-right text-success">Laba</th>
+                                <th class="text-center">Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -198,27 +284,16 @@
                                     </td>
                                     <td class="text-xs">{{ $sale->created_at->format('d M Y H:i') }}</td>
                                     <td>{{ $sale->customer->name ?? '-' }}</td>
-                                    <td>
-                                        <div class="badge badge-ghost badge-xs">{{ $sale->shift->name ?? '-' }}</div>
-                                    </td>
-                                    <td>
-                                        <div class="flex items-center gap-2">
-                                            <div
-                                                class="w-6 h-6 rounded-full bg-base-300 flex items-center justify-center text-[10px] uppercase font-bold text-base-content/50">
-                                                {{ substr($sale->cashier->name ?? '?', 0, 1) }}
-                                            </div>
-                                            <span class="text-xs">{{ $sale->cashier->name ?? '-' }}</span>
-                                        </div>
-                                    </td>
-                                    <td>
+                                    <td class="text-right text-xs opacity-50">Rp {{ number_format($sale->total_hpp, 0, ',', '.') }}</td>
+                                    <td class="text-right font-black">Rp {{ number_format($sale->total_amount, 0, ',', '.') }}</td>
+                                    <td class="text-right font-black text-success">Rp {{ number_format($sale->total_profit, 0, ',', '.') }}</td>
+                                    <td class="text-center space-y-1">
                                         @if($sale->status === 'paid')
-                                            <span class="badge badge-success badge-sm font-bold">Lunas</span>
+                                            <span class="badge badge-success badge-xs font-bold px-2 py-2">Lunas</span>
                                         @else
-                                            <span class="badge badge-error badge-sm font-bold">Batal</span>
+                                            <span class="badge badge-error badge-xs font-bold px-2 py-2">Batal</span>
                                         @endif
                                     </td>
-                                    <td class="text-right font-black">Rp
-                                        {{ number_format($sale->total_amount, 0, ',', '.') }}</td>
                                 </tr>
                             @empty
                                 <tr>

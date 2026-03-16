@@ -17,6 +17,7 @@ class StudentGroups extends Model
     protected $fillable = [
         'name',      // Nama kelompok
         'class_id',  // FK ke classes
+        'division_id', // FK ke divisions
         'status',    // Boolean: aktif/nonaktif
     ];
 
@@ -34,12 +35,20 @@ class StudentGroups extends Model
     }
 
     /**
+     * Relasi Many-to-One ke Divisions
+     */
+    public function division(): BelongsTo
+    {
+        return $this->belongsTo(Divisions::class, 'division_id');
+    }
+
+    /**
      * Relasi Many-to-Many ke Students (via student_group_members)
      * Banyak siswa dalam satu kelompok
      */
     public function students(): BelongsToMany
     {
-        return $this->belongsToMany(Students::class, 'student_group_members');
+        return $this->belongsToMany(Students::class, 'student_group_members', 'student_group_id', 'student_id');
     }
 
     /**

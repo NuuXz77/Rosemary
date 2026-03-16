@@ -375,6 +375,11 @@
                                             class="{{ request()->is('reports/productions*') ? 'bg-base-300' : '' }}">Laporan
                                             Produksi</a>
                                     </li>
+                                    <li>
+                                        <a wire:navigate href="/reports/wastes"
+                                            class="{{ request()->is('reports/wastes*') ? 'bg-base-300' : '' }}">Laporan
+                                            Limbah (Waste)</a>
+                                    </li>
                                 @endcan
                                 @can('reports.stocks.view')
                                     <li>

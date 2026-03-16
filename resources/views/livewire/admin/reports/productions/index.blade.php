@@ -51,64 +51,149 @@
 
     {{-- Chart & Top Products --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {{-- Production Trend --}}
+        {{-- Production Trend Chart --}}
         <div class="lg:col-span-2 card bg-base-100 border border-base-200 shadow-sm">
             <div class="card-body p-6">
                 <h3 class="font-bold text-lg flex items-center gap-2 mb-4">
                     <x-heroicon-o-chart-bar class="w-5 h-5 text-info" />
                     Tren Produksi Harian
                 </h3>
-                <div class="flex items-end gap-1 h-40 pt-4">
-                    @php $maxVal = $dailyProductions->max('total_qty') ?: 1; @endphp
-                    @foreach($dailyProductions as $day)
-                        <div class="flex-1 flex flex-col items-center group relative min-w-[4px]">
-                            <div class="w-full bg-info/20 rounded-t-md group-hover:bg-info/40 transition-all relative"
-                                style="height: {{ ($day->total_qty / $maxVal) * 100 }}%">
-                                <div
-                                    class="absolute -top-12 left-1/2 -translate-x-1/2 bg-base-content text-base-100 text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 font-bold">
-                                    {{ number_format($day->total_qty, 0, ',', '.') }} pcs<br>
-                                    <span class="opacity-60">{{ $day->batch_count }} batch</span>
-                                </div>
-                            </div>
-                            @if($dailyProductions->count() <= 15)
-                                <span
-                                    class="text-[8px] mt-1 opacity-40 font-bold">{{ date('d/m', strtotime($day->date)) }}</span>
-                            @endif
-                        </div>
-                    @endforeach
+                <div class="relative min-h-[250px]"
+                    x-data="{
+                        chart: null,
+                        init() {
+                            let options = {
+                                series: [{ name: 'Total Produksi', data: [] }],
+                                chart: {
+                                    type: 'area',
+                                    height: 250,
+                                    toolbar: { show: false },
+                                    fontFamily: 'inherit',
+                                    zoom: { enabled: false }
+                                },
+                                colors: ['#06b6d4'], {{-- Cyan-500 matching info theme --}}
+                                fill: {
+                                    type: 'gradient',
+                                    gradient: {
+                                        shadeIntensity: 1,
+                                        opacityFrom: 0.4,
+                                        opacityTo: 0.05,
+                                        stops: [0, 90, 100]
+                                    }
+                                },
+                                dataLabels: { enabled: false },
+                                stroke: { curve: 'smooth', width: 3 },
+                                xaxis: {
+                                    categories: [],
+                                    labels: { style: { colors: '#9ca3af', fontFamily: 'inherit' } },
+                                    axisBorder: { show: false },
+                                    axisTicks: { show: false }
+                                },
+                                yaxis: {
+                                    labels: {
+                                        formatter: (val) => new Intl.NumberFormat('id-ID').format(val) + ' pcs',
+                                        style: { colors: '#9ca3af', fontFamily: 'inherit' }
+                                    }
+                                },
+                                grid: {
+                                    borderColor: 'rgba(156, 163, 175, 0.1)',
+                                    strokeDashArray: 4,
+                                },
+                                tooltip: {
+                                    y: { formatter: (val) => new Intl.NumberFormat('id-ID').format(val) + ' pcs' }
+                                }
+                            };
+                            this.chart = new window.ApexCharts(this.$refs.chart, options);
+                            this.chart.render();
+                            this.updateChart();
+
+                            let observer = new MutationObserver(() => this.updateChart());
+                            observer.observe(this.$refs.dataContainer, { childList: true, subtree: true, characterData: true });
+                        },
+                        updateChart() {
+                            if(!this.chart) return;
+                            let labels = JSON.parse(this.$refs.dataLabels.textContent.trim() || '[]');
+                            let series = JSON.parse(this.$refs.dataSeries.textContent.trim() || '[]');
+                            this.chart.updateSeries([{ data: series }]);
+                            this.chart.updateOptions({ xaxis: { categories: labels } });
+                        }
+                    }"
+                >
+                    <div x-ref="dataContainer" class="hidden">
+                        <span x-ref="dataLabels">{{ $dailyProductions->map(fn($t) => date('d/m', strtotime($t->date)))->toJson() }}</span>
+                        <span x-ref="dataSeries">{{ $dailyProductions->map(fn($t) => (int)$t->total_qty)->toJson() }}</span>
+                    </div>
+                    <div wire:ignore x-ref="chart"></div>
                     @if($dailyProductions->isEmpty())
-                        <div class="w-full h-full flex items-center justify-center italic opacity-30 text-sm">Tidak ada data
-                            produksi</div>
+                        <div class="absolute inset-0 flex items-center justify-center bg-base-100/50 italic opacity-30 text-sm">Tidak ada data produksi</div>
                     @endif
                 </div>
             </div>
         </div>
 
-        {{-- Top Produced --}}
+        {{-- Top Produced Chart --}}
         <div class="card bg-base-100 border border-base-200 shadow-sm">
             <div class="card-body p-6">
                 <h3 class="font-bold text-lg flex items-center gap-2 mb-4">
                     <x-heroicon-o-trophy class="w-5 h-5 text-warning" />
                     Produk Terbanyak
                 </h3>
-                <div class="space-y-3">
-                    @forelse($topProduced as $i => $product)
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="w-6 h-6 rounded-full bg-info/10 text-info flex items-center justify-center text-xs font-black">
-                                {{ $i + 1 }}</div>
-                            <div class="flex-1 min-w-0">
-                                <div class="text-sm font-bold truncate">{{ $product->name }}</div>
-                                <div class="text-[10px] opacity-40">{{ $product->batch_count }} batch</div>
-                            </div>
-                            <div class="text-sm font-black text-info whitespace-nowrap">
-                                {{ number_format($product->total_qty, 0, ',', '.') }} pcs</div>
-                        </div>
-                        @if(!$loop->last)
-                        <div class="divider my-0 opacity-10"></div> @endif
-                    @empty
-                        <div class="py-8 text-center opacity-30 italic text-sm">Belum ada data</div>
-                    @endforelse
+                <div class="relative min-h-[250px]"
+                    x-data="{
+                        chart: null,
+                        init() {
+                            let options = {
+                                series: [{ name: 'Total Qty', data: [] }],
+                                chart: {
+                                    type: 'bar',
+                                    height: 250,
+                                    toolbar: { show: false },
+                                    fontFamily: 'inherit'
+                                },
+                                plotOptions: {
+                                    bar: {
+                                        horizontal: true,
+                                        borderRadius: 4,
+                                        barHeight: '60%'
+                                    }
+                                },
+                                colors: ['#f97316'], {{-- Primary Orange matching theme --}}
+                                dataLabels: { enabled: true, style: { fontSize: '10px' } },
+                                xaxis: {
+                                    categories: [],
+                                    labels: { show: false },
+                                    axisBorder: { show: false },
+                                    axisTicks: { show: false }
+                                },
+                                grid: { show: false },
+                                tooltip: {
+                                    y: { formatter: (val) => val + ' pcs' }
+                                }
+                            };
+                            this.chart = new window.ApexCharts(this.$refs.chart, options);
+                            this.chart.render();
+                            this.updateChart();
+
+                            let observer = new MutationObserver(() => this.updateChart());
+                            observer.observe(this.$refs.dataContainer, { childList: true, subtree: true, characterData: true });
+                        },
+                        updateChart() {
+                            if(!this.chart) return;
+                            let labels = JSON.parse(this.$refs.dataLabels.textContent.trim() || '[]');
+                            let series = JSON.parse(this.$refs.dataSeries.textContent.trim() || '[]');
+                            this.chart.updateSeries([{ data: series }]);
+                            this.chart.updateOptions({ xaxis: { categories: labels } });
+                        }
+                    }"
+                >
+                    <div x-ref="dataContainer" class="hidden">
+                        <span x-ref="dataLabels">{{ $topProduced->map(fn($p) => $p->name)->toJson() }}</span>
+                        <span x-ref="dataSeries">{{ $topProduced->map(fn($p) => (int)$p->total_qty)->toJson() }}</span>
+                    </div>
+                    <div wire:ignore x-ref="chart"></div>
+                    @if($topProduced->isEmpty())
+                        <div class="absolute inset-0 flex items-center justify-center bg-base-100/50 italic opacity-30 text-sm">Belum ada data</div>
+                    @endif
                 </div>
             </div>
         </div>

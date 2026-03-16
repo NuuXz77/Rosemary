@@ -161,6 +161,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('can:reports.productions.view')->group(function () {
         Route::get('/reports/productions', App\Livewire\Admin\Reports\Productions\Index::class)->name('reports.productions.index');
+        Route::get('/reports/wastes', App\Livewire\Admin\Reports\Wastes\Index::class)->name('reports.wastes.index');
     });
 
     Route::middleware('can:reports.stocks.view')->group(function () {

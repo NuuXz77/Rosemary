@@ -33,7 +33,7 @@ class Purchases extends Model
      */
     public function supplier(): BelongsTo
     {
-        return $this->belongsTo(Suppliers::class);
+        return $this->belongsTo(Suppliers::class, 'supplier_id');
     }
 
     /**

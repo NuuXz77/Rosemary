@@ -63,15 +63,15 @@
     {{-- Stat Cards --}}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         {{-- Total Penjualan --}}
-        <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card bg-base-100 shadow-sm border border-base-200 overflow-hidden">
             <div class="card-body p-5">
-                <div class="flex items-center justify-between">
-                    <div>
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
                         <p class="text-xs font-bold text-base-content/50 uppercase tracking-widest">Total Penjualan</p>
                         <h2 class="text-2xl font-black mt-1">Rp {{ number_format($periodSales, 0, ',', '.') }}</h2>
                     </div>
-                    <div class="p-3 bg-primary/10 text-primary rounded-2xl">
-                        <x-heroicon-o-currency-dollar class="w-8 h-8" />
+                    <div class="p-2 bg-primary/10 text-primary rounded-xl shrink-0">
+                        <x-heroicon-o-currency-dollar class="w-6 h-6" />
                     </div>
                 </div>
                 <div class="mt-4 flex items-center text-[10px] font-bold gap-1">
@@ -92,16 +92,16 @@
         </div>
 
         {{-- Jumlah Transaksi --}}
-        <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card bg-base-100 shadow-sm border border-base-200 overflow-hidden">
             <div class="card-body p-5">
-                <div class="flex items-center justify-between">
-                    <div>
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
                         <p class="text-xs font-bold text-base-content/50 uppercase tracking-widest">Jumlah Transaksi</p>
                         <h2 class="text-2xl font-black mt-1">{{ $periodTx }} <span
                                 class="text-sm font-medium">Nota</span></h2>
                     </div>
-                    <div class="p-3 bg-secondary/10 text-secondary rounded-2xl">
-                        <x-heroicon-o-shopping-bag class="w-8 h-8" />
+                    <div class="p-2 bg-secondary/10 text-secondary rounded-xl shrink-0">
+                        <x-heroicon-o-shopping-bag class="w-6 h-6" />
                     </div>
                 </div>
                 <div class="mt-4 flex items-center text-[10px] font-bold gap-1">
@@ -133,15 +133,15 @@
                 </div>
             @endif
             <div class="card-body p-5">
-                <div class="flex items-center justify-between">
-                    <div>
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
                         <p class="text-xs font-bold text-base-content/50 uppercase tracking-widest">Bahan Menipis</p>
                         <h2 @class(['text-2xl font-black mt-1', 'text-error' => $lowStockMaterials > 0])>
                             {{ $lowStockMaterials }} <span class="text-sm font-medium">Item</span>
                         </h2>
                     </div>
-                    <div @class(['p-3 rounded-2xl', 'bg-error/10 text-error' => $lowStockMaterials > 0, 'bg-success/10 text-success' => $lowStockMaterials == 0])>
-                        <x-heroicon-o-exclamation-triangle class="w-8 h-8" />
+                    <div @class(['p-2 rounded-xl shrink-0', 'bg-error/10 text-error' => $lowStockMaterials > 0, 'bg-success/10 text-success' => $lowStockMaterials == 0])>
+                        <x-heroicon-o-exclamation-triangle class="w-6 h-6" />
                     </div>
                 </div>
                 <div class="mt-4">
@@ -165,15 +165,15 @@
                 </div>
             @endif
             <div class="card-body p-5">
-                <div class="flex items-center justify-between">
-                    <div>
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
                         <p class="text-xs font-bold text-base-content/50 uppercase tracking-widest">Produk Menipis</p>
                         <h2 @class(['text-2xl font-black mt-1', 'text-warning' => $lowStockProducts > 0])>
                             {{ $lowStockProducts }} <span class="text-sm font-medium">Produk</span>
                         </h2>
                     </div>
-                    <div @class(['p-3 rounded-2xl', 'bg-warning/10 text-warning' => $lowStockProducts > 0, 'bg-success/10 text-success' => $lowStockProducts == 0])>
-                        <x-heroicon-o-shopping-bag class="w-8 h-8" />
+                    <div @class(['p-2 rounded-xl shrink-0', 'bg-warning/10 text-warning' => $lowStockProducts > 0, 'bg-success/10 text-success' => $lowStockProducts == 0])>
+                        <x-heroicon-o-shopping-bag class="w-6 h-6" />
                     </div>
                 </div>
                 <div class="mt-4">
@@ -186,18 +186,18 @@
         </div>
 
         {{-- Produksi --}}
-        <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card bg-base-100 shadow-sm border border-base-200 overflow-hidden">
             <div class="card-body p-5">
-                <div class="flex items-center justify-between">
-                    <div>
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
                         <p class="text-xs font-bold text-base-content/50 uppercase tracking-widest">Produksi</p>
                         <h2 class="text-2xl font-black mt-1">{{ $periodProd }} <span
                                 class="text-sm font-medium">Batch</span></h2>
                         <p class="text-xs text-base-content/50 mt-0.5">{{ number_format($periodProdQty, 0, ',', '.') }}
                             pcs total</p>
                     </div>
-                    <div class="p-3 bg-info/10 text-info rounded-2xl">
-                        <x-heroicon-o-fire class="w-8 h-8" />
+                    <div class="p-2 bg-info/10 text-info rounded-xl shrink-0">
+                        <x-heroicon-o-fire class="w-6 h-6" />
                     </div>
                 </div>
                 <div class="mt-3 flex items-center text-[10px] font-bold gap-1">

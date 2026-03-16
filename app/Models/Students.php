@@ -40,7 +40,7 @@ class Students extends Model
      */
     public function studentGroups(): BelongsToMany
     {
-        return $this->belongsToMany(StudentGroups::class, 'student_group_members');
+        return $this->belongsToMany(StudentGroups::class, 'student_group_members', 'student_id', 'student_group_id');
     }
 
     /**

@@ -116,7 +116,7 @@ class Checkout extends Component
                 'customer_id'        => $this->customer_id ?: null,
                 'guest_name'         => $this->customer_id ? null : $this->guest_name,
                 'shift_id'           => $this->shift_id,
-                'cashier_student_id' => $this->cashier_student_id,
+                'cashier_student_id' => $this->cashier_student_id, // Biarkan null jika admin, FK sudah dibuat nullable
                 'subtotal'           => $this->subtotal,
                 'tax_amount'         => $this->tax_amount,
                 'discount_amount'    => $this->discount_amount,
