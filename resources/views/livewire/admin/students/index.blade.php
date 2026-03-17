@@ -17,7 +17,13 @@
                         @endforeach
                     </x-form.select>
                 </div>
-                <livewire:admin.students.modals.create />
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <livewire:admin.students.modals.create />
+                    <a wire:navigate href="{{ route('students.import') }}" class="btn btn-outline btn-sm gap-2">
+                        <x-heroicon-o-arrow-up-tray class="w-4 h-4" />
+                        Import Excel
+                    </a>
+                </div>
             </div>
 
             @php
@@ -42,7 +48,7 @@
                             </div>
                         </td>
                         <td>
-                            <span class="badge badge-primary badge-outline badge-sm">{{ $student->class->name ?? '-' }}</span>
+                            <span class="badge badge-sm badge-ghost">{{ $student->schoolClass->name ?? '-' }}</span>
                         </td>
                         <td>
                             @if ($student->status === true)

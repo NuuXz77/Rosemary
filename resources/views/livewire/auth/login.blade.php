@@ -60,8 +60,16 @@
                 </div>
 
                 {{-- Forgot Password Link --}}
-                <div class="text-center mt-4">
+                {{-- <div class="text-center mt-4">
                     <a href="#" class="link link-primary text-sm">Lupa password?</a>
+                </div> --}}
+
+                {{-- Login PIN --}}
+                <div class="text-center mt-2">
+                    <a wire:navigate href="{{ route('pos.login') }}" class="btn btn-info btn-sm w-full gap-2">
+                        <x-heroicon-o-key class="w-4 h-4" />
+                        Login dengan PIN Kasir
+                    </a>
                 </div>
             </form>
         </div>

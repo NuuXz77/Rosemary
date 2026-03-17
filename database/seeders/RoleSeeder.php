@@ -17,10 +17,10 @@ class RoleSeeder extends Seeder
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $roles = [
-            'admin',
-            'production',
-            'inventory',
-            'cashier',
+            'Admin',
+            'Production',
+            'Inventory',
+            'Cashier',
         ];
 
         foreach ($roles as $roleName) {
@@ -68,6 +68,7 @@ class RoleSeeder extends Seeder
         $cashierRole = Role::where('name', 'Cashier')->first();
         if ($cashierRole) {
             $cashierRole->syncPermissions([
+                'dashboard.view',
                 'sales.view',
                 'reports.sales.view',
             ]);

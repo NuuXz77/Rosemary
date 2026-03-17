@@ -77,6 +77,21 @@
 
         <!-- User Profile Dropdown -->
         @auth
+        @php
+            $authUser = Auth::user();
+            $isCashierRole = $authUser->hasRole('cashier') || $authUser->hasRole('Cashier');
+            $cashierStudent = null;
+
+            if ($isCashierRole && session('pos_student_id')) {
+                $cashierStudent = \App\Models\Students::select('id', 'name')->find(session('pos_student_id'));
+            }
+
+            $displayName = $cashierStudent?->name ?? ucwords($authUser->username);
+            $displayInitials = strtoupper(implode('', array_map(fn($word) => substr($word, 0, 1), explode(' ', trim($displayName)))));
+            $displayRole = $isCashierRole
+                ? 'Kasir'
+                : (($roles = $authUser->getRoleNames())->count() > 0 ? $roles->implode(', ') : 'No Role');
+        @endphp
         <div class="dropdown dropdown-end">
             <div class="flex items-center gap-3 cursor-pointer pr-4" tabindex="0">
                 <div class="avatar avatar-online">
@@ -86,19 +101,13 @@
                                 <img src="{{ Auth::user()->avatar }}" alt="User Avatar" />
                             @else
                             @endif --}}
-                            <span
-                                class="text-lg font-bold">{{ strtoupper(implode('', array_map(fn($word) => substr($word, 0, 1), explode(' ', Auth::user()->username)))) }}</span>
+                            <span class="text-lg font-bold">{{ $displayInitials }}</span>
                         </div>
                     </button>
                 </div>
                 <div class="hidden md:flex flex-col items-start">
-                    <p class="font-semibold text-sm">{{ ucwords(Auth::user()->username) }}</p>
-                    <p class="text-xs text-gray-500">
-                        @php
-                            $roles = Auth::user()->getRoleNames();
-                            echo $roles->count() > 0 ? $roles->implode(', ') : 'No Role';
-                        @endphp
-                    </p>
+                    <p class="font-semibold text-sm">{{ $displayName }}</p>
+                    <p class="text-xs text-gray-500">{{ $displayRole }}</p>
                 </div>
             </div>
             <ul

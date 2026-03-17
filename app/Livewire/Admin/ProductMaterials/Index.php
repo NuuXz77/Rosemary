@@ -21,95 +21,135 @@ class Index extends Component
     public string $search = '';
     public int $perPage = 10;
 
-    // Modal Properties
-    public $productId;
-    public $selectedProductName;
-    public $materials_list = []; // Existing recipe materials
+    // Form Properties
+    public $recipeId = null;
+    public $product_id = '';
+    public $material_id = '';
+    public $qty_used = '';
+    public $isEdit = false;
 
-    // Form for Adding Material to Recipe
-    public $new_material_id;
-    public $new_qty_used;
-
-    protected $rules = [
-        'new_material_id' => 'required|exists:materials,id',
-        'new_qty_used' => 'required|numeric|min:0.001',
-    ];
+    protected function rules()
+    {
+        return [
+            'product_id' => 'required|exists:products,id',
+            'material_id' => 'required|exists:materials,id',
+            'qty_used' => 'required|numeric|min:0.001',
+        ];
+    }
 
     public function updatingSearch(): void
     {
         $this->resetPage();
     }
 
-    public function manageRecipe($id)
+    public function resetFields()
     {
-        $product = Products::with('materials.unit')->findOrFail($id);
-        $this->productId = $product->id;
-        $this->selectedProductName = $product->name;
-        $this->loadMaterials();
+        $this->reset(['recipeId', 'product_id', 'material_id', 'qty_used', 'isEdit']);
+        $this->resetValidation();
+    }
 
-        $this->reset(['new_material_id', 'new_qty_used']);
+    public function create()
+    {
+        $this->resetFields();
         $this->dispatch('open-modal', id: 'recipe-modal');
     }
 
-    public function loadMaterials()
-    {
-        $product = Products::with('materials.unit')->findOrFail($this->productId);
-        $this->materials_list = $product->materials;
-    }
-
-    public function addMaterial()
+    public function store()
     {
         $this->validate();
 
-        // Check if material already exists in recipe
-        $exists = ProductMaterials::where('product_id', $this->productId)
-            ->where('material_id', $this->new_material_id)
+        $exists = ProductMaterials::where('product_id', $this->product_id)
+            ->where('material_id', $this->material_id)
             ->exists();
 
         if ($exists) {
-            $this->dispatch('show-toast', type: 'error', message: 'Material sudah ada dalam resep ini.');
+            $this->addError('material_id', 'Bahan baku sudah terdaftar pada resep produk ini.');
             return;
         }
 
         ProductMaterials::create([
-            'product_id' => $this->productId,
-            'material_id' => $this->new_material_id,
-            'qty_used' => $this->new_qty_used,
+            'product_id' => $this->product_id,
+            'material_id' => $this->material_id,
+            'qty_used' => $this->qty_used,
         ]);
 
-        $this->reset(['new_material_id', 'new_qty_used']);
-        $this->loadMaterials();
-        $this->dispatch('show-toast', type: 'success', message: 'Material ditambahkan ke resep.');
+        $this->dispatch('close-modal', id: 'recipe-modal');
+        $this->dispatch('show-toast', type: 'success', message: 'Resep produk berhasil ditambahkan.');
+        $this->resetFields();
     }
 
-    public function removeMaterial($materialId)
+    public function edit($id)
     {
-        ProductMaterials::where('product_id', $this->productId)
-            ->where('material_id', $materialId)
-            ->delete();
+        $this->resetFields();
+        $recipe = ProductMaterials::findOrFail($id);
+        $this->recipeId = $recipe->id;
+        $this->product_id = (string) $recipe->product_id;
+        $this->material_id = (string) $recipe->material_id;
+        $this->qty_used = $recipe->qty_used;
+        $this->isEdit = true;
 
-        $this->loadMaterials();
-        $this->dispatch('show-toast', type: 'success', message: 'Material dihapus dari resep.');
+        $this->dispatch('open-modal', id: 'recipe-modal');
+    }
+
+    public function update()
+    {
+        $this->validate();
+
+        $recipe = ProductMaterials::findOrFail($this->recipeId);
+
+        $exists = ProductMaterials::where('product_id', $this->product_id)
+            ->where('material_id', $this->material_id)
+            ->where('id', '!=', $this->recipeId)
+            ->exists();
+
+        if ($exists) {
+            $this->addError('material_id', 'Bahan baku sudah terdaftar pada resep produk ini.');
+            return;
+        }
+
+        $recipe->update([
+            'product_id' => $this->product_id,
+            'material_id' => $this->material_id,
+            'qty_used' => $this->qty_used,
+        ]);
+
+        $this->dispatch('close-modal', id: 'recipe-modal');
+        $this->dispatch('show-toast', type: 'success', message: 'Resep produk berhasil diperbarui.');
+        $this->resetFields();
+    }
+
+    public function confirmDelete($id)
+    {
+        $this->recipeId = $id;
+        $this->dispatch('open-modal', id: 'delete-modal');
+    }
+
+    public function delete()
+    {
+        $recipe = ProductMaterials::findOrFail($this->recipeId);
+        $recipe->delete();
+
+        $this->dispatch('close-modal', id: 'delete-modal');
+        $this->dispatch('show-toast', type: 'success', message: 'Resep produk berhasil dihapus.');
     }
 
     public function render()
     {
-        $products = Products::query()
-            ->with(['category', 'division', 'materials'])
-            ->withCount('materials')
+        $recipes = ProductMaterials::query()
+            ->with(['product', 'material.unit'])
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhereHas('category', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'));
+                $query->whereHas('product', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'))
+                      ->orWhereHas('material', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'));
             })
-            ->orderBy('name')
+            ->orderBy('created_at', 'desc')
             ->paginate($this->perPage);
 
-        $availableMaterials = Materials::where('status', true)
-            ->orderBy('name')
-            ->get();
+        $availableProducts = Products::where('status', true)->orderBy('name')->get();
+        $availableMaterials = Materials::with('unit')->where('status', true)->orderBy('name')->get();
 
         return view('livewire.admin.product-materials.index', [
-            'products' => $products,
+            'recipes' => $recipes,
+            'availableProducts' => $availableProducts,
             'availableMaterials' => $availableMaterials,
         ]);
     }

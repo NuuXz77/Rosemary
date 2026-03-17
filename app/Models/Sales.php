@@ -19,6 +19,7 @@ class Sales extends Model
         'invoice_number',    // Nomor invoice unik
         'customer_id',       // FK ke customers (optional, untuk pelanggan umum)
         'guest_name',        // Nama pembeli jika Guest (tidak terdaftar)
+        'table_number',      // Nomor meja (optional)
         'shift_id',          // FK ke shifts (shift saat transaksi)
         'cashier_student_id',// FK ke students (siswa kasir)
         'subtotal',          // Subtotal belanja
@@ -28,7 +29,7 @@ class Sales extends Model
         'paid_amount',       // Jumlah yang dibayar
         'change_amount',     // Kembalian
         'payment_method',    // Enum: 'cash', 'qris', 'transfer'
-        'status',            // Enum: 'paid', 'cancelled'
+        'status',            // Enum: 'paid', 'unpaid', 'cancelled'
     ];
 
     protected $casts = [

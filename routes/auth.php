@@ -25,7 +25,10 @@ Route::middleware('pin.auth')->group(function () {
     Route::get('/kasir/invoice/{sale}', App\Livewire\Admin\Sales\Invoice::class)->name('kasir.invoice');
 
     Route::get('/kasir/logout', function () {
-        session()->forget(['pos_student_id', 'pos_student_name']);
+        session()->forget(['pos_student_id', 'pos_student_name', 'pos_shift_id']);
+        Auth::logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
         return redirect()->route('pos.login');
     })->name('kasir.logout');
 });
@@ -73,6 +76,7 @@ Route::middleware('auth')->group(function () {
     // --------------------------------------------
     Route::middleware('can:students.view')->group(function () {
         Route::get('/students', App\Livewire\Admin\Students\Index::class)->name('students.index');
+        Route::get('/students/import', App\Livewire\Admin\Students\ImportStudents::class)->name('students.import');
     });
 
     Route::middleware('can:student-groups.view')->group(function () {
@@ -130,6 +134,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/product-materials', App\Livewire\Admin\ProductMaterials\Index::class)->name('product-materials.index');
     });
 
+    Route::middleware('can:product-wastes.view')->group(function () {
+        Route::get('/product-wastes', App\Livewire\Admin\ProductWastes\Index::class)->name('product-wastes.index');
+    });
+
     // --------------------------------------------
     // MANAJEMEN TRANSAKSI
     // --------------------------------------------
@@ -143,9 +151,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('can:sales.view')->group(function () {
         Route::get('/sales', App\Livewire\Admin\Sales\Index::class)->name('sales.index');
-        Route::get('/sales/pos', App\Livewire\Admin\Sales\POS::class)->name('sales.pos');
-        Route::get('/sales/checkout', App\Livewire\Admin\Sales\Checkout::class)->name('sales.checkout');
-        Route::get('/sales/invoice/{sale}', App\Livewire\Admin\Sales\Invoice::class)->name('sales.invoice');
+        Route::get('/sales/{sale}', App\Livewire\Admin\Sales\Detail::class)->name('sales.detail');
     });
 
     // --------------------------------------------

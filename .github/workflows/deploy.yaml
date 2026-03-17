@@ -1,0 +1,32 @@
+name: Otomatis Deploy ke Server
+
+on:
+  push:
+    branches:
+      - main   # Ganti sesuai branch utama kamu
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup SSH connection
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Deploy to server via SSH
+      run: |
+        ssh -p 21032 -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
+            eval \$(ssh-agent -s)
+            ssh-add ~/.ssh/wisnu
+            cd web
+            git pull origin main
+            composer install
+            composer dump-autoload
+            npm install
+            npm run build
+        "

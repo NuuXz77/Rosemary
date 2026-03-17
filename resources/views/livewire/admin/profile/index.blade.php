@@ -170,17 +170,17 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Nama Lengkap -->
-                        <div class="form-control">
+                        <div class="form-control md:col-span-3">
                             <label class="label">
                                 <span class="label-text font-medium text-base-content/70">Nama Lengkap</span>
                             </label>
                             @if($isEditing)
                                 <input type="text" wire:model="name"
-                                    class="input input-bordered w-full @error('name') input-error @enderror" />
+                                    class="input input-bordered w-full input-lg @error('name') input-error @enderror" />
                                 @error('name') <span class="text-error text-xs mt-1">{{ $message }}</span> @enderror
                             @else
-                                <div class="px-3 py-2 bg-base-200/50 rounded-lg border border-transparent">
-                                    <p class="font-semibold">{{ $user->name }}</p>
+                                <div class="px-3 py-4 bg-base-200/50 rounded-lg border border-transparent">
+                                    <p class="font-semibold text-lg">{{ $user->name }}</p>
                                 </div>
                             @endif
                         </div>

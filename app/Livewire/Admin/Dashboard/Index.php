@@ -26,7 +26,7 @@ class Index extends Component
         } elseif (auth()->user()->hasRole('Inventory')) {
             return $this->redirect('/material-stocks', navigate: true);
         } elseif (auth()->user()->hasRole('Cashier')) {
-            return $this->redirect('/sales/pos', navigate: true);
+            return $this->redirect(route('kasir.pos'), navigate: true);
         }
     }
 
