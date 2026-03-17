@@ -25,7 +25,7 @@ class PurchaseItems extends Model
      */
     public function purchase(): BelongsTo
     {
-        return $this->belongsTo(Purchases::class);
+        return $this->belongsTo(Purchases::class, 'purchase_id');
     }
 
     /**
@@ -33,6 +33,6 @@ class PurchaseItems extends Model
      */
     public function material(): BelongsTo
     {
-        return $this->belongsTo(Materials::class);
+        return $this->belongsTo(Materials::class, 'material_id');
     }
 }

@@ -31,7 +31,7 @@ class ProductStockLogs extends Model
      */
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Products::class);
+        return $this->belongsTo(Products::class, 'product_id');
     }
 
     /**

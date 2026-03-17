@@ -110,6 +110,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/material-stock-logs', App\Livewire\Admin\MaterialStockLogs\Index::class)->name('material-stock-logs.index');
     });
 
+    Route::middleware('can:material-wastes.view')->group(function () {
+        Route::get('/material-wastes', App\Livewire\Admin\MaterialWastes\Index::class)->name('material-wastes.index');
+    });
+
     Route::middleware('can:products.view')->group(function () {
         Route::get('/products', App\Livewire\Admin\Products\Index::class)->name('products.index');
     });
@@ -120,6 +124,10 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('can:product-stock-logs.view')->group(function () {
         Route::get('/product-stock-logs', App\Livewire\Admin\ProductStockLogs\Index::class)->name('product-stock-logs.index');
+    });
+
+    Route::middleware('can:product-wastes.view')->group(function () {
+        Route::get('/product-wastes', App\Livewire\Admin\ProductWastes\Index::class)->name('product-wastes.index');
     });
 
     Route::middleware('can:product-materials.view')->group(function () {
@@ -159,6 +167,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('can:reports.productions.view')->group(function () {
         Route::get('/reports/productions', App\Livewire\Admin\Reports\Productions\Index::class)->name('reports.productions.index');
+        Route::get('/reports/wastes', App\Livewire\Admin\Reports\Wastes\Index::class)->name('reports.wastes.index');
     });
 
     Route::middleware('can:reports.stocks.view')->group(function () {

@@ -34,7 +34,7 @@ class Schedules extends Model
      */
     public function student(): BelongsTo
     {
-        return $this->belongsTo(Students::class);
+        return $this->belongsTo(Students::class, 'student_id');
     }
 
     /**
@@ -50,7 +50,7 @@ class Schedules extends Model
      */
     public function studentGroup(): BelongsTo
     {
-        return $this->belongsTo(StudentGroups::class);
+        return $this->belongsTo(StudentGroups::class, 'student_group_id');
     }
 
     /**
@@ -58,6 +58,6 @@ class Schedules extends Model
      */
     public function division(): BelongsTo
     {
-        return $this->belongsTo(Divisions::class);
+        return $this->belongsTo(Divisions::class, 'division_id');
     }
 }

@@ -45,14 +45,44 @@
             <!-- Menu Navigation -->
             <ul class="menu sidebar-menu space-y-1 w-full">
                 <!-- ADMIN MENU -->
-                @canany(['dashboard.view', 'users.manage', 'roles.view', 'roles.manage', 'permissions.view',
-                    'permissions.manage', 'students.view', 'student-groups.view', 'student-group-members.view',
-                    'schedules.view', 'materials.view', 'material-stocks.view', 'material-stock-logs.view', 'products.view',
-                    'product-stocks.view', 'product-stock-logs.view', 'product-materials.view', 'purchases.view',
-                    'productions.view', 'sales.view', 'reports.sales.view', 'reports.purchases.view',
-                    'reports.productions.view', 'reports.stocks.view', 'reports.schedules.view', 'master.categories.view',
-                    'master.units.view', 'master.suppliers.view', 'master.customers.view', 'master.shifts.view',
-                    'master.divisions.view', 'master.classes.view', 'discounts.manage', 'settings.app.view'])
+                @canany([
+                    'dashboard.view',
+                    'users.manage',
+                    'roles.view',
+                    'roles.manage',
+                    'permissions.view',
+                    'permissions.manage',
+                    'students.view',
+                    'student-groups.view',
+                    'student-group-members.view',
+                    'schedules.view',
+                    'materials.view',
+                    'material-stocks.view',
+                    'material-stock-logs.view',
+                    'products.view',
+                    'product-stocks.view',
+                    'product-stock-logs.view',
+                    'product-materials.view',
+                    'material-wastes.view',
+                    'product-wastes.view',
+                    'purchases.view',
+                    'productions.view',
+                    'sales.view',
+                    'reports.sales.view',
+                    'reports.purchases.view',
+                    'reports.productions.view',
+                    'reports.stocks.view',
+                    'reports.schedules.view',
+                    'master.categories.view',
+                    'master.units.view',
+                    'master.suppliers.view',
+                    'master.customers.view',
+                    'master.shifts.view',
+                    'master.divisions.view',
+                    'master.classes.view',
+                    'discounts.manage',
+                    'settings.app.view'
+                ])
                     {{-- <li class="menu-title">
                         <span>Administrator</span>
                     </li> --}}
@@ -253,7 +283,7 @@
                                                             Stok Material</a>
                                                     </li>
                                                 @endcan
-                                                @can('materials.view')
+                                                @can('material-wastes.view')
                                                     <li>
                                                         <a wire:navigate href="/material-wastes"
                                                             class="{{ request()->is('material-wastes*') ? 'bg-base-300' : '' }}">Limbah
@@ -294,7 +324,7 @@
                                                             Stok Produk</a>
                                                     </li>
                                                 @endcan
-                                                @can('products.view')
+                                                @can('product-wastes.view')
                                                     <li>
                                                         <a wire:navigate href="/product-wastes"
                                                             class="{{ request()->is('product-wastes*') ? 'bg-base-300' : '' }}">Limbah
@@ -353,57 +383,60 @@
                     @endcanany
                 @endunlessrole
 
-                {{-- LAPORAN & ANALITIK (Non-Cashier) --}}
-                @unlessrole('Cashier')
-                    @canany(['reports.sales.view', 'reports.purchases.view', 'reports.productions.view',
-                        'reports.stocks.view', 'reports.schedules.view'])
-                        <li>
-                            <details {{ request()->is('reports*') ? 'open' : '' }}>
-                                <summary>
-                                    <x-heroicon-o-chart-bar class="w-5" />
-                                    Laporan & Analitik
-                                </summary>
-                                <ul>
-                                    @can('reports.sales.view')
-                                        <li>
-                                            <a wire:navigate href="/reports/sales"
-                                                class="{{ request()->is('reports/sales*') ? 'bg-base-300' : '' }}">Laporan
-                                                Penjualan</a>
-                                        </li>
-                                    @endcan
-                                    @can('reports.purchases.view')
-                                        <li>
-                                            <a wire:navigate href="/reports/purchases"
-                                                class="{{ request()->is('reports/purchases*') ? 'bg-base-300' : '' }}">Laporan
-                                                Pembelian</a>
-                                        </li>
-                                    @endcan
-                                    @can('reports.productions.view')
-                                        <li>
-                                            <a wire:navigate href="/reports/productions"
-                                                class="{{ request()->is('reports/productions*') ? 'bg-base-300' : '' }}">Laporan
-                                                Produksi</a>
-                                        </li>
-                                    @endcan
-                                    @can('reports.stocks.view')
-                                        <li>
-                                            <a wire:navigate href="/reports/stocks"
-                                                class="{{ request()->is('reports/stocks*') ? 'bg-base-300' : '' }}">Laporan
-                                                Stok</a>
-                                        </li>
-                                    @endcan
-                                    @can('reports.schedules.view')
-                                        <li>
-                                            <a wire:navigate href="/reports/schedules"
-                                                class="{{ request()->is('reports/schedules*') ? 'bg-base-300' : '' }}">Laporan
-                                                Jadwal</a>
-                                        </li>
-                                    @endcan
-                                </ul>
-                            </details>
-                        </li>
-                    @endcanany
-                @endunlessrole
+                {{-- LAPORAN & ANALITIK --}}
+                @canany(['reports.sales.view', 'reports.purchases.view', 'reports.productions.view', 'reports.stocks.view', 'reports.schedules.view'])
+                    <li>
+                        <details {{ request()->is('reports*') ? 'open' : '' }}>
+                            <summary>
+                                <x-heroicon-o-chart-bar class="w-5" />
+                                Laporan & Analitik
+                            </summary>
+                            <ul>
+                                @can('reports.sales.view')
+                                    <li>
+                                        <a wire:navigate href="/reports/sales"
+                                            class="{{ request()->is('reports/sales*') ? 'bg-base-300' : '' }}">Laporan
+                                            Penjualan</a>
+                                    </li>
+                                @endcan
+                                @can('reports.purchases.view')
+                                    <li>
+                                        <a wire:navigate href="/reports/purchases"
+                                            class="{{ request()->is('reports/purchases*') ? 'bg-base-300' : '' }}">Laporan
+                                            Pembelian</a>
+                                    </li>
+                                @endcan
+                                @can('reports.productions.view')
+                                    <li>
+                                        <a wire:navigate href="/reports/productions"
+                                            class="{{ request()->is('reports/productions*') ? 'bg-base-300' : '' }}">Laporan
+                                            Produksi</a>
+                                    </li>
+                                    <li>
+                                        <a wire:navigate href="/reports/wastes"
+                                            class="{{ request()->is('reports/wastes*') ? 'bg-base-300' : '' }}">Laporan
+                                            Limbah (Waste)</a>
+                                    </li>
+                                @endcan
+                                @can('reports.stocks.view')
+                                    <li>
+                                        <a wire:navigate href="/reports/stocks"
+                                            class="{{ request()->is('reports/stocks*') ? 'bg-base-300' : '' }}">Laporan
+                                            Stok</a>
+                                    </li>
+                                @endcan
+                                @can('reports.schedules.view')
+                                    <li>
+                                        <a wire:navigate href="/reports/schedules"
+                                            class="{{ request()->is('reports/schedules*') ? 'bg-base-300' : '' }}">Laporan
+                                            Jadwal</a>
+                                    </li>
+                                @endcan
+                            </ul>
+                        </details>
+                    </li>
+                @endcanany
+
 
                 {{-- PENGATURAN --}}
                 @canany(['master.categories.view', 'master.units.view', 'master.suppliers.view',
