@@ -24,6 +24,7 @@ jobs:
             eval \$(ssh-agent -s)
             ssh-add ~/.ssh/wisnu
             ssh -T git@github.com
+            ssh -T git@github.com
             cd web
             git pull origin main
             composer install
