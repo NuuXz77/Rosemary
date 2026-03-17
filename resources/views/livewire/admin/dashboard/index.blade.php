@@ -1,3 +1,8 @@
+@if($dashboardRole === 'production')
+    @include('livewire.admin.dashboard.partials.production')
+@elseif($dashboardRole === 'inventory')
+    @include('livewire.admin.dashboard.partials.inventory')
+@else
 <div class="space-y-6">
     {{-- Period Selector --}}
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -569,3 +574,4 @@
         </div>
     </div>
 </div>
+@endif
