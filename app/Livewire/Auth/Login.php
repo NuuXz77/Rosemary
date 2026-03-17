@@ -52,9 +52,9 @@ class Login extends Component
             if ($user->hasRole('Admin')) {
                 return $this->redirect('/dashboard', navigate: true);
             } elseif ($user->hasRole('Production')) {
-                return $this->redirect('/productions', navigate: true);
+                return $this->redirect('/dashboard', navigate: true);
             } elseif ($user->hasRole('Inventory')) {
-                return $this->redirect('/material-stocks', navigate: true);
+                return $this->redirect('/dashboard', navigate: true);
             } elseif ($user->hasRole('Cashier')) {
                 return $this->redirect(route('kasir.pos'), navigate: true);
             }

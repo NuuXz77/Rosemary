@@ -9,7 +9,10 @@
     <title>{{ config('app.name', 'Siska App') }} - {{ $title ?? 'Dashboard' }}</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('img/favicon/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('img/favicon/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('img/favicon/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ asset('img/favicon/site.webmanifest') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
@@ -293,7 +296,7 @@
         });
 
         // Pull to Refresh Functionality
-        (function () {
+        (function() {
             let startY = 0;
             let currentY = 0;
             let isPulling = false;

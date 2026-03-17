@@ -40,6 +40,7 @@ class POS extends Component
     // Transaction State
     public $customer_id = null;
     public $guest_name = '';
+    public $status_order = Sales::ORDER_STATUS_TAKE_AWAY;
     public $table_number = '';
     public $shift_id = null;
     public $cashier_student_id = null;
@@ -54,6 +55,8 @@ class POS extends Component
     protected $rules = [
         'shift_id' => 'required|exists:shifts,id',
         'cashier_student_id' => 'required|exists:students,id',
+        'status_order' => 'required|in:Take away,Dine in',
+        'table_number' => 'nullable|string|max:255',
         'payment_method' => 'required|in:cash,qris,transfer',
         'paid_amount' => 'required|numeric|min:0',
     ];
@@ -75,6 +78,13 @@ class POS extends Component
     public function updatedPaidAmount()
     {
         $this->calculateTotals();
+    }
+
+    public function updatedStatusOrder($value)
+    {
+        if ($value !== Sales::ORDER_STATUS_DINE_IN) {
+            $this->table_number = '';
+        }
     }
 
     public function scanBarcode()
@@ -169,10 +179,16 @@ class POS extends Component
             return;
         }
 
+        $this->validate([
+            'status_order' => 'required|in:Take away,Dine in',
+            'table_number' => 'nullable|string|max:255|required_if:status_order,Dine in',
+        ]);
+
         session([
             'pos_checkout_cart'             => $this->cart,
             'pos_checkout_customer_id'      => $this->customer_id,
             'pos_checkout_guest_name'       => $this->customer_id ? null : ($this->guest_name ?: 'Guest'),
+            'pos_checkout_status_order'     => $this->status_order,
             'pos_checkout_table_number'     => $this->table_number,
             'pos_checkout_shift_id'         => $this->shift_id,
             'pos_checkout_cashier_id'       => $this->cashier_student_id,
@@ -235,7 +251,8 @@ class POS extends Component
                 'invoice_number' => $invoiceNumber,
                 'customer_id' => $this->customer_id ?: null,
                 'guest_name'  => $this->customer_id ? null : ($this->guest_name ?: null),
-                'table_number' => $this->table_number ?: null,
+                'status_order' => $this->status_order,
+                'table_number' => $this->status_order === Sales::ORDER_STATUS_DINE_IN ? ($this->table_number ?: null) : null,
                 'shift_id' => $this->shift_id,
                 'cashier_student_id' => $this->cashier_student_id,
                 'subtotal' => $this->subtotal,
@@ -283,7 +300,8 @@ class POS extends Component
             $this->dispatch('open-modal', id: 'receipt-modal');
             $this->dispatch('show-toast', type: 'success', message: 'Transaksi berhasil disimpan!');
 
-            $this->reset(['cart', 'subtotal', 'tax_amount', 'discount_amount', 'total_amount', 'paid_amount', 'change_amount', 'customer_id']);
+            $this->reset(['cart', 'subtotal', 'tax_amount', 'discount_amount', 'total_amount', 'paid_amount', 'change_amount', 'customer_id', 'guest_name', 'table_number']);
+            $this->status_order = Sales::ORDER_STATUS_TAKE_AWAY;
 
         } catch (\Exception $e) {
             DB::rollBack();

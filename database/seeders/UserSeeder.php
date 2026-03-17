@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
             ['username' => 'admin', 'password' => 'admin', 'role' => 'Admin'],
             ['username' => 'production', 'password' => 'production', 'role' => 'Production'],
             ['username' => 'inventory', 'password' => 'inventory', 'role' => 'Inventory'],
-            ['username' => 'cashier', 'password' => 'cashier', 'role' => 'Cashier'],
+            // ['username' => 'cashier', 'password' => 'cashier', 'role' => 'Cashier'],
         ];
 
         foreach ($users as $data) {

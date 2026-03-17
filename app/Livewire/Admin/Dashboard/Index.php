@@ -4,7 +4,10 @@ namespace App\Livewire\Admin\Dashboard;
 
 use App\Models\Sales;
 use App\Models\MaterialStocks;
+use App\Models\MaterialStockLogs;
+use App\Models\MaterialWastes;
 use App\Models\ProductStocks;
+use App\Models\ProductWastes;
 use App\Models\Productions;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -18,16 +21,27 @@ class Index extends Component
 
     public string $period = 'month';
     public int $chartDays = 7;
+    public string $dashboardRole = 'admin';
 
     public function mount()
     {
-        if (auth()->user()->hasRole('Production')) {
-            return $this->redirect('/productions', navigate: true);
-        } elseif (auth()->user()->hasRole('Inventory')) {
-            return $this->redirect('/material-stocks', navigate: true);
-        } elseif (auth()->user()->hasRole('Cashier')) {
+        $user = auth()->user();
+
+        if ($user->hasRole('Cashier')) {
             return $this->redirect(route('kasir.pos'), navigate: true);
         }
+
+        if ($user->hasRole('Production')) {
+            $this->dashboardRole = 'production';
+            return;
+        }
+
+        if ($user->hasRole('Inventory')) {
+            $this->dashboardRole = 'inventory';
+            return;
+        }
+
+        $this->dashboardRole = 'admin';
     }
 
     private function getPeriodRange(): array
@@ -57,10 +71,122 @@ class Index extends Component
         return round((($current - $previous) / $previous) * 100, 1);
     }
 
+    private function buildProductionDashboardData($start, $end, $prevStart, $prevEnd): array
+    {
+        $startDate = $start->toDateString();
+        $endDate = $end->toDateString();
+        $prevStartDate = $prevStart->toDateString();
+        $prevEndDate = $prevEnd->toDateString();
+
+        $periodProd = Productions::whereBetween('production_date', [$startDate, $endDate])
+            ->where('status', 'completed')
+            ->count();
+
+        $periodProdQty = Productions::whereBetween('production_date', [$startDate, $endDate])
+            ->where('status', 'completed')
+            ->sum(DB::raw('COALESCE(actual_qty, qty_produced)'));
+
+        $prevProd = Productions::whereBetween('production_date', [$prevStartDate, $prevEndDate])
+            ->where('status', 'completed')
+            ->count();
+
+        $draftProd = Productions::where('status', 'draft')->count();
+
+        $productWasteQty = ProductWastes::whereBetween('waste_date', [$startDate, $endDate])->sum('qty');
+
+        $lowStockProducts = ProductStocks::where('qty_available', '<=', 5)->count();
+
+        $productionTrend = Productions::select(
+            DB::raw('DATE(production_date) as date'),
+            DB::raw('COUNT(*) as total')
+        )
+            ->where('status', 'completed')
+            ->where('production_date', '>=', now()->subDays($this->chartDays)->toDateString())
+            ->groupBy(DB::raw('DATE(production_date)'))
+            ->orderBy('date')
+            ->get();
+
+        return [
+            'periodProd' => $periodProd,
+            'periodProdQty' => $periodProdQty,
+            'prodChange' => $this->percentChange($periodProd, $prevProd),
+            'draftProd' => $draftProd,
+            'productWasteQty' => $productWasteQty,
+            'lowStockProducts' => $lowStockProducts,
+            'productionTrend' => $productionTrend,
+        ];
+    }
+
+    private function buildInventoryDashboardData($start, $end, $prevStart, $prevEnd): array
+    {
+        $lowStockMaterials = MaterialStocks::whereHas('material', function ($q) {
+            $q->whereColumn('material_stocks.qty_available', '<=', 'materials.minimum_stock');
+        })->count();
+
+        $totalMaterialItems = MaterialStocks::count();
+        $totalMaterialQty = MaterialStocks::sum('qty_available');
+
+        $incomingQty = MaterialStockLogs::whereBetween('created_at', [$start, $end])
+            ->where('type', 'in')
+            ->sum(DB::raw('ABS(qty)'));
+
+        $outgoingQty = MaterialStockLogs::whereBetween('created_at', [$start, $end])
+            ->where('type', 'out')
+            ->sum(DB::raw('ABS(qty)'));
+
+        $prevIncomingQty = MaterialStockLogs::whereBetween('created_at', [$prevStart, $prevEnd])
+            ->where('type', 'in')
+            ->sum(DB::raw('ABS(qty)'));
+
+        $prevOutgoingQty = MaterialStockLogs::whereBetween('created_at', [$prevStart, $prevEnd])
+            ->where('type', 'out')
+            ->sum(DB::raw('ABS(qty)'));
+
+        $materialWasteQty = MaterialWastes::whereBetween('waste_date', [$start->toDateString(), $end->toDateString()])->sum('qty');
+
+        $inventoryTrend = MaterialStockLogs::select(
+            DB::raw('DATE(created_at) as date'),
+            DB::raw("SUM(CASE WHEN type = 'in' THEN ABS(qty) ELSE 0 END) as total_in"),
+            DB::raw("SUM(CASE WHEN type = 'out' THEN ABS(qty) ELSE 0 END) as total_out")
+        )
+            ->where('created_at', '>=', now()->subDays($this->chartDays)->startOfDay())
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->orderBy('date')
+            ->get();
+
+        return [
+            'lowStockMaterials' => $lowStockMaterials,
+            'totalMaterialItems' => $totalMaterialItems,
+            'totalMaterialQty' => $totalMaterialQty,
+            'incomingQty' => $incomingQty,
+            'outgoingQty' => $outgoingQty,
+            'incomingChange' => $this->percentChange($incomingQty, $prevIncomingQty),
+            'outgoingChange' => $this->percentChange($outgoingQty, $prevOutgoingQty),
+            'materialWasteQty' => $materialWasteQty,
+            'inventoryTrend' => $inventoryTrend,
+        ];
+    }
+
     public function render()
     {
         [$start, $end] = $this->getPeriodRange();
         [$prevStart, $prevEnd] = $this->getPreviousPeriodRange();
+
+        if ($this->dashboardRole === 'production') {
+            return view('livewire.admin.dashboard.index', array_merge([
+                'period' => $this->period,
+                'chartDays' => $this->chartDays,
+                'dashboardRole' => $this->dashboardRole,
+            ], $this->buildProductionDashboardData($start, $end, $prevStart, $prevEnd)));
+        }
+
+        if ($this->dashboardRole === 'inventory') {
+            return view('livewire.admin.dashboard.index', array_merge([
+                'period' => $this->period,
+                'chartDays' => $this->chartDays,
+                'dashboardRole' => $this->dashboardRole,
+            ], $this->buildInventoryDashboardData($start, $end, $prevStart, $prevEnd)));
+        }
 
         // === SALES ===
         $periodSales = Sales::whereBetween('created_at', [$start, $end])
@@ -136,6 +262,9 @@ class Index extends Component
             ->groupBy('payment_method')->get()->keyBy('payment_method');
 
         return view('livewire.admin.dashboard.index', [
+            'dashboardRole' => $this->dashboardRole,
+            'period' => $this->period,
+            'chartDays' => $this->chartDays,
             'periodSales' => $periodSales,
             'salesChange' => $this->percentChange($periodSales, $prevSales),
             'periodTx' => $periodTx,
