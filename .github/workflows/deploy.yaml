@@ -23,6 +23,7 @@ jobs:
         ssh -p 21032 -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
             eval \$(ssh-agent -s)
             ssh-add ~/.ssh/wisnu
+            ssh -T git@github.com
             cd web
             git pull origin main
             composer install
