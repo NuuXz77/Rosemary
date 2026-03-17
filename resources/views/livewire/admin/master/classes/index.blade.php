@@ -53,27 +53,7 @@
                             @endif
                         </td>
                         <td class="text-center">
-                            <div class="dropdown dropdown-left">
-                                <label tabindex="0" class="btn btn-ghost btn-xs">
-                                    <x-heroicon-o-ellipsis-vertical class="w-4 h-4" />
-                                </label>
-                                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-32">
-                                    <li>
-                                        <button wire:click="$dispatch('open-edit-modal', { id: {{ $class->id }} })"
-                                            onclick="document.getElementById('modal_edit_class').showModal()">
-                                            <x-heroicon-o-pencil-square class="w-4 h-4 text-warning" />
-                                            Edit
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button wire:click="$dispatch('confirm-delete', { id: {{ $class->id }} })"
-                                            onclick="document.getElementById('modal_delete_class').showModal()">
-                                            <x-heroicon-o-trash class="w-4 h-4 text-error" />
-                                            Hapus
-                                        </button>
-                                    </li>
-                                </ul>
-                            </div>
+                            <x-partials.dropdown-action :id="$class->id" />
                         </td>
                     </tr>
                 @endforeach

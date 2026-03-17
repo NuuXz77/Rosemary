@@ -13,10 +13,28 @@
         modalSize="modal-box w-11/12 max-w-2xl"
         :showButton="false">
 
-        {{-- Info bulan target --}}
-        <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-base-200 border border-base-300 mb-4">
-            <x-heroicon-o-calendar-days class="w-5 h-5 text-primary shrink-0" />
-            <span class="text-sm text-base-content/80">Jadwal akan dibuat untuk bulan <strong class="text-base-content">{{ $monthName }}</strong>.</span>
+        {{-- Rentang tanggal target --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
+            <x-form.input
+                label="Tanggal Awal"
+                name="start_date"
+                type="date"
+                wireModel="start_date"
+                :required="true" />
+
+            <x-form.input
+                label="Tanggal Akhir"
+                name="end_date"
+                type="date"
+                wireModel="end_date"
+                :required="true" />
+        </div>
+
+        <div class="flex items-start gap-3 px-4 py-3 rounded-xl bg-base-200 border border-base-300 mb-4">
+            <x-heroicon-o-calendar-days class="w-5 h-5 text-primary shrink-0 mt-0.5" />
+            <p class="text-sm text-base-content/80 leading-relaxed">
+                Jadwal akan dibuat sesuai rentang tanggal yang dipilih.
+            </p>
         </div>
 
         {{-- Tipe Jadwal --}}

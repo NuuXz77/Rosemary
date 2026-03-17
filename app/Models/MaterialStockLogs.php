@@ -31,7 +31,7 @@ class MaterialStockLogs extends Model
      */
     public function material(): BelongsTo
     {
-        return $this->belongsTo(Materials::class);
+        return $this->belongsTo(Materials::class, 'material_id');
     }
 
     /**

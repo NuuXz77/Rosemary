@@ -23,11 +23,7 @@ class Invoice extends Component
 
     public function backToPOS()
     {
-        if ($this->isPinMode) {
-            $this->redirect(route('kasir.pos'), navigate: true);
-        } else {
-            $this->redirect(route('sales.pos'), navigate: true);
-        }
+        $this->redirect(route('kasir.pos'), navigate: true);
     }
 
     public function render()

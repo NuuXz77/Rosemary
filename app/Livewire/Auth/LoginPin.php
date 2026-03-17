@@ -5,6 +5,8 @@ namespace App\Livewire\Auth;
 use App\Models\Schedules;
 use App\Models\StudentAttendance;
 use App\Models\Students;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -166,6 +168,15 @@ class LoginPin extends Component
             'pos_student_name' => $student->name,
             'pos_shift_id'     => $schedule?->shift_id,
         ]);
+
+        // Login ke Laravel Auth menggunakan shared Cashier user
+        // agar Spatie role/permission aktif untuk sidebar
+        $cashierUser = User::whereHas('roles', fn($q) => $q->where('name', 'cashier'))
+            ->where('is_active', true)
+            ->first();
+        if ($cashierUser) {
+            Auth::login($cashierUser);
+        }
 
         $this->studentName = $student->name;
 

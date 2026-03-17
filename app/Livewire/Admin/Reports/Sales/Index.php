@@ -44,7 +44,7 @@ class Index extends Component
     {
         // Base query (tanpa filter status — supaya summary bisa hitung paid+cancelled)
         $baseQuery = Sales::query()
-            ->with(['customer', 'cashier', 'shift'])
+            ->with(['customer', 'cashier', 'shift', 'items.product.materials'])
             ->whereBetween(DB::raw('DATE(created_at)'), [$this->startDate, $this->endDate])
             ->when($this->filterPayment, fn($q) => $q->where('payment_method', $this->filterPayment))
             ->when($this->filterShift, fn($q) => $q->where('shift_id', $this->filterShift))
@@ -56,11 +56,28 @@ class Index extends Component
                 });
             });
 
+        // Hitung HPP Total untuk Summary secara efisien
+        $paidSales = (clone $baseQuery)->where('status', 'paid')
+            ->with(['items.product.materials']) // Eager load untuk hitung HPP
+            ->get();
+            
+        $totalHpp = 0;
+        foreach($paidSales as $sale) {
+            foreach($sale->items as $item) {
+                // Gunakan harga modal dari resep
+                if($item->product) {
+                    $totalHpp += $item->product->cost_price * $item->qty;
+                }
+            }
+        }
+
         // Summary dari base query (sebelum filter status)
         $summary = [
-            'total_sales' => (clone $baseQuery)->where('status', 'paid')->sum('total_amount'),
+            'total_sales' => $paidSales->sum('total_amount'),
+            'total_hpp' => $totalHpp,
+            'total_profit' => $paidSales->sum('total_amount') - $totalHpp,
             'total_count' => (clone $baseQuery)->count(),
-            'paid_count' => (clone $baseQuery)->where('status', 'paid')->count(),
+            'paid_count' => $paidSales->count(),
             'cancelled_count' => (clone $baseQuery)->where('status', 'cancelled')->count(),
         ];
         $summary['avg_per_sale'] = $summary['paid_count'] > 0
@@ -73,6 +90,22 @@ class Index extends Component
             $query->where('status', $this->filterStatus);
         }
         $sales = $query->orderBy('created_at', 'desc')->paginate($this->perPage);
+
+        // Append HPP & Profit to each sale object for list display
+        $sales->getCollection()->transform(function($sale) {
+            if($sale->status == 'paid') {
+                $saleHpp = 0;
+                foreach($sale->items as $item) {
+                    $saleHpp += ($item->product->cost_price ?? 0) * $item->qty;
+                }
+                $sale->total_hpp = $saleHpp;
+                $sale->total_profit = $sale->total_amount - $saleHpp;
+            } else {
+                $sale->total_hpp = 0;
+                $sale->total_profit = 0;
+            }
+            return $sale;
+        });
 
         // Daily sales chart
         $dailySales = Sales::select(

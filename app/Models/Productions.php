@@ -18,7 +18,8 @@ class Productions extends Model
         'product_id',       // FK ke products (produk apa yang diproduksi)
         'student_group_id', // FK ke student_groups (kelompok mana yang produksi)
         'shift_id',         // FK ke shifts (shift mana produksi dilakukan)
-        'qty_produced',     // Jumlah yang diproduksi
+        'qty_produced',     // Jumlah rencana produksi
+        'actual_qty',       // Jumlah riil yang berhasil (setelah finalize)
         'production_date',  // Tanggal produksi
         'status',           // Enum: 'draft', 'completed'
         'created_by',       // FK ke users (user yang input/validasi)
@@ -33,7 +34,7 @@ class Productions extends Model
      */
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Products::class);
+        return $this->belongsTo(Products::class, 'product_id');
     }
 
     /**
@@ -41,7 +42,7 @@ class Productions extends Model
      */
     public function studentGroup(): BelongsTo
     {
-        return $this->belongsTo(StudentGroups::class);
+        return $this->belongsTo(StudentGroups::class, 'student_group_id');
     }
 
     /**
@@ -58,5 +59,13 @@ class Productions extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Relasi One-to-Many ke ProductWastes
+     */
+    public function wastes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ProductWastes::class, 'production_id');
     }
 }

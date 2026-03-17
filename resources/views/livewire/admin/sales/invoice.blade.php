@@ -1,168 +1,170 @@
 @use('Illuminate\Support\Facades\Storage')
-<div class="min-h-screen pb-10">
+<div class="min-h-screen pb-10 px-3 sm:px-4 lg:px-0">
 
     {{-- Action Bar (hide on print) --}}
-    <div class="mb-6 flex items-center justify-between print:hidden">
-        <div class="flex items-center gap-4">
+    <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
+        <div class="flex items-center gap-3 sm:gap-4">
             <button wire:click="backToPOS" class="btn btn-ghost btn-sm btn-circle">
                 <x-heroicon-o-arrow-left class="w-5 h-5" />
             </button>
             <div>
-                <h1 class="text-2xl font-black">Invoice</h1>
+                <h1 class="text-xl sm:text-2xl font-black">Invoice</h1>
                 <p class="text-sm text-base-content/50">{{ $sale->invoice_number }}</p>
             </div>
         </div>
-        <div class="flex items-center gap-2">
-            <button onclick="window.print()" class="btn btn-primary btn-sm gap-2">
+        <div class="flex w-full sm:w-auto items-center gap-2">
+            <button onclick="window.print()" class="btn btn-primary btn-sm gap-2 flex-1 sm:flex-none">
                 <x-heroicon-o-printer class="w-4 h-4" />
                 Cetak Invoice
             </button>
-            <button wire:click="backToPOS" class="btn btn-ghost btn-sm gap-2">
+            <button wire:click="backToPOS" class="btn btn-ghost btn-sm gap-2 flex-1 sm:flex-none">
                 <x-heroicon-o-arrow-path class="w-4 h-4" />
                 Transaksi Baru
             </button>
         </div>
     </div>
 
-    {{-- Invoice Card --}}
-    <div class="max-w-2xl mx-auto">
-        <div class="card bg-base-100 shadow-sm border border-base-200 print:shadow-none print:border-0">
-            <div class="card-body p-6 sm:p-8">
+    {{-- Invoice Card (Thermal style like receipt modal) --}}
+    <div class="max-w-md mx-auto">
+        <div class="card bg-white text-black shadow-sm border border-black/30 print:shadow-none print:border-0">
+            <div class="card-body p-4 sm:p-5 font-mono text-[12px]">
 
                 {{-- Header --}}
-                <div class="text-center border-b border-base-200 pb-5 mb-5">
-                    <h2 class="text-xl font-black tracking-wide">{{ $appName }}</h2>
-                    <p class="text-xs text-base-content/50 mt-1">Terima kasih atas pembelian Anda</p>
+                <div class="text-center border-b border-dashed border-black pb-2 mb-3">
+                    <h2 class="text-base font-bold uppercase tracking-wide">{{ $appName }}</h2>
+                    <p class="text-[10px] mt-1">Terima kasih atas pembelian Anda</p>
                 </div>
 
                 {{-- Invoice Info --}}
-                <div class="grid grid-cols-2 gap-4 text-sm mb-6">
-                    <div class="space-y-1.5">
-                        <div>
-                            <span class="text-base-content/40 text-xs">No. Invoice</span>
-                            <p class="font-bold">{{ $sale->invoice_number }}</p>
-                        </div>
-                        <div>
-                            <span class="text-base-content/40 text-xs">Tanggal</span>
-                            <p class="font-medium">{{ $sale->created_at->format('d M Y, H:i') }}</p>
-                        </div>
+                <div class="space-y-1 mb-3 text-[11px]">
+                    <div class="flex justify-between gap-3">
+                        <span>Invoice:</span>
+                        <span class="text-right">{{ $sale->invoice_number }}</span>
                     </div>
-                    <div class="space-y-1.5 text-right">
-                        <div>
-                            <span class="text-base-content/40 text-xs">Kasir</span>
-                            <p class="font-medium">{{ $sale->cashier?->name ?? '-' }}</p>
-                        </div>
-                        <div>
-                            <span class="text-base-content/40 text-xs">Shift</span>
-                            <p class="font-medium">{{ $sale->shift?->name ?? '-' }}</p>
-                        </div>
-                        <div>
-                            <span class="text-base-content/40 text-xs">Pelanggan</span>
-                            <p class="font-medium">
-                                {{ $sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)') }}
-                            </p>
-                        </div>
+                    <div class="flex justify-between gap-3">
+                        <span>Waktu:</span>
+                        <span class="text-right">{{ $sale->created_at->format('d/m/Y H:i') }}</span>
                     </div>
+                    <div class="flex justify-between gap-3">
+                        <span>Kasir:</span>
+                        <span class="text-right">{{ $sale->cashier?->name ?? '-' }}</span>
+                    </div>
+                    <div class="flex justify-between gap-3">
+                        <span>Shift:</span>
+                        <span class="text-right">{{ $sale->shift?->name ?? '-' }}</span>
+                    </div>
+                    <div class="flex justify-between gap-3">
+                        <span>Pelanggan:</span>
+                        <span class="text-right">{{ $sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)') }}</span>
+                    </div>
+                    @if($sale->table_number)
+                        <div class="flex justify-between gap-3">
+                            <span>Meja:</span>
+                            <span class="text-right">{{ $sale->table_number }}</span>
+                        </div>
+                    @endif
                 </div>
 
                 {{-- Divider --}}
-                <div class="border-t border-dashed border-base-300 mb-4"></div>
+                <div class="border-t border-dashed border-black mb-3"></div>
 
                 {{-- Item List --}}
-                <table class="w-full text-sm mb-4">
-                    <thead>
-                        <tr class="text-base-content/40 text-xs uppercase tracking-wider">
-                            <th class="text-left pb-2 font-semibold">Produk</th>
-                            <th class="text-center pb-2 font-semibold w-16">Qty</th>
-                            <th class="text-right pb-2 font-semibold w-28">Harga</th>
-                            <th class="text-right pb-2 font-semibold w-28">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-base-200">
-                        @foreach($sale->items as $item)
-                            <tr>
-                                <td class="py-2 font-medium">{{ $item->product?->name ?? 'Produk dihapus' }}</td>
-                                <td class="py-2 text-center">{{ $item->qty }}</td>
-                                <td class="py-2 text-right text-base-content/60">
-                                    Rp {{ number_format($item->price, 0, ',', '.') }}
-                                </td>
-                                <td class="py-2 text-right font-semibold">
-                                    Rp {{ number_format($item->subtotal, 0, ',', '.') }}
-                                </td>
+                <div class="overflow-x-auto -mx-1 sm:mx-0">
+                    <table class="w-full min-w-max text-[11px] mb-3">
+                        <thead>
+                            <tr class="text-[10px] uppercase tracking-wide border-b border-dashed border-black">
+                                <th class="text-left pb-1.5 font-bold">Produk</th>
+                                <th class="text-center pb-1.5 font-bold w-12">Qty</th>
+                                <th class="text-right pb-1.5 font-bold w-24">Harga</th>
+                                <th class="text-right pb-1.5 font-bold w-24">Subtotal</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach($sale->items as $item)
+                                <tr>
+                                    <td class="py-1.5 pr-2 uppercase">{{ $item->product?->name ?? 'Produk dihapus' }}</td>
+                                    <td class="py-1.5 text-center">{{ $item->qty }}</td>
+                                    <td class="py-1.5 text-right whitespace-nowrap">
+                                        Rp {{ number_format($item->price, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-1.5 text-right font-bold whitespace-nowrap">
+                                        Rp {{ number_format($item->subtotal, 0, ',', '.') }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
 
                 {{-- Divider --}}
-                <div class="border-t border-dashed border-base-300 mb-4"></div>
+                <div class="border-t border-dashed border-black mb-3"></div>
 
                 {{-- Totals --}}
-                <div class="space-y-1.5 text-sm">
-                    <div class="flex justify-between text-base-content/60">
+                <div class="space-y-1 text-[11px]">
+                    <div class="flex justify-between">
                         <span>Subtotal</span>
                         <span>Rp {{ number_format($sale->subtotal, 0, ',', '.') }}</span>
                     </div>
                     @if($sale->tax_amount > 0)
-                        <div class="flex justify-between text-base-content/60">
+                        <div class="flex justify-between">
                             <span>Pajak</span>
                             <span>Rp {{ number_format($sale->tax_amount, 0, ',', '.') }}</span>
                         </div>
                     @endif
                     @if($sale->discount_amount > 0)
-                        <div class="flex justify-between text-success">
+                        <div class="flex justify-between">
                             <span>Diskon</span>
                             <span>− Rp {{ number_format($sale->discount_amount, 0, ',', '.') }}</span>
                         </div>
                     @endif
-                    <div class="border-t border-base-300 my-2"></div>
-                    <div class="flex justify-between font-black text-lg text-primary">
+                    <div class="border-t border-dashed border-black my-2"></div>
+                    <div class="flex justify-between font-bold text-[13px]">
                         <span>TOTAL</span>
                         <span>Rp {{ number_format($sale->total_amount, 0, ',', '.') }}</span>
                     </div>
                 </div>
 
                 {{-- Divider --}}
-                <div class="border-t border-dashed border-base-300 my-4"></div>
+                <div class="border-t border-dashed border-black my-3"></div>
 
                 {{-- Payment Info --}}
-                <div class="space-y-1.5 text-sm">
+                <div class="space-y-1 text-[11px]">
                     <div class="flex justify-between">
-                        <span class="text-base-content/60">Metode</span>
-                        <span class="badge badge-sm badge-outline font-semibold uppercase">{{ $sale->payment_method }}</span>
+                        <span>Metode</span>
+                        <span class="uppercase">{{ $sale->payment_method }}</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-base-content/60">Dibayar</span>
-                        <span class="font-bold">Rp {{ number_format($sale->paid_amount, 0, ',', '.') }}</span>
+                        <span>Dibayar</span>
+                        <span>Rp {{ number_format($sale->paid_amount, 0, ',', '.') }}</span>
                     </div>
                     @if($sale->change_amount > 0)
                         <div class="flex justify-between">
-                            <span class="text-base-content/60">Kembalian</span>
-                            <span class="font-bold text-success">Rp {{ number_format($sale->change_amount, 0, ',', '.') }}</span>
+                            <span>Kembalian</span>
+                            <span>Rp {{ number_format($sale->change_amount, 0, ',', '.') }}</span>
                         </div>
                     @endif
                     <div class="flex justify-between">
-                        <span class="text-base-content/60">Status</span>
-                        <span class="badge badge-sm badge-soft badge-success font-semibold">{{ ucfirst($sale->status) }}</span>
+                        <span>Status</span>
+                        <span class="uppercase">{{ $sale->status }}</span>
                     </div>
                 </div>
 
                 {{-- Footer --}}
-                <div class="border-t border-dashed border-base-300 mt-5 pt-5 text-center">
-                    <p class="text-xs text-base-content/40">Terima kasih telah berbelanja di <span class="font-semibold">{{ $appName }}</span></p>
-                    <p class="text-[10px] text-base-content/30 mt-1">{{ $sale->created_at->format('d/m/Y H:i:s') }}</p>
+                <div class="border-t border-dashed border-black mt-4 pt-3 text-center">
+                    <p class="text-[10px]">Terima kasih telah berbelanja di <span class="font-bold">{{ $appName }}</span></p>
+                    <p class="text-[10px] mt-1">{{ $sale->created_at->format('d/m/Y H:i:s') }}</p>
                 </div>
 
             </div>
         </div>
 
         {{-- Bottom actions (hide on print) --}}
-        <div class="flex justify-center gap-3 mt-6 print:hidden">
-            <button onclick="window.print()" class="btn btn-primary gap-2">
+        <div class="flex flex-col sm:flex-row justify-center gap-3 mt-6 print:hidden">
+            <button onclick="window.print()" class="btn btn-primary gap-2 w-full sm:w-auto">
                 <x-heroicon-o-printer class="w-5 h-5" />
                 Cetak Invoice
             </button>
-            <button wire:click="backToPOS" class="btn btn-ghost gap-2">
+            <button wire:click="backToPOS" class="btn btn-ghost gap-2 w-full sm:w-auto">
                 <x-heroicon-o-arrow-path class="w-5 h-5" />
                 Transaksi Baru
             </button>

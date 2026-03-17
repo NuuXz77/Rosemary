@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Dashboard;
 
 use App\Models\Sales;
 use App\Models\MaterialStocks;
+use App\Models\ProductStocks;
 use App\Models\Productions;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -25,7 +26,7 @@ class Index extends Component
         } elseif (auth()->user()->hasRole('Inventory')) {
             return $this->redirect('/material-stocks', navigate: true);
         } elseif (auth()->user()->hasRole('Cashier')) {
-            return $this->redirect('/sales/pos', navigate: true);
+            return $this->redirect(route('kasir.pos'), navigate: true);
         }
     }
 
@@ -82,6 +83,14 @@ class Index extends Component
                 $q->whereColumn('material_stocks.qty_available', '<=', 'materials.minimum_stock');
             })->limit(5)->get();
 
+        // === LOW STOCK PRODUCTS (threshold: <= 5 pcs) ===
+        $lowStockProducts = ProductStocks::where('qty_available', '<=', 5)->count();
+
+        $lowStockProductItems = ProductStocks::with(['product'])
+            ->where('qty_available', '<=', 5)
+            ->orderBy('qty_available', 'asc')
+            ->limit(5)->get();
+
         // === PRODUCTIONS ===
         $sDate = $start->toDateString();
         $eDate = $end->toDateString();
@@ -133,6 +142,8 @@ class Index extends Component
             'txChange' => $this->percentChange($periodTx, $prevTx),
             'lowStockMaterials' => $lowStockMaterials,
             'lowStockItems' => $lowStockItems,
+            'lowStockProducts' => $lowStockProducts,
+            'lowStockProductItems' => $lowStockProductItems,
             'periodProd' => $periodProd,
             'periodProdQty' => $periodProdQty,
             'prodChange' => $this->percentChange($periodProd, $prevProd),

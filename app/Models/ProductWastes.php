@@ -13,11 +13,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ProductWastes extends Model
 {
     protected $fillable = [
-        'product_id', // FK ke products
-        'qty',        // Jumlah yang terbuang
-        'reason',     // Alasan (expired, rejected, dsb)
-        'waste_date', // Tanggal kejadian
-        'created_by', // User yang mencatat
+        'product_id',    // FK ke products
+        'production_id', // FK ke productions (jika waste terjadi saat produksi)
+        'qty',           // Jumlah yang terbuang
+        'reason',        // Alasan (expired, rejected, dsb)
+        'waste_date',    // Tanggal kejadian
+        'created_by',    // User yang mencatat
     ];
 
     protected $casts = [
@@ -38,6 +39,14 @@ class ProductWastes extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Relasi Many-to-One ke Productions
+     */
+    public function production(): BelongsTo
+    {
+        return $this->belongsTo(Productions::class, 'production_id');
     }
 
     /**
