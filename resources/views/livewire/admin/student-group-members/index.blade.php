@@ -14,7 +14,7 @@
                         <td>{{ $members->firstItem() + $index }}</td>
                         <td>{{ $member->studentGroup->name ?? '-' }}</td>
                         <td>{{ $member->student->name ?? '-' }}</td>
-                        <td>{{ $member->student?->class?->name ?? '-' }}</td>
+                        <td>{{ $member->student?->schoolClass?->name ?? '-' }}</td>
                     </tr>
                 @endforeach
             </x-partials.table>

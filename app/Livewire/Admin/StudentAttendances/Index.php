@@ -50,7 +50,7 @@ class Index extends Component
     public function render()
     {
         $attendances = StudentAttendance::query()
-            ->with(['student.class', 'shift', 'schedule'])
+            ->with(['student.schoolClass', 'shift', 'schedule'])
             ->when($this->search, function ($query) {
                 $query->whereHas('student', function ($q) {
                     $q->where('name', 'like', '%' . $this->search . '%')

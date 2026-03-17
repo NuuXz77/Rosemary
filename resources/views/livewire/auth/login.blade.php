@@ -25,7 +25,7 @@
                             minlength="3" maxlength="30" title="Isi yang bener" wire:model="username" />
                     </label>
                     <p class="validator-hint hidden">
-                        ID Card atau Username Wajib Diisi
+                        Username Wajib Diisi
                     </p>
                 </div>
 
