@@ -31,6 +31,17 @@
             </x-form.select>
 
             <x-form.input
+                label="Harga Modal (per unit)"
+                name="price"
+                type="number"
+                wireModel="price"
+                placeholder="0"
+                min="0"
+                step="0.01"
+                hint="Harga pembelian dasar material per satuan."
+            />
+
+            <x-form.input
                 label="Batas Stok Minimum"
                 name="minimum_stock"
                 type="number"
