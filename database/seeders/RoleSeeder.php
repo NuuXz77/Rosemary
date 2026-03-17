@@ -40,6 +40,7 @@ class RoleSeeder extends Seeder
         $productionRole = Role::where('name', 'Production')->first();
         if ($productionRole) {
             $productionRole->syncPermissions([
+                'dashboard.view',
                 'productions.view',
                 'products.view',
                 'product-stocks.view',
@@ -54,6 +55,7 @@ class RoleSeeder extends Seeder
         $inventoryRole = Role::where('name', 'Inventory')->first();
         if ($inventoryRole) {
             $inventoryRole->syncPermissions([
+                'dashboard.view',
                 'materials.view',
                 'material-stocks.view',
                 'material-stock-logs.view',
