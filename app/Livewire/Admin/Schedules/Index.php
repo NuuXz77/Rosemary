@@ -98,6 +98,11 @@ class Index extends Component
         $this->dispatch('open-bulk-delete-schedule');
     }
 
+    public function openMarkUnavailable(int $id): void
+    {
+        $this->dispatch('open-mark-unavailable-schedule', id: $id);
+    }
+
     public function render()
     {
         $start           = Carbon::create($this->selectedYear, $this->selectedMonth, 1);
@@ -110,9 +115,16 @@ class Index extends Component
 
         $schedules = $canFetchSchedules
             ? Schedules::query()
-                ->with(['shift', 'student.class', 'studentGroup.class', 'division'])
+                ->with(['shift', 'student.schoolClass', 'studentGroup.schoolClass', 'division'])
+                ->where('status', true)
                 ->whereBetween('date', [$startOfCalendar->toDateString(), $endOfCalendar->toDateString()])
                 ->where('type', $this->filterType)
+                ->when($this->filterType === 'cashier', function ($q) {
+                    $q->where(function ($query) {
+                        $query->whereNull('absence_type')
+                            ->orWhere('absence_type', '!=', Schedules::ABSENCE_RESCHEDULED);
+                    });
+                })
                 ->when($this->filterClass, function ($q) {
                     // Filter by class: cashier uses student.class_id, production uses studentGroup.class_id
                     $q->where(function ($query) {

@@ -30,6 +30,7 @@ class Checkout extends Component
     public float $change_amount     = 0;
     public string $note             = '';
     public string $guest_name       = '';
+    public string $status_order     = Sales::ORDER_STATUS_TAKE_AWAY;
     public string $table_number     = '';
     public bool $isPinMode          = false;
 
@@ -53,6 +54,7 @@ class Checkout extends Component
         $this->total_amount     = (float) session('pos_checkout_total', 0);
         $this->isPinMode        = (bool) session('pos_checkout_pine_mode', false);
         $this->guest_name       = session('pos_checkout_guest_name') ?? '';
+        $this->status_order     = session('pos_checkout_status_order', Sales::ORDER_STATUS_TAKE_AWAY);
         $this->table_number     = session('pos_checkout_table_number') ?? '';
         $this->paid_amount      = $this->total_amount;
         $this->calculateChange();
@@ -66,6 +68,13 @@ class Checkout extends Component
     public function updatedPaidAmount()
     {
         $this->calculateChange();
+    }
+
+    public function updatedStatusOrder()
+    {
+        if ($this->status_order !== Sales::ORDER_STATUS_DINE_IN) {
+            $this->table_number = '';
+        }
     }
 
     public function calculateChange()
@@ -100,6 +109,8 @@ class Checkout extends Component
         $this->validate([
             'payment_method' => 'required|in:cash,qris,transfer',
             'payment_status' => 'required|in:paid,unpaid',
+            'status_order'   => 'required|in:Take away,Dine in',
+            'table_number'   => 'nullable|string|max:255|required_if:status_order,Dine in',
             'paid_amount'    => 'required|numeric|min:0',
         ]);
 
@@ -126,7 +137,8 @@ class Checkout extends Component
                 'invoice_number'     => $invoiceNumber,
                 'customer_id'        => $this->customer_id ?: null,
                 'guest_name'         => $this->customer_id ? null : ($this->guest_name ?: null),
-                'table_number'       => $this->table_number ?: null,
+                'status_order'       => $this->status_order,
+                'table_number'       => $this->status_order === Sales::ORDER_STATUS_DINE_IN ? ($this->table_number ?: null) : null,
                 'shift_id'           => $this->shift_id,
                 'cashier_student_id' => $this->cashier_student_id,
                 'subtotal'           => $this->subtotal,
@@ -168,7 +180,7 @@ class Checkout extends Component
             // Clear checkout session
             session()->forget([
                 'pos_checkout_cart', 'pos_checkout_customer_id', 'pos_checkout_guest_name',
-                'pos_checkout_table_number', 'pos_checkout_shift_id',
+                'pos_checkout_status_order', 'pos_checkout_table_number', 'pos_checkout_shift_id',
                 'pos_checkout_cashier_id', 'pos_checkout_total', 'pos_checkout_subtotal',
                 'pos_checkout_tax_amount', 'pos_checkout_discount_amount', 'pos_checkout_pine_mode',
             ]);

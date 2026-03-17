@@ -101,7 +101,16 @@
                                 {{ $customer_id ? 'Member' : 'Guest' }}
                             </span>
                         </div>
-                        @if($table_number)
+                        <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-base-200/60 border border-base-300 mt-2">
+                            <div class="w-8 h-8 rounded-full bg-accent/15 flex items-center justify-center shrink-0">
+                                <x-heroicon-s-arrow-up-on-square-stack class="w-4 h-4 text-accent" />
+                            </div>
+                            <div class="grow min-w-0">
+                                <p class="font-bold text-sm truncate">{{ $status_order }}</p>
+                                <p class="text-[10px] text-base-content/40">Status Order</p>
+                            </div>
+                        </div>
+                        @if($status_order === 'Dine in' && $table_number)
                             <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-base-200/60 border border-base-300 mt-2">
                                 <div class="w-8 h-8 rounded-full bg-secondary/15 flex items-center justify-center shrink-0">
                                     <x-heroicon-s-table-cells class="w-4 h-4 text-secondary" />

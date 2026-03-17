@@ -14,6 +14,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Schedules extends Model
 {
+    public const ABSENCE_NONE = 'none';
+    public const ABSENCE_SICK = 'sick';
+    public const ABSENCE_PERMIT = 'permit';
+    public const ABSENCE_LEAVE = 'leave';
+    public const ABSENCE_OTHER = 'other';
+    public const ABSENCE_RESCHEDULED = 'rescheduled';
+
     protected $fillable = [
         'type',               // 'cashier' | 'production'
         'date',               // Tanggal jadwal
@@ -22,12 +29,31 @@ class Schedules extends Model
         'student_group_id',   // FK ke student_groups (production only)
         'division_id',        // FK ke divisions (production only)
         'status',             // Boolean: aktif/nonaktif
+        'absence_type',       // none|sick|permit|leave|other|rescheduled
+        'absence_note',       // catatan ketidakhadiran/perubahan jadwal
+        'replaced_from_schedule_id', // jadwal asal (untuk jadwal pengganti)
+        'replaced_by_schedule_id',   // jadwal pengganti yang menggantikan jadwal ini
     ];
 
     protected $casts = [
         'date'   => 'date',
         'status' => 'boolean',
     ];
+
+    public function replacedFrom(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'replaced_from_schedule_id');
+    }
+
+    public function replacedBy(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'replaced_by_schedule_id');
+    }
+
+    public function isUnavailable(): bool
+    {
+        return $this->absence_type !== self::ABSENCE_NONE;
+    }
 
     /**
      * Relasi Many-to-One ke Students (kasir only)

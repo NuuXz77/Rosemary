@@ -22,6 +22,7 @@
         // ['label' => 'No', 'class' => 'w-12'],
         ['label' => 'Invoice', 'field' => 'invoice_number', 'sortable' => true],
         ['label' => 'Customer'],
+        ['label' => 'Order'],
         ['label' => 'Meja'],
         ['label' => 'Total', 'field' => 'total_amount', 'sortable' => true],
         ['label' => 'Payment', 'field' => 'payment_method'],
@@ -36,7 +37,10 @@
                         {{-- <td>{{ $sales->firstItem() + $index }}</td> --}}
                         <td>{{ $sale->invoice_number }}</td>
                         <td>{{ $sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)') }}</td>
-                        <td>{{ $sale->table_number ?: '-' }}</td>
+                        <td>
+                            <span class="badge badge-soft badge-info badge-sm">{{ $sale->status_order ?? 'Take away' }}</span>
+                        </td>
+                        <td>{{ $sale->status_order === 'Dine in' ? ($sale->table_number ?: '-') : '-' }}</td>
                         <td>Rp {{ number_format($sale->total_amount, 0, ',', '.') }}</td>
                         <td>{{ ucfirst($sale->payment_method ?? '-') }}</td>
                         <td>
@@ -99,6 +103,16 @@
                     <span>Waktu:</span>
                     <span>{{ $selectedSale->created_at->format('d/m/y H:i') }}</span>
                 </div>
+                <div class="flex justify-between mb-1 text-[10px]">
+                    <span>Order:</span>
+                    <span>{{ $selectedSale->status_order ?? 'Take away' }}</span>
+                </div>
+                @if(($selectedSale->status_order ?? 'Take away') === 'Dine in' && $selectedSale->table_number)
+                <div class="flex justify-between mb-1 text-[10px]">
+                    <span>Meja:</span>
+                    <span>{{ $selectedSale->table_number }}</span>
+                </div>
+                @endif
                 
                 <div class="border-b border-dashed border-black my-2"></div>
                 
