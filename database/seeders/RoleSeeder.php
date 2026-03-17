@@ -44,6 +44,7 @@ class RoleSeeder extends Seeder
                 'products.view',
                 'product-stocks.view',
                 'product-materials.view',
+                'product-wastes.view',
                 'reports.productions.view',
             ]);
         }
@@ -56,6 +57,7 @@ class RoleSeeder extends Seeder
                 'materials.view',
                 'material-stocks.view',
                 'material-stock-logs.view',
+                'material-wastes.view',
                 'purchases.view',
                 'reports.stocks.view',
             ]);

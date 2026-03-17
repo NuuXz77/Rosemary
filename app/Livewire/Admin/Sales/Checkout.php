@@ -140,7 +140,7 @@ class Checkout extends Component
                 'status_order'       => $this->status_order,
                 'table_number'       => $this->status_order === Sales::ORDER_STATUS_DINE_IN ? ($this->table_number ?: null) : null,
                 'shift_id'           => $this->shift_id,
-                'cashier_student_id' => $this->cashier_student_id,
+                'cashier_student_id' => $this->cashier_student_id, // Biarkan null jika admin, FK sudah dibuat nullable
                 'subtotal'           => $this->subtotal,
                 'tax_amount'         => $this->tax_amount,
                 'discount_amount'    => $this->discount_amount,

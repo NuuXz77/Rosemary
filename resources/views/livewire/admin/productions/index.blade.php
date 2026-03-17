@@ -49,8 +49,16 @@
                             </div>
                         </td>
                         <td class="text-center">
-                            <div class="font-mono font-bold text-lg text-primary">{{ $production->qty_produced }}</div>
-                            <div class="text-[10px] opacity-40">pcs</div>
+                            @if($production->status === 'completed')
+                                <div class="font-mono font-bold text-lg text-success">{{ $production->actual_qty ?? $production->qty_produced }}</div>
+                                <div class="text-[10px] opacity-40">dari {{ $production->qty_produced }} rencana</div>
+                                @if(($production->qty_produced - ($production->actual_qty ?? $production->qty_produced)) > 0)
+                                    <div class="badge badge-error badge-outline text-[9px] h-auto p-0 px-1 mt-1">Waste: {{ $production->qty_produced - $production->actual_qty }}</div>
+                                @endif
+                            @else
+                                <div class="font-mono font-bold text-lg text-primary">{{ $production->qty_produced }}</div>
+                                <div class="text-[10px] opacity-40">rencana (pcs)</div>
+                            @endif
                         </td>
                         <td>
                             @if($production->status === 'completed')
@@ -160,6 +168,67 @@
             <div class="bg-warning/10 border border-warning/20 p-3 rounded-lg mt-4 text-xs text-warning-content flex gap-3 text-left">
                 <x-heroicon-o-information-circle class="w-5 h-5 shrink-0" />
                 <span>Pastikan resep produk sudah diatur dengan benar sebelum menyelesaikan produksi ini.</span>
+            </div>
+
+            <div class="divider">Konfirmasi Hasil Riil</div>
+
+            <div class="w-full space-y-3">
+                <div class="form-control w-full">
+                    <label class="label"><span class="label-text font-semibold text-xs">Jumlah Produk Berhasil (pcs)</span></label>
+                    <input type="number" wire:model="actual_qty" class="input input-bordered w-full text-center font-bold text-lg @error('actual_qty') input-error @enderror" />
+                    @error('actual_qty') <span class="text-error text-[10px] mt-1 text-left block">{{ $message }}</span> @enderror
+                </div>
+                
+                @if($actual_qty < $planned_qty)
+                <div class="form-control w-full animate-in fade-in duration-300">
+                    <label class="label"><span class="label-text font-semibold text-xs text-error">Alasan Produk Gagal (Waste)</span></label>
+                    <textarea wire:model="waste_reason" class="textarea textarea-bordered textarea-error w-full text-xs" rows="2" placeholder="Contoh: Gosong, rasa kurang pas..."></textarea>
+                    @error('waste_reason') <span class="text-error text-xs mt-1">{{ $message }}</span> @enderror
+                </div>
+                <div class="alert alert-error text-[10px] p-2 rounded-lg">
+                    <span>Akan dicatat sebagai waste: <strong>{{ $planned_qty - $actual_qty }} pcs</strong></span>
+                </div>
+                @endif
+
+                <div class="divider text-xs opacity-50">Limbah Bahan Baku (Opsional)</div>
+                <p class="text-[10px] text-base-content/50 -mt-2 mb-2">Gunakan jika ada bahan tumpah atau rusak selama proses.</p>
+
+                <div class="space-y-3">
+                    @foreach($material_wastes as $index => $mw)
+                    <div class="p-3 bg-base-200 rounded-xl relative group border border-base-300">
+                        <button type="button" wire:click="removeMaterialWaste({{ $index }})" class="btn btn-circle btn-xs btn-error absolute -top-2 -right-2">
+                            <x-heroicon-s-x-mark class="w-3 h-3" />
+                        </button>
+                        
+                        <div class="grid grid-cols-1 gap-2">
+                            <div class="form-control">
+                                <select wire:model="material_wastes.{{ $index }}.material_id" class="select select-bordered select-xs w-full">
+                                    <option value="">Pilih Bahan yang Rusak</option>
+                                    @foreach($products->find($product_id)->materials ?? [] as $mat)
+                                        <option value="{{ $mat->id }}">{{ $mat->name }} ({{ $mat->unit->name ?? 'unit' }})</option>
+                                    @endforeach
+                                </select>
+                                @error('material_wastes.'.$index.'.material_id') <span class="text-error text-[9px] mt-1">{{ $message }}</span> @enderror
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <div class="form-control flex-1">
+                                    <input type="number" step="0.01" wire:model="material_wastes.{{ $index }}.qty" class="input input-bordered input-xs" placeholder="Jumlah" />
+                                    @error('material_wastes.'.$index.'.qty') <span class="text-error text-[9px] mt-1">{{ $message }}</span> @enderror
+                                </div>
+                                <div class="form-control flex-[2]">
+                                    <input type="text" wire:model="material_wastes.{{ $index }}.reason" class="input input-bordered input-xs" placeholder="Alasan kerusakan" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+
+                    <button type="button" wire:click="addMaterialWaste" class="btn btn-ghost btn-xs w-full gap-1 border-dashed border-2 border-base-300">
+                        <x-heroicon-o-plus-circle class="w-4 h-4" />
+                        Tambah Laporan Kerusakan Bahan
+                    </button>
+                </div>
             </div>
         </div>
         <div class="modal-action justify-center gap-3">

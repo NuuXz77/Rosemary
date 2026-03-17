@@ -19,6 +19,7 @@ class Materials extends Model
         'unit_id',        // FK ke units
         'supplier_id',    // FK ke suppliers (optional)
         'name',           // Nama material
+        'price',          // Harga modal per unit
         'minimum_stock',  // Stok minimum untuk alert
         'status',         // Boolean: aktif/nonaktif
     ];
@@ -32,7 +33,7 @@ class Materials extends Model
      */
     public function category(): BelongsTo
     {
-        return $this->belongsTo(Categories::class);
+        return $this->belongsTo(Categories::class, 'category_id');
     }
 
     /**
@@ -48,7 +49,7 @@ class Materials extends Model
      */
     public function supplier(): BelongsTo
     {
-        return $this->belongsTo(Suppliers::class);
+        return $this->belongsTo(Suppliers::class, 'supplier_id');
     }
 
     /**

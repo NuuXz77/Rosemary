@@ -35,7 +35,7 @@ class Products extends Model
      */
     public function category(): BelongsTo
     {
-        return $this->belongsTo(Categories::class);
+        return $this->belongsTo(Categories::class, 'category_id');
     }
 
     /**
@@ -43,7 +43,7 @@ class Products extends Model
      */
     public function division(): BelongsTo
     {
-        return $this->belongsTo(Divisions::class);
+        return $this->belongsTo(Divisions::class, 'division_id');
     }
 
     /**
@@ -99,5 +99,14 @@ class Products extends Model
     public function productWastes(): HasMany
     {
         return $this->hasMany(ProductWastes::class, 'product_id');
+    }
+    /**
+     * Hitung Harga Pokok Produksi (HPP) berdasarkan resep (BOM)
+     */
+    public function getCostPriceAttribute(): float
+    {
+        return $this->materials->sum(function ($material) {
+            return $material->price * $material->pivot->qty_used;
+        });
     }
 }

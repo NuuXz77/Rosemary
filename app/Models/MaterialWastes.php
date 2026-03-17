@@ -14,6 +14,7 @@ class MaterialWastes extends Model
 {
     protected $fillable = [
         'material_id', // FK ke materials
+        'production_id', // FK ke productions (jika waste terjadi saat produksi)
         'qty',         // Jumlah yang terbuang
         'reason',      // Alasan (expired, damaged, spilled, dsb)
         'waste_date',  // Tanggal kejadian
@@ -29,7 +30,7 @@ class MaterialWastes extends Model
      */
     public function material(): BelongsTo
     {
-        return $this->belongsTo(Materials::class);
+        return $this->belongsTo(Materials::class, 'material_id');
     }
 
     /**
@@ -41,27 +42,39 @@ class MaterialWastes extends Model
     }
 
     /**
+     * Relasi Many-to-One ke Productions
+     */
+    public function production(): BelongsTo
+    {
+        return $this->belongsTo(Productions::class, 'production_id');
+    }
+
+    /**
      * Boot function untuk menghandle pengurangan stok otomatis
      */
     protected static function booted()
     {
         static::created(function ($waste) {
-            // Kurangi stok di MaterialStocks
-            $stock = MaterialStocks::where('material_id', $waste->material_id)->first();
-            if ($stock) {
-                $stock->decrement('qty_available', $waste->qty);
-            }
+            // Jika limbah terjadi saat PRODUKSI, stok SUDAH dipotong oleh modul Produksi (rencana).
+            // Kita hanya potong otomatis jika ini adalah limbah MANDIRI (non-produksi).
+            if (!$waste->production_id) {
+                // Kurangi stok di MaterialStocks
+                $stock = MaterialStocks::where('material_id', $waste->material_id)->first();
+                if ($stock) {
+                    $stock->decrement('qty_available', $waste->qty);
+                }
 
-            // Catat di MaterialStockLogs
-            MaterialStockLogs::create([
-                'material_id' => $waste->material_id,
-                'type' => 'out',
-                'qty' => -$waste->qty,
-                'description' => "Waste recorded: {$waste->reason} on " . $waste->waste_date->format('Y-m-d'),
-                'reference_type' => self::class,
-                'reference_id' => $waste->id,
-                'created_by' => $waste->created_by,
-            ]);
+                // Catat di MaterialStockLogs
+                MaterialStockLogs::create([
+                    'material_id' => $waste->material_id,
+                    'type' => 'out',
+                    'qty' => -$waste->qty,
+                    'description' => "Limbah (Mandiri): {$waste->reason}",
+                    'reference_type' => self::class,
+                    'reference_id' => $waste->id,
+                    'created_by' => $waste->created_by,
+                ]);
+            }
         });
     }
 }

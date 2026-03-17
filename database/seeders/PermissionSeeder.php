@@ -64,6 +64,8 @@ class PermissionSeeder extends Seeder
             ['name' => 'product-stocks.view', 'category_id' => optional($inventoryCategory)->id],
             ['name' => 'product-stock-logs.view', 'category_id' => optional($inventoryCategory)->id],
             ['name' => 'product-materials.view', 'category_id' => optional($inventoryCategory)->id],
+            ['name' => 'material-wastes.view', 'category_id' => optional($inventoryCategory)->id],
+            ['name' => 'product-wastes.view', 'category_id' => optional($inventoryCategory)->id],
 
             // Manajemen Transaksi
             ['name' => 'purchases.view', 'category_id' => optional($transactionCategory)->id],
