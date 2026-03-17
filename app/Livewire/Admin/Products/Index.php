@@ -33,10 +33,22 @@ class Index extends Component
         }
     }
 
-    public function updatingSearch(): void { $this->resetPage(); }
-    public function updatingFilterCategory(): void { $this->resetPage(); }
-    public function updatingFilterDivision(): void { $this->resetPage(); }
-    public function updatingFilterStatus(): void { $this->resetPage(); }
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+    public function updatingFilterCategory(): void
+    {
+        $this->resetPage();
+    }
+    public function updatingFilterDivision(): void
+    {
+        $this->resetPage();
+    }
+    public function updatingFilterStatus(): void
+    {
+        $this->resetPage();
+    }
 
     public function sortBy(string $field): void
     {
@@ -70,45 +82,7 @@ class Index extends Component
     #[On('product-changed')]
     public function refreshList(): void
     {
-        $this->productId = $id;
-        $this->dispatch('open-modal', id: 'delete-modal');
-    }
-
-    public function delete()
-    {
-        if (!auth()->user()->can('users.manage')) {
-            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk menghapus produk.');
-            return;
-        }
-
-        try {
-            $product = Products::findOrFail($this->productId);
-
-            // Cek relasi
-            if (
-                $product->saleItems()->count() > 0 ||
-                $product->productions()->count() > 0 ||
-                $product->stockLogs()->count() > 0 ||
-                $product->productWastes()->count() > 0
-            ) {
-                $this->dispatch('show-toast', type: 'error', message: 'Produk tidak bisa dihapus karena sudah memiliki riwayat transaksi, produksi, atau limbah.');
-                $this->dispatch('close-modal', id: 'delete-modal');
-                return;
-            }
-
-            \Illuminate\Support\Facades\DB::beginTransaction();
-            $product->stock()->delete();
-            $product->delete();
-            \Illuminate\Support\Facades\DB::commit();
-
-            $this->dispatch('close-modal', id: 'delete-modal');
-            $this->dispatch('show-toast', type: 'success', message: 'Produk berhasil dihapus.');
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\DB::rollBack();
-            $this->dispatch('show-toast', type: 'error', message: 'Gagal menghapus produk: ' . $e->getMessage());
-        }
-        $this->resetPage();
-
+        // Re-render handled by Livewire automatically
     }
 
     public function render()
@@ -126,21 +100,25 @@ class Index extends Component
             ->when($this->filterCategory, fn($q) => $q->where('category_id', $this->filterCategory))
             ->when($this->filterDivision, fn($q) => $q->where('division_id', $this->filterDivision))
             ->when($this->filterStatus !== '', fn($q) => $q->where('status', (bool) $this->filterStatus))
-            ->when($this->sortField === 'stock', fn($q) =>
+            ->when(
+                $this->sortField === 'stock',
+                fn($q) =>
                 $q->orderByRaw('(SELECT qty_available FROM product_stocks WHERE product_id = products.id LIMIT 1) ' . $this->sortDirection)
             )
-            ->when($this->sortField !== 'stock', fn($q) =>
+            ->when(
+                $this->sortField !== 'stock',
+                fn($q) =>
                 $q->orderBy($this->sortField, $this->sortDirection)
             )
             ->paginate($this->perPage);
 
         $categories = Categories::where('type', 'product')->where('status', true)->orderBy('name')->get();
-        $divisions  = Divisions::where('status', true)->orderBy('name')->get();
+        $divisions = Divisions::where('status', true)->orderBy('name')->get();
 
         return view('livewire.admin.products.index', [
-            'products'   => $products,
+            'products' => $products,
             'categories' => $categories,
-            'divisions'  => $divisions,
+            'divisions' => $divisions,
         ]);
     }
 }

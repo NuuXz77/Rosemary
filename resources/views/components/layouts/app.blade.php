@@ -12,6 +12,7 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     @livewireStyles
 </head>
 
@@ -125,8 +126,8 @@
         </div>
 
         {{-- Admin Sidebar: hanya muncul untuk user yang login via Laravel Auth.
-             Untuk siswa yang login via PIN, sidebar tidak dirender → Spatie @can
-             otomatis mengembalikan false untuk guest, menu kosong. --}}
+        Untuk siswa yang login via PIN, sidebar tidak dirender → Spatie @can
+        otomatis mengembalikan false untuk guest, menu kosong. --}}
         @auth
             <x-partials.sidebar />
         @endauth
@@ -292,7 +293,7 @@
         });
 
         // Pull to Refresh Functionality
-        (function() {
+        (function () {
             let startY = 0;
             let currentY = 0;
             let isPulling = false;

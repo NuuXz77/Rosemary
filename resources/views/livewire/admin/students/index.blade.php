@@ -42,11 +42,7 @@
                             </div>
                         </td>
                         <td>
-<<<<<<< HEAD
                             <span class="badge badge-sm badge-ghost">{{ $student->schoolClass->name ?? '-' }}</span>
-=======
-                            <span class="badge badge-primary badge-outline badge-sm">{{ $student->class->name ?? '-' }}</span>
->>>>>>> d68d553b49d6892fa2726a961b1c82920233321b
                         </td>
                         <td>
                             @if ($student->status === true)

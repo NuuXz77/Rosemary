@@ -117,7 +117,8 @@ class Index extends Component
         )
             ->where('created_at', '>=', now()->subDays($this->chartDays))
             ->where('status', 'paid')
-            ->groupBy('date')->orderBy('date')->get();
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->orderBy('date')->get();
 
         // === PAYMENT BREAKDOWN ===
         $paymentBreakdown = Sales::select('payment_method', DB::raw('COUNT(*) as count'), DB::raw('SUM(total_amount) as total'))
