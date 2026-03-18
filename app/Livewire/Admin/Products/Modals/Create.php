@@ -33,7 +33,7 @@ class Create extends Component
 
     public function save(): void
     {
-        if (!auth()->user()->can('users.manage')) {
+        if (!auth()->user()->can('products.create')) {
             $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk menambah produk.');
             return;
         }

@@ -1,9 +1,4 @@
 <div>
-    {{-- ── Modal Components ─────────────────────────────────────── --}}
-    <livewire:admin.schedules.modals.edit />
-    <livewire:admin.schedules.modals.delete />
-    <livewire:admin.schedules.modals.bulk-delete />
-    <livewire:admin.schedules.modals.mark-unavailable />
     {{-- ── Header Controls ───────────────────────────────────────── --}}
     <div class="card bg-base-100 shadow-sm border border-base-200 mb-4">
         <div class="card-body p-4 md:p-6 space-y-4">
@@ -30,20 +25,7 @@
 
                 {{-- Action Buttons --}}
                 <div class="flex items-center gap-2">
-                    {{-- Bulk Delete Button --}}
-                    <button wire:click="openBulkDelete"
-                        class="btn btn-sm btn-ghost border border-error/30 gap-1.5 hover:bg-error/10">
-                        <x-heroicon-o-trash class="w-4 h-4 text-error" />
-                        <span class="hidden sm:inline text-xs font-medium">Hapus Massal</span>
-                    </button>
-
-                    {{-- Auto-generate passes current selected month/year --}}
-                    <button wire:click="openAutoGenerate"
-                        class="btn btn-sm btn-ghost border border-base-300 gap-1.5">
-                        <x-heroicon-o-bolt class="w-4 h-4 text-warning" />
-                        <span class="hidden sm:inline text-xs font-medium">Generate Otomatis</span>
-                    </button>
-
+                    <livewire:admin.schedules.modals.bulk-delete />
                     <livewire:admin.schedules.modals.auto-generate />
                     <livewire:admin.schedules.modals.create />
                 </div>
@@ -126,7 +108,7 @@
 
             {{-- Warning: Filter Required --}}
             @if (!$filterType)
-                <div class="alert alert-warning mb-4">
+                <div class="alert alert-warning alert-soft mb-4">
                     <x-heroicon-o-exclamation-triangle class="w-5 h-5" />
                     <div>
                         <div class="font-bold">Filter Wajib Dipilih</div>
@@ -363,4 +345,7 @@
             </div>
         </div>
     </div>
+    <livewire:admin.schedules.modals.edit />
+    <livewire:admin.schedules.modals.delete />
+    <livewire:admin.schedules.modals.mark-unavailable />
 </div>

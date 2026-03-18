@@ -11,7 +11,7 @@
         saveButtonIcon="heroicon-o-bolt"
         saveButtonClass="btn btn-primary gap-2 btn-sm"
         modalSize="modal-box w-11/12 max-w-2xl"
-        :showButton="false">
+        :showButton="true">
 
         {{-- Rentang tanggal target --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">

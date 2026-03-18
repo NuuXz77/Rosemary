@@ -2,6 +2,9 @@
     <x-form.modal
         modalId="mark-unavailable-schedule-modal"
         title="Tandai Berhalangan"
+        buttonText="Tandai Berhalangan"
+        buttonIcon="heroicon-o-user-minus"
+        buttonClass="btn btn-sm btn-ghost border border-warning/40 text-warning gap-1.5"
         saveAction="submit"
         saveButtonText="Proses"
         saveButtonIcon="heroicon-o-arrow-path"

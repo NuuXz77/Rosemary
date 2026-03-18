@@ -15,6 +15,20 @@
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
+
+    {{-- Apply saved theme BEFORE render to avoid flash --}}
+    <script>
+        (function () {
+            const saved = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+        })();
+
+        // Re-apply theme after every wire:navigate page swap
+        document.addEventListener('livewire:navigated', function () {
+            const saved = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+        });
+    </script>
 </head>
 
 <body>

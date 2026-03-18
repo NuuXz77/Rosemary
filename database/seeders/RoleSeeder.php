@@ -21,6 +21,108 @@ class RoleSeeder extends Seeder
             'Production',
             'Inventory',
             'Cashier',
+            // 'Supervisor',
+            // 'QC',
+        ];
+
+        $rolePermissionMap = [
+            'Production' => [
+                'dashboard.view',
+                'productions.view',
+                'products.view',
+                'product-stocks.view',
+                'product-materials.view',
+                'product-wastes.view',
+                'reports.productions.view',
+            ],
+
+            'Inventory' => [
+                'dashboard.view',
+
+                'materials.view',
+                'materials.create',
+                'materials.edit',
+                'materials.delete',
+                'materials.manage',
+
+                'material-stocks.view',
+                'material-stocks.create',
+                'material-stocks.edit',
+                'material-stocks.delete',
+                'material-stocks.manage',
+
+                'material-stock-logs.view',
+                'material-stock-logs.manage',
+
+                'material-wastes.view',
+                'material-wastes.create',
+                'material-wastes.edit',
+                'material-wastes.delete',
+                'material-wastes.manage',
+
+                'products.view',
+                'products.create',
+                'products.edit',
+                'products.delete',
+                'products.manage',
+
+                'purchases.view',
+                'purchases.create',
+                'purchases.manage',
+
+                'product-stocks.view',
+                'product-stocks.create',
+                'product-stocks.edit',
+                'product-stocks.delete',
+                'product-stocks.manage',
+
+                'product-stock-logs.view',
+                'product-stock-logs.manage',
+
+                'product-materials.view',
+                'product-materials.create',
+                'product-materials.edit',
+                'product-materials.delete',
+                'product-materials.manage',
+
+                'product-wastes.view',
+                'product-wastes.create',
+                'product-wastes.edit',
+                'product-wastes.delete',
+                'product-wastes.manage',
+                'reports.stocks.view',
+            ],
+
+            'Cashier' => [
+                'dashboard.view',
+                'sales.view',
+                'reports.sales.view',
+            ],
+
+            // 'Supervisor' => [
+            //     'dashboard.view',
+            //     'schedules.view',
+            //     'schedules.manage',
+            //     'purchases.view',
+            //     'productions.view',
+            //     'sales.view',
+            //     'reports.sales.view',
+            //     'reports.purchases.view',
+            //     'reports.productions.view',
+            //     'reports.stocks.view',
+            //     'reports.schedules.view',
+            // ],
+
+            // 'QC' => [
+            //     'dashboard.view',
+            //     'productions.view',
+            //     'products.view',
+            //     'product-stocks.view',
+            //     'material-wastes.view',
+            //     'product-wastes.view',
+            //     'reports.productions.view',
+            //     'reports.stocks.view',
+            // ],
         ];
 
         foreach ($roles as $roleName) {
@@ -35,45 +137,12 @@ class RoleSeeder extends Seeder
             $adminRole->syncPermissions(Permission::pluck('name')->toArray());
         }
 
-        // Production Role Permissions
-        /** @var Role $productionRole */
-        $productionRole = Role::where('name', 'Production')->first();
-        if ($productionRole) {
-            $productionRole->syncPermissions([
-                'dashboard.view',
-                'productions.view',
-                'products.view',
-                'product-stocks.view',
-                'product-materials.view',
-                'product-wastes.view',
-                'reports.productions.view',
-            ]);
-        }
-
-        // Inventory Role Permissions
-        /** @var Role $inventoryRole */
-        $inventoryRole = Role::where('name', 'Inventory')->first();
-        if ($inventoryRole) {
-            $inventoryRole->syncPermissions([
-                'dashboard.view',
-                'materials.view',
-                'material-stocks.view',
-                'material-stock-logs.view',
-                'material-wastes.view',
-                'purchases.view',
-                'reports.stocks.view',
-            ]);
-        }
-
-        // Cashier Role Permissions
-        /** @var Role $cashierRole */
-        $cashierRole = Role::where('name', 'Cashier')->first();
-        if ($cashierRole) {
-            $cashierRole->syncPermissions([
-                'dashboard.view',
-                'sales.view',
-                'reports.sales.view',
-            ]);
+        foreach ($rolePermissionMap as $roleName => $permissions) {
+            /** @var Role|null $role */
+            $role = Role::where('name', $roleName)->first();
+            if ($role) {
+                $role->syncPermissions($permissions);
+            }
         }
     }
 }

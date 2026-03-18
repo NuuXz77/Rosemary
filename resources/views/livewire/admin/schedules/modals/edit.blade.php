@@ -2,6 +2,9 @@
     <x-form.modal
         modalId="edit-schedule-modal"
         title="Edit Jadwal"
+        buttonText="Edit Jadwal"
+        buttonIcon="heroicon-o-pencil-square"
+        buttonClass="btn btn-sm btn-ghost border border-base-300 gap-1.5"
         saveAction="update"
         saveButtonText="Perbarui"
         saveButtonIcon="heroicon-o-check"

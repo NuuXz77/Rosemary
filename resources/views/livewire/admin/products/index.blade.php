@@ -1,5 +1,11 @@
 @use('Illuminate\Support\Facades\Storage')
 <div>
+    @php
+        $canCreateProduct = auth()->user()->can('products.create');
+        $canEditProduct = auth()->user()->can('products.edit');
+        $canDeleteProduct = auth()->user()->can('products.delete');
+    @endphp
+
     <div class="card bg-base-100 shadow-sm border border-base-200">
         <div class="card-body p-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -42,9 +48,9 @@
                         </div>
                     </div>
                 </div>
-                @canany(['users.manage'])
+                @if ($canCreateProduct)
                     <livewire:admin.products.modals.create />
-                @endcanany
+                @endif
             </div>
 
             @php
@@ -116,7 +122,11 @@
                             @endif
                         </td>
                         <td class="text-center">
-                            <x-partials.dropdown-action :id="$product->id" />
+                            <x-partials.dropdown-action
+                                :id="$product->id"
+                                :show-edit="$canEditProduct"
+                                :show-delete="$canDeleteProduct"
+                            />
                         </td>
                     </tr>
                 @endforeach
