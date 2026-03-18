@@ -14,6 +14,7 @@ class Create extends Component
     public string $category_id = '';
     public string $unit_id = '';
     public string $supplier_id = '';
+    public float $price = 0;
     public float $minimum_stock = 0;
     public bool $status = true;
 
@@ -22,6 +23,7 @@ class Create extends Component
         'category_id'   => 'required|exists:categories,id',
         'unit_id'       => 'required|exists:units,id',
         'supplier_id'   => 'nullable|exists:suppliers,id',
+        'price'         => 'required|numeric|min:0',
         'minimum_stock' => 'required|numeric|min:0',
         'status'        => 'required|boolean',
     ];
@@ -35,13 +37,14 @@ class Create extends Component
             'category_id'   => $this->category_id,
             'unit_id'       => $this->unit_id,
             'supplier_id'   => $this->supplier_id ?: null,
+            'price'         => $this->price,
             'minimum_stock' => $this->minimum_stock,
             'status'        => $this->status,
         ]);
 
         $material->stock()->create(['qty_available' => 0]);
 
-        $this->reset(['name', 'category_id', 'unit_id', 'supplier_id', 'minimum_stock']);
+        $this->reset(['name', 'category_id', 'unit_id', 'supplier_id', 'price', 'minimum_stock']);
         $this->status = true;
         $this->resetValidation();
         $this->dispatch('close-create-modal');
