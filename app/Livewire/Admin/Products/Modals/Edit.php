@@ -56,7 +56,7 @@ class Edit extends Component
 
     public function update(): void
     {
-        if (!auth()->user()->can('users.manage')) {
+        if (!auth()->user()->can('products.edit')) {
             $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk mengubah produk.');
             return;
         }

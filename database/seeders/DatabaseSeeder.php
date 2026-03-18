@@ -23,12 +23,15 @@ class DatabaseSeeder extends Seeder
                 // Master data — urutan penting (FK chain)
             UnitSeeder::class,        // independent
             CategorySeeder::class,    // independent
+            ShiftSeeder::class,       // master shift untuk jadwal/produksi/sales
             ProductSeeder::class,     // butuh categories + divisions (auto-created di dalam)
             StockSeeder::class,       // butuh products
 
                 // Class & Student data
             ClassSeeder::class,       // independent
             StudentSeeder::class,     // butuh classes
+                StudentGroupSeeder::class, // butuh classes + divisions
+                StudentGroupMemberSeeder::class, // butuh student_groups + students
         ]);
     }
 }

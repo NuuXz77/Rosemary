@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * StudentGroupMember Model (Junction Table)
  * 
- * Tabel penghubung many-to-many antara students dan student_groups.
- * Satu siswa bisa masuk satu atau lebih kelompok.
+ * Tabel penghubung students dan student_groups.
+ * Aturan bisnis: 1 siswa hanya boleh ada di 1 kelompok.
  */
 class StudentGroupMembers extends Model
 {

@@ -16,6 +16,7 @@ class StudentGroups extends Model
 {
     protected $fillable = [
         'name',      // Nama kelompok
+        'group_code', // Kode kelompok untuk akun login (username)
         'class_id',  // FK ke classes
         'division_id', // FK ke divisions
         'status',    // Boolean: aktif/nonaktif
@@ -43,8 +44,8 @@ class StudentGroups extends Model
     }
 
     /**
-     * Relasi Many-to-Many ke Students (via student_group_members)
-     * Banyak siswa dalam satu kelompok
+     * Relasi ke Students via student_group_members.
+     * Secara bisnis: 1 siswa hanya boleh ada di 1 kelompok (dikunci unique student_id).
      */
     public function students(): BelongsToMany
     {

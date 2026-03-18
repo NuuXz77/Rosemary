@@ -2,11 +2,14 @@
     <x-form.modal
         modalId="bulk-delete-schedule-modal"
         title="Hapus Jadwal Massal"
+        buttonText="Hapus Massal"
+        buttonIcon="heroicon-o-trash"
+        buttonClass="btn btn-sm btn-ghost border border-error/30 text-error gap-1.5"
         saveAction="bulkDelete"
         saveButtonText="Hapus Jadwal"
         saveButtonIcon="heroicon-o-trash"
         saveButtonClass="btn btn-error text-white gap-2 btn-sm"
-        :showButton="false">
+        :showButton="true">
 
         <div class="space-y-4">
             {{-- Warning Section --}}

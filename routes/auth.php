@@ -61,6 +61,15 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('can:roles.view')->group(function () {
         Route::get('/roles', App\Livewire\Admin\Roles\Index::class)->name('roles.index');
+        Route::get('/roles/{role}', App\Livewire\Admin\Roles\Detail::class)->whereNumber('role')->name('roles.detail');
+    });
+
+    Route::middleware('can:roles.view')->group(function () {
+        Route::get('/roles/create', App\Livewire\Admin\Roles\Create::class)->name('roles.create');
+    });
+
+    Route::middleware('can:roles.view')->group(function () {
+        Route::get('/roles/{role}/edit', App\Livewire\Admin\Roles\Edit::class)->whereNumber('role')->name('roles.edit');
     });
 
     Route::middleware('can:permissions.view')->group(function () {

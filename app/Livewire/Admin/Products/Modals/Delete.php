@@ -21,7 +21,7 @@ class Delete extends Component
 
     public function delete(): void
     {
-        if (!auth()->user()->can('users.manage')) {
+        if (!auth()->user()->can('products.delete')) {
             $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk menghapus produk.');
             return;
         }

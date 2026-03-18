@@ -3,6 +3,137 @@
 
     {{-- Toast --}}
     <x-partials.toast />
+    {{-- Theme Dropdown (Top Right Corner) --}}
+    <div class="absolute top-4 right-4 z-50">
+        <div class="dropdown dropdown-end" x-data="{
+            currentTheme: localStorage.getItem('theme') || 'light',
+            themes: {
+                basic: [
+                    { name: 'Light', value: 'light', icon: '☀️' },
+                    { name: 'Dark', value: 'dark', icon: '🌙' }
+                ],
+                colorful: [
+                    { name: 'Cupcake', value: 'cupcake', icon: '🧁' },
+                    { name: 'Bumblebee', value: 'bumblebee', icon: '🐝' },
+                    { name: 'Emerald', value: 'emerald', icon: '💚' },
+                    { name: 'Pastel', value: 'pastel', icon: '🎨' },
+                    { name: 'Garden', value: 'garden', icon: '🌻' },
+                    { name: 'Aqua', value: 'aqua', icon: '💧' }
+                ],
+                modern: [
+                    { name: 'Corporate', value: 'corporate', icon: '💼' },
+                    { name: 'Wireframe', value: 'wireframe', icon: '📐' },
+                    { name: 'Fantasy', value: 'fantasy', icon: '✨' },
+                    { name: 'Lofi', value: 'lofi', icon: '📚' }
+                ],
+                dark: [
+                    { name: 'Cyberpunk', value: 'cyberpunk', icon: '🤖' },
+                    { name: 'Synthwave', value: 'synthwave', icon: '🌆' },
+                    { name: 'Dracula', value: 'dracula', icon: '🧛' },
+                    { name: 'Night', value: 'night', icon: '🌃' },
+                    { name: 'Black', value: 'black', icon: '⬛' },
+                    { name: 'Coffee', value: 'coffee', icon: '☕' }
+                ],
+                special: [
+                    { name: 'Retro', value: 'retro', icon: '📺' },
+                    { name: 'Valentine', value: 'valentine', icon: '💕' },
+                    { name: 'Halloween', value: 'halloween', icon: '👻' },
+                    { name: 'Forest', value: 'forest', icon: '🌲' },
+                    { name: 'Luxury', value: 'luxury', icon: '👑' },
+                    { name: 'Winter', value: 'winter', icon: '❄️' }
+                ]
+            },
+            currentThemeName() {
+                for (const category in this.themes) {
+                    const found = this.themes[category].find(t => t.value === this.currentTheme);
+                    if (found) return found;
+                }
+                return this.themes.basic[0];
+            },
+            setTheme(theme) {
+                this.currentTheme = theme;
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+            }
+        }">
+            <button tabindex="0" class="btn btn-ghost btn-sm md:btn-md gap-2 hover:bg-base-300/50 transition-colors"
+                title="Pilih Tema">
+                <span x-text="currentThemeName().icon" class="text-base md:text-lg"></span>
+            </button>
+
+            <div tabindex="0" class="dropdown-content bg-base-100 border border-base-300 rounded-lg shadow-xl p-3 w-72 md:w-80 space-y-4 max-h-96 overflow-y-auto scrollbar-thin">
+                <div>
+                    <h3 class="text-xs font-bold text-base-content/60 uppercase tracking-wider mb-2">Dasar</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <template x-for="theme in themes.basic" :key="theme.value">
+                            <button @click="setTheme(theme.value)"
+                                :class="{ 'ring-2 ring-primary ring-offset-2': currentTheme === theme.value }"
+                                class="p-3 rounded-lg bg-base-200 hover:bg-base-300 transition-all text-center group">
+                                <div class="text-2xl mb-1" x-text="theme.icon"></div>
+                                <p class="text-xs font-medium group-hover:text-primary transition-colors" x-text="theme.name"></p>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="border-t border-base-300 pt-4">
+                    <h3 class="text-xs font-bold text-base-content/60 uppercase tracking-wider mb-2">Warna-warni</h3>
+                    <div class="grid grid-cols-3 gap-2">
+                        <template x-for="theme in themes.colorful" :key="theme.value">
+                            <button @click="setTheme(theme.value)"
+                                :class="{ 'ring-2 ring-primary ring-offset-2': currentTheme === theme.value }"
+                                class="p-2 rounded-lg bg-base-200 hover:bg-base-300 transition-all text-center group">
+                                <div class="text-xl mb-0.5" x-text="theme.icon"></div>
+                                <p class="text-xs font-medium group-hover:text-primary transition-colors truncate" x-text="theme.name"></p>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="border-t border-base-300 pt-4">
+                    <h3 class="text-xs font-bold text-base-content/60 uppercase tracking-wider mb-2">Modern</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <template x-for="theme in themes.modern" :key="theme.value">
+                            <button @click="setTheme(theme.value)"
+                                :class="{ 'ring-2 ring-primary ring-offset-2': currentTheme === theme.value }"
+                                class="p-3 rounded-lg bg-base-200 hover:bg-base-300 transition-all text-center group">
+                                <div class="text-2xl mb-1" x-text="theme.icon"></div>
+                                <p class="text-xs font-medium group-hover:text-primary transition-colors" x-text="theme.name"></p>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="border-t border-base-300 pt-4">
+                    <h3 class="text-xs font-bold text-base-content/60 uppercase tracking-wider mb-2">Gelap</h3>
+                    <div class="grid grid-cols-3 gap-2">
+                        <template x-for="theme in themes.dark" :key="theme.value">
+                            <button @click="setTheme(theme.value)"
+                                :class="{ 'ring-2 ring-primary ring-offset-2': currentTheme === theme.value }"
+                                class="p-2 rounded-lg bg-base-200 hover:bg-base-300 transition-all text-center group">
+                                <div class="text-xl mb-0.5" x-text="theme.icon"></div>
+                                <p class="text-xs font-medium group-hover:text-primary transition-colors truncate" x-text="theme.name"></p>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="border-t border-base-300 pt-4">
+                    <h3 class="text-xs font-bold text-base-content/60 uppercase tracking-wider mb-2">Spesial</h3>
+                    <div class="grid grid-cols-3 gap-2">
+                        <template x-for="theme in themes.special" :key="theme.value">
+                            <button @click="setTheme(theme.value)"
+                                :class="{ 'ring-2 ring-primary ring-offset-2': currentTheme === theme.value }"
+                                class="p-2 rounded-lg bg-base-200 hover:bg-base-300 transition-all text-center group">
+                                <div class="text-xl mb-0.5" x-text="theme.icon"></div>
+                                <p class="text-xs font-medium group-hover:text-primary transition-colors truncate" x-text="theme.name"></p>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {{-- Bloop gradient blobs --}}
     <div class="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">

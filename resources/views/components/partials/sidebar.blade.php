@@ -51,15 +51,24 @@
                     $canCategoryPermissions = $user->can('permissions.manage');
                     $canRoles = $user->can('roles.view') || $user->can('roles.manage');
                     $canPermissions = $user->can('permissions.view') || $user->can('permissions.manage');
-                    $userManagementItems = ($canUsers ? 1 : 0) + (($canCategoryPermissions || $canRoles || $canPermissions) ? 1 : 0);
+                    $userManagementItems =
+                        ($canUsers ? 1 : 0) + ($canCategoryPermissions || $canRoles || $canPermissions ? 1 : 0);
 
                     $canStudents = $user->can('students.view');
                     $canStudentGroups = $user->can('student-groups.view');
                     $canStudentMembers = $user->can('student-group-members.view');
                     $studentItems = ($canStudents ? 1 : 0) + ($canStudentGroups ? 1 : 0) + ($canStudentMembers ? 1 : 0);
 
-                    $canMaterialGroup = $user->can('materials.view') || $user->can('material-stocks.view') || $user->can('material-stock-logs.view') || $user->can('material-wastes.view');
-                    $canProductGroup = $user->can('products.view') || $user->can('product-stocks.view') || $user->can('product-stock-logs.view') || $user->can('product-wastes.view');
+                    $canMaterialGroup =
+                        $user->can('materials.view') ||
+                        $user->can('material-stocks.view') ||
+                        $user->can('material-stock-logs.view') ||
+                        $user->can('material-wastes.view');
+                    $canProductGroup =
+                        $user->can('products.view') ||
+                        $user->can('product-stocks.view') ||
+                        $user->can('product-stock-logs.view') ||
+                        $user->can('product-wastes.view');
                     $canRecipe = $user->can('product-materials.view');
                     $inventoryItems = ($canMaterialGroup ? 1 : 0) + ($canProductGroup ? 1 : 0) + ($canRecipe ? 1 : 0);
 
@@ -74,7 +83,12 @@
                     $canReportProductions = $user->can('reports.productions.view');
                     $canReportStocks = $user->can('reports.stocks.view');
                     $canReportSchedules = $user->can('reports.schedules.view');
-                    $reportItems = ($canReportSales ? 1 : 0) + ($canReportPurchases ? 1 : 0) + ($canReportProductions ? 1 : 0) + ($canReportStocks ? 1 : 0) + ($canReportSchedules ? 1 : 0);
+                    $reportItems =
+                        ($canReportSales ? 1 : 0) +
+                        ($canReportPurchases ? 1 : 0) +
+                        ($canReportProductions ? 1 : 0) +
+                        ($canReportStocks ? 1 : 0) +
+                        ($canReportSchedules ? 1 : 0);
 
                     $canMasterClasses = $user->can('master.classes.view');
                     $canMasterCategories = $user->can('master.categories.view');
@@ -83,51 +97,30 @@
                     $canMasterCustomers = $user->can('master.customers.view');
                     $canMasterShifts = $user->can('master.shifts.view');
                     $canMasterDivisions = $user->can('master.divisions.view');
-                    $hasMasterMenu = $canMasterClasses || $canMasterCategories || $canMasterUnits || $canMasterSuppliers || $canMasterCustomers || $canMasterShifts || $canMasterDivisions;
+                    $hasMasterMenu =
+                        $canMasterClasses ||
+                        $canMasterCategories ||
+                        $canMasterUnits ||
+                        $canMasterSuppliers ||
+                        $canMasterCustomers ||
+                        $canMasterShifts ||
+                        $canMasterDivisions;
                     $canAppSettings = $user->can('settings.app.view');
                     $canDiscountSettings = $user->can('discounts.manage');
-                    $settingsItems = ($hasMasterMenu ? 1 : 0) + ($canAppSettings ? 1 : 0) + ($canDiscountSettings ? 1 : 0);
+                    $settingsItems =
+                        ($hasMasterMenu ? 1 : 0) + ($canAppSettings ? 1 : 0) + ($canDiscountSettings ? 1 : 0);
                 @endphp
 
                 <!-- ADMIN MENU -->
-                @canany([
-                    'dashboard.view',
-                    'users.manage',
-                    'roles.view',
-                    'roles.manage',
-                    'permissions.view',
-                    'permissions.manage',
-                    'students.view',
-                    'student-groups.view',
-                    'student-group-members.view',
-                    'schedules.view',
-                    'materials.view',
-                    'material-stocks.view',
-                    'material-stock-logs.view',
-                    'products.view',
-                    'product-stocks.view',
-                    'product-stock-logs.view',
-                    'product-materials.view',
-                    'material-wastes.view',
-                    'product-wastes.view',
-                    'purchases.view',
-                    'productions.view',
-                    'sales.view',
-                    'reports.sales.view',
-                    'reports.purchases.view',
-                    'reports.productions.view',
-                    'reports.stocks.view',
-                    'reports.schedules.view',
-                    'master.categories.view',
-                    'master.units.view',
-                    'master.suppliers.view',
-                    'master.customers.view',
-                    'master.shifts.view',
-                    'master.divisions.view',
-                    'master.classes.view',
-                    'discounts.manage',
-                    'settings.app.view'
-                ])
+                @canany(['dashboard.view', 'users.manage', 'roles.view', 'roles.manage', 'permissions.view',
+                    'permissions.manage', 'students.view', 'student-groups.view', 'student-group-members.view',
+                    'schedules.view', 'materials.view', 'material-stocks.view', 'material-stock-logs.view', 'products.view',
+                    'product-stocks.view', 'product-stock-logs.view', 'product-materials.view', 'material-wastes.view',
+                    'product-wastes.view', 'purchases.view', 'productions.view', 'sales.view', 'reports.sales.view',
+                    'reports.purchases.view', 'reports.productions.view', 'reports.stocks.view', 'reports.schedules.view',
+                    'master.categories.view', 'master.units.view', 'master.suppliers.view', 'master.customers.view',
+                    'master.shifts.view', 'master.divisions.view', 'master.classes.view', 'discounts.manage',
+                    'settings.app.view'])
                     {{-- <li class="menu-title">
                         <span>Administrator</span>
                     </li> --}}
@@ -176,10 +169,10 @@
                 @endrole
 
                 {{-- MANAJEMEN PENGGUNA --}}
-                @if($userManagementItems > 0)
+                @if ($userManagementItems > 0)
                     <li>
-                        @if($userManagementItems === 1)
-                            @if($canUsers)
+                        @if ($userManagementItems === 1)
+                            @if ($canUsers)
                                 <a wire:navigate href="{{ route('users.index') }}"
                                     class="{{ request()->routeIs('users.*') ? 'bg-base-300' : '' }}">
                                     <x-heroicon-o-users class="w-5" />
@@ -212,14 +205,14 @@
                                     Manajemen Pengguna
                                 </summary>
                                 <ul>
-                                    @if($canUsers)
+                                    @if ($canUsers)
                                         <li>
                                             <a wire:navigate href="{{ route('users.index') }}"
                                                 class="{{ request()->routeIs('users.*') ? 'bg-base-300' : '' }}">Pengguna</a>
                                         </li>
                                     @endif
 
-                                    @if($canCategoryPermissions || $canRoles || $canPermissions)
+                                    @if ($canCategoryPermissions || $canRoles || $canPermissions)
                                         <li>
                                             <details
                                                 {{ request()->routeIs('roles.*', 'permissions.*', 'category-permissions.*') ? 'open' : '' }}>
@@ -228,20 +221,21 @@
                                                     Hak Akses
                                                 </summary>
                                                 <ul>
-                                                    @if($canCategoryPermissions)
+                                                    @if ($canCategoryPermissions)
                                                         <li>
-                                                            <a wire:navigate href="{{ route('category-permissions.index') }}"
+                                                            <a wire:navigate
+                                                                href="{{ route('category-permissions.index') }}"
                                                                 class="{{ request()->routeIs('category-permissions.*') ? 'bg-base-300' : '' }}">Kategori
                                                                 Permission</a>
                                                         </li>
                                                     @endif
-                                                    @if($canRoles)
+                                                    @if ($canRoles)
                                                         <li>
                                                             <a wire:navigate href="{{ route('roles.index') }}"
                                                                 class="{{ request()->routeIs('roles.*') ? 'bg-base-300' : '' }}">Role</a>
                                                         </li>
                                                     @endif
-                                                    @if($canPermissions)
+                                                    @if ($canPermissions)
                                                         <li>
                                                             <a wire:navigate href="{{ route('permissions.index') }}"
                                                                 class="{{ request()->routeIs('permissions.*') ? 'bg-base-300' : '' }}">Permission</a>
@@ -258,10 +252,10 @@
                 @endif
 
                 {{-- MANAJEMEN SISWA --}}
-                @if($studentItems > 0)
+                @if ($studentItems > 0)
                     <li>
-                        @if($studentItems === 1)
-                            @if($canStudents)
+                        @if ($studentItems === 1)
+                            @if ($canStudents)
                                 <a wire:navigate href="/students"
                                     class="{{ request()->is('students*') ? 'bg-base-300' : '' }}">
                                     <x-heroicon-o-academic-cap class="w-5" />
@@ -288,20 +282,21 @@
                                     Manajemen Siswa
                                 </summary>
                                 <ul>
-                                    @if($canStudents)
+                                    @if ($canStudents)
                                         <li>
                                             <a wire:navigate href="/students"
-                                                class="{{ request()->is('students*') ? 'bg-base-300' : '' }}">Data Siswa</a>
+                                                class="{{ request()->is('students*') ? 'bg-base-300' : '' }}">Data
+                                                Siswa</a>
                                         </li>
                                     @endif
-                                    @if($canStudentGroups)
+                                    @if ($canStudentGroups)
                                         <li>
                                             <a wire:navigate href="/student-groups"
                                                 class="{{ request()->is('student-groups*') ? 'bg-base-300' : '' }}">Kelompok
                                                 Siswa</a>
                                         </li>
                                     @endif
-                                    @if($canStudentMembers)
+                                    @if ($canStudentMembers)
                                         <li>
                                             <a wire:navigate href="/student-group-members"
                                                 class="{{ request()->is('student-group-members*') ? 'bg-base-300' : '' }}">Anggota
@@ -323,7 +318,7 @@
                                 Penjadwalan
                             </summary>
                             <ul>
-                                    <li>
+                                <li>
                                     <a wire:navigate href="/schedules"
                                         class="{{ request()->is('schedules*') ? 'bg-base-300' : '' }}">Jadwal Harian</a>
                                 </li>
@@ -338,10 +333,10 @@
                 @endcan
 
                 {{-- MANAJEMEN INVENTARIS --}}
-                @if($inventoryItems > 0)
+                @if ($inventoryItems > 0)
                     <li>
-                        @if($inventoryItems === 1)
-                            @if($canRecipe)
+                        @if ($inventoryItems === 1)
+                            @if ($canRecipe)
                                 <a wire:navigate href="/product-materials"
                                     class="{{ request()->is('product-materials*') ? 'bg-base-300' : '' }}">
                                     <x-heroicon-o-beaker class="w-5" />
@@ -353,7 +348,9 @@
                                         ? '/material-stocks'
                                         : ($user->can('materials.view')
                                             ? '/materials'
-                                            : ($user->can('material-stock-logs.view') ? '/material-stock-logs' : '/material-wastes'));
+                                            : ($user->can('material-stock-logs.view')
+                                                ? '/material-stock-logs'
+                                                : '/material-wastes'));
                                 @endphp
                                 <a wire:navigate href="{{ $inventoryMaterialRoute }}"
                                     class="{{ request()->is('materials*', 'material-stocks*', 'material-stock-logs*', 'material-wastes*') ? 'bg-base-300' : '' }}">
@@ -366,7 +363,9 @@
                                         ? '/product-stocks'
                                         : ($user->can('products.view')
                                             ? '/products'
-                                            : ($user->can('product-stock-logs.view') ? '/product-stock-logs' : '/product-wastes'));
+                                            : ($user->can('product-stock-logs.view')
+                                                ? '/product-stock-logs'
+                                                : '/product-wastes'));
                                 @endphp
                                 <a wire:navigate href="{{ $inventoryProductRoute }}"
                                     class="{{ request()->is('products*', 'product-stocks*', 'product-stock-logs*', 'product-wastes*') ? 'bg-base-300' : '' }}">
@@ -382,7 +381,7 @@
                                     Manajemen Inventaris
                                 </summary>
                                 <ul>
-                                    @if($canMaterialGroup)
+                                    @if ($canMaterialGroup)
                                         <li>
                                             <details
                                                 {{ request()->is('materials*', 'material-stocks*', 'material-stock-logs*', 'material-wastes*') ? 'open' : '' }}>
@@ -423,7 +422,7 @@
                                             </details>
                                         </li>
                                     @endif
-                                    @if($canProductGroup)
+                                    @if ($canProductGroup)
                                         <li>
                                             <details
                                                 {{ request()->is('products*', 'product-stocks*', 'product-stock-logs*', 'product-wastes*') ? 'open' : '' }}>
@@ -464,7 +463,7 @@
                                             </details>
                                         </li>
                                     @endif
-                                    @if($canRecipe)
+                                    @if ($canRecipe)
                                         <li>
                                             <a wire:navigate href="/product-materials"
                                                 class="{{ request()->is('product-materials*') ? 'bg-base-300' : '' }}">
@@ -480,10 +479,10 @@
                 @endif
 
                 {{-- MANAJEMEN TRANSAKSI (Non-Cashier) --}}
-                @if($transactionItems > 0)
+                @if ($transactionItems > 0)
                     <li>
-                        @if($transactionItems === 1)
-                            @if($canPurchases)
+                        @if ($transactionItems === 1)
+                            @if ($canPurchases)
                                 <a wire:navigate href="/purchases"
                                     class="{{ request()->is('purchases*') ? 'bg-base-300' : '' }}">
                                     <x-heroicon-o-banknotes class="w-5" />
@@ -509,19 +508,19 @@
                                     Manajemen Transaksi
                                 </summary>
                                 <ul>
-                                    @if($canPurchases)
+                                    @if ($canPurchases)
                                         <li>
                                             <a wire:navigate href="/purchases"
                                                 class="{{ request()->is('purchases*') ? 'bg-base-300' : '' }}">Pembelian</a>
                                         </li>
                                     @endif
-                                    @if($canProductions)
+                                    @if ($canProductions)
                                         <li>
                                             <a wire:navigate href="/productions"
                                                 class="{{ request()->is('productions*') ? 'bg-base-300' : '' }}">Produksi</a>
                                         </li>
                                     @endif
-                                    @if($canSales)
+                                    @if ($canSales)
                                         <li>
                                             <a wire:navigate href="/sales"
                                                 class="{{ request()->is('sales*') ? 'bg-base-300' : '' }}">Penjualan</a>
@@ -534,10 +533,10 @@
                 @endif
 
                 {{-- LAPORAN & ANALITIK --}}
-                @if($reportItems > 0)
+                @if ($reportItems > 0)
                     <li>
-                        @if($reportItems === 1)
-                            @if($canReportSales)
+                        @if ($reportItems === 1)
+                            @if ($canReportSales)
                                 <a wire:navigate href="/reports/sales"
                                     class="{{ request()->is('reports/sales*') ? 'bg-base-300' : '' }}">
                                     <x-heroicon-o-chart-bar class="w-5" />
@@ -575,21 +574,21 @@
                                     Laporan & Analitik
                                 </summary>
                                 <ul>
-                                    @if($canReportSales)
+                                    @if ($canReportSales)
                                         <li>
                                             <a wire:navigate href="/reports/sales"
                                                 class="{{ request()->is('reports/sales*') ? 'bg-base-300' : '' }}">Laporan
                                                 Penjualan</a>
                                         </li>
                                     @endif
-                                    @if($canReportPurchases)
+                                    @if ($canReportPurchases)
                                         <li>
                                             <a wire:navigate href="/reports/purchases"
                                                 class="{{ request()->is('reports/purchases*') ? 'bg-base-300' : '' }}">Laporan
                                                 Pembelian</a>
                                         </li>
                                     @endif
-                                    @if($canReportProductions)
+                                    @if ($canReportProductions)
                                         <li>
                                             <a wire:navigate href="/reports/productions"
                                                 class="{{ request()->is('reports/productions*') ? 'bg-base-300' : '' }}">Laporan
@@ -601,14 +600,14 @@
                                                 Limbah (Waste)</a>
                                         </li>
                                     @endif
-                                    @if($canReportStocks)
+                                    @if ($canReportStocks)
                                         <li>
                                             <a wire:navigate href="/reports/stocks"
                                                 class="{{ request()->is('reports/stocks*') ? 'bg-base-300' : '' }}">Laporan
                                                 Stok</a>
                                         </li>
                                     @endif
-                                    @if($canReportSchedules)
+                                    @if ($canReportSchedules)
                                         <li>
                                             <a wire:navigate href="/reports/schedules"
                                                 class="{{ request()->is('reports/schedules*') ? 'bg-base-300' : '' }}">Laporan
@@ -623,10 +622,10 @@
 
 
                 {{-- PENGATURAN --}}
-                @if($settingsItems > 0)
+                @if ($settingsItems > 0)
                     <li>
-                        @if($settingsItems === 1)
-                            @if($hasMasterMenu)
+                        @if ($settingsItems === 1)
+                            @if ($hasMasterMenu)
                                 @php
                                     $masterRoute = $canMasterClasses
                                         ? '/master/classes'
@@ -638,7 +637,9 @@
                                                     ? '/master/suppliers'
                                                     : ($canMasterCustomers
                                                         ? '/master/customers'
-                                                        : ($canMasterShifts ? '/master/shifts' : '/master/divisions')))));
+                                                        : ($canMasterShifts
+                                                            ? '/master/shifts'
+                                                            : '/master/divisions')))));
                                 @endphp
                                 <a wire:navigate href="{{ $masterRoute }}"
                                     class="{{ request()->is('master*') ? 'bg-base-300' : '' }}">
@@ -665,7 +666,7 @@
                                     Pengaturan
                                 </summary>
                                 <ul>
-                                    @if($hasMasterMenu)
+                                    @if ($hasMasterMenu)
                                         <li>
                                             <details
                                                 {{ request()->is('master/categories*', 'master/units*', 'master/suppliers*', 'master/customers*', 'master/shifts*', 'master/divisions*', 'master/classes*') ? 'open' : '' }}>
@@ -674,43 +675,43 @@
                                                     Data Master
                                                 </summary>
                                                 <ul>
-                                                    @if($canMasterClasses)
+                                                    @if ($canMasterClasses)
                                                         <li>
                                                             <a wire:navigate href="/master/classes"
                                                                 class="{{ request()->is('master/classes*') ? 'bg-base-300' : '' }}">Kelas</a>
                                                         </li>
                                                     @endif
-                                                    @if($canMasterCategories)
+                                                    @if ($canMasterCategories)
                                                         <li>
                                                             <a wire:navigate href="/master/categories"
                                                                 class="{{ request()->is('master/categories*') ? 'bg-base-300' : '' }}">Kategori</a>
                                                         </li>
                                                     @endif
-                                                    @if($canMasterUnits)
+                                                    @if ($canMasterUnits)
                                                         <li>
                                                             <a wire:navigate href="/master/units"
                                                                 class="{{ request()->is('master/units*') ? 'bg-base-300' : '' }}">Satuan</a>
                                                         </li>
                                                     @endif
-                                                    @if($canMasterSuppliers)
+                                                    @if ($canMasterSuppliers)
                                                         <li>
                                                             <a wire:navigate href="/master/suppliers"
                                                                 class="{{ request()->is('master/suppliers*') ? 'bg-base-300' : '' }}">Supplier</a>
                                                         </li>
                                                     @endif
-                                                    @if($canMasterCustomers)
+                                                    @if ($canMasterCustomers)
                                                         <li>
                                                             <a wire:navigate href="/master/customers"
                                                                 class="{{ request()->is('master/customers*') ? 'bg-base-300' : '' }}">Pelanggan</a>
                                                         </li>
                                                     @endif
-                                                    @if($canMasterShifts)
+                                                    @if ($canMasterShifts)
                                                         <li>
                                                             <a wire:navigate href="/master/shifts"
                                                                 class="{{ request()->is('master/shifts*') ? 'bg-base-300' : '' }}">Shift</a>
                                                         </li>
                                                     @endif
-                                                    @if($canMasterDivisions)
+                                                    @if ($canMasterDivisions)
                                                         <li>
                                                             <a wire:navigate href="/master/divisions"
                                                                 class="{{ request()->is('master/divisions*') ? 'bg-base-300' : '' }}">Divisi</a>
@@ -721,7 +722,7 @@
                                             </details>
                                         </li>
                                     @endif
-                                    @if($canAppSettings)
+                                    @if ($canAppSettings)
                                         <li>
                                             <a wire:navigate href="/settings/app"
                                                 class="{{ request()->is('settings/app*') ? 'bg-base-300' : '' }}">
@@ -729,7 +730,7 @@
                                             </a>
                                         </li>
                                     @endif
-                                    @if($canDiscountSettings)
+                                    @if ($canDiscountSettings)
                                         <li>
                                             <a wire:navigate href="/settings/discounts"
                                                 class="{{ request()->is('settings/discounts*') ? 'bg-base-300' : '' }}">
