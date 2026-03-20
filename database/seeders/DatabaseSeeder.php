@@ -30,8 +30,13 @@ class DatabaseSeeder extends Seeder
                 // Class & Student data
             ClassSeeder::class,       // independent
             StudentSeeder::class,     // butuh classes
-                StudentGroupSeeder::class, // butuh classes + divisions
-                StudentGroupMemberSeeder::class, // butuh student_groups + students
+            StudentGroupSeeder::class, // butuh classes + divisions
+            StudentGroupMemberSeeder::class, // butuh student_groups + students
+
+                // Material data
+            MaterialSeeder::class,    // butuh categories
+            MaterialStockSeeder::class, // butuh materials
+            MaterialStockLogSeeder::class, // butuh materials
         ]);
     }
 }
