@@ -2,23 +2,23 @@
     <div class="card bg-base-100 shadow-sm border border-base-200">
         <div class="card-body p-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                <div class="flex items-center gap-2">
-                    <x-heroicon-o-fire class="w-6 h-6 text-primary" />
-                    <h2 class="text-xl font-bold">Produksi & Pengolahan</h2>
-                </div>
-                <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                     <div class="join w-full md:w-64">
                         <label class="input input-sm input-bordered join-item flex items-center gap-2 w-full">
                             <x-heroicon-o-magnifying-glass class="w-4 h-4 text-base-content/50" />
                             <input type="text" wire:model.live.debounce.300ms="search" class="grow" placeholder="Cari produk/kelompok..." />
                         </label>
                     </div>
-                    <button wire:click="create" class="btn btn-sm btn-primary">
-                        <x-heroicon-o-plus class="w-4 h-4" />
-                        Buat Produksi
-                    </button>
+                </div>
+
+                <div class="w-full md:w-auto flex justify-end">
+                    <livewire:admin.productions.modals.create />
                 </div>
             </div>
+
+            <livewire:admin.productions.modals.edit />
+            <livewire:admin.productions.modals.confirm />
+            <livewire:admin.productions.modals.delete />
 
             <x-partials.table :columns="[
                 ['label' => 'No', 'class' => 'w-16'],
@@ -53,7 +53,7 @@
                                 <div class="font-mono font-bold text-lg text-success">{{ $production->actual_qty ?? $production->qty_produced }}</div>
                                 <div class="text-[10px] opacity-40">dari {{ $production->qty_produced }} rencana</div>
                                 @if(($production->qty_produced - ($production->actual_qty ?? $production->qty_produced)) > 0)
-                                    <div class="badge badge-error badge-outline text-[9px] h-auto p-0 px-1 mt-1">Waste: {{ $production->qty_produced - $production->actual_qty }}</div>
+                                    <div class="badge badge-soft badge-error badge-outline text-[9px] h-auto p-0 px-1 mt-1">Waste: {{ $production->qty_produced - $production->actual_qty }}</div>
                                 @endif
                             @else
                                 <div class="font-mono font-bold text-lg text-primary">{{ $production->qty_produced }}</div>
@@ -62,12 +62,12 @@
                         </td>
                         <td>
                             @if($production->status === 'completed')
-                                <div class="badge badge-success badge-sm text-white gap-1">
+                                <div class="badge badge-soft badge-success badge-sm text-white gap-1">
                                     <x-heroicon-s-check-circle class="w-3 h-3" />
                                     Selesai
                                 </div>
                             @else
-                                <div class="badge badge-warning badge-sm gap-1">
+                                <div class="badge badge-soft badge-warning badge-sm gap-1">
                                     <x-heroicon-o-clock class="w-3 h-3" />
                                     Draft
                                 </div>
@@ -76,7 +76,7 @@
                         <td class="text-center">
                             <div class="flex items-center justify-center gap-1">
                                 @if($production->status === 'draft')
-                                    <button wire:click="confirmFinalize({{ $production->id }})" class="btn btn-xs btn-success text-white" title="Selesaikan & Potong Stok">
+                                    <button wire:click="confirmFinalize({{ $production->id }})" class="btn btn-soft btn-xs btn-success" title="Selesaikan & Potong Stok">
                                         <x-heroicon-s-bolt class="w-3 h-3" />
                                         Selesaikan
                                     </button>
@@ -95,166 +95,4 @@
             </div>
         </div>
     </div>
-
-    <!-- Production Modal -->
-    <x-partials.modal id="production-modal" :title="$isEdit ? 'Edit Rencana Produksi' : 'Buat Rencana Produksi Baru'">
-        <form wire:submit.prevent="{{ $isEdit ? 'update' : 'store' }}" class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="form-control">
-                    <label class="label"><span class="label-text font-semibold">Tanggal Produksi</span></label>
-                    <input type="date" wire:model="production_date" class="input input-bordered w-full @error('production_date') input-error @enderror" />
-                    @error('production_date') <span class="text-error text-xs mt-1">{{ $message }}</span> @enderror
-                </div>
-                <div class="form-control">
-                    <label class="label"><span class="label-text font-semibold">Shift</span></label>
-                    <select wire:model="shift_id" class="select select-bordered w-full @error('shift_id') select-error @enderror">
-                        <option value="">Pilih Shift</option>
-                        @foreach($shifts as $shift)
-                            <option value="{{ $shift->id }}">{{ $shift->name }} ({{ $shift->start_time->format('H:i') }} - {{ $shift->end_time->format('H:i') }})</option>
-                        @endforeach
-                    </select>
-                    @error('shift_id') <span class="text-error text-xs mt-1">{{ $message }}</span> @enderror
-                </div>
-            </div>
-
-            <div class="form-control">
-                <label class="label"><span class="label-text font-semibold">Produk yang Dibuat</span></label>
-                <select wire:model="product_id" class="select select-bordered w-full @error('product_id') select-error @enderror">
-                    <option value="">Pilih Produk</option>
-                    @foreach($products as $product)
-                        <option value="{{ $product->id }}">{{ $product->name }}</option>
-                    @endforeach
-                </select>
-                @error('product_id') <span class="text-error text-xs mt-1">{{ $message }}</span> @enderror
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="form-control">
-                    <label class="label"><span class="label-text font-semibold">Kelompok Pelaksana</span></label>
-                    <select wire:model="student_group_id" class="select select-bordered w-full @error('student_group_id') select-error @enderror">
-                        <option value="">Pilih Kelompok</option>
-                        @foreach($groups as $group)
-                            <option value="{{ $group->id }}">{{ $group->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('student_group_id') <span class="text-error text-xs mt-1">{{ $message }}</span> @enderror
-                </div>
-                <div class="form-control">
-                    <label class="label"><span class="label-text font-semibold">Jumlah Produksi (pcs)</span></label>
-                    <input type="number" wire:model="qty_produced" class="input input-bordered w-full @error('qty_produced') input-error @enderror" placeholder="0" />
-                    @error('qty_produced') <span class="text-error text-xs mt-1">{{ $message }}</span> @enderror
-                </div>
-            </div>
-
-            <div class="modal-action">
-                <button type="button" class="btn" onclick="document.getElementById('production-modal').close()">Batal</button>
-                <button type="submit" class="btn btn-primary min-w-[100px]">
-                    <span wire:loading wire:target="{{ $isEdit ? 'update' : 'store' }}" class="loading loading-spinner loading-xs"></span>
-                    {{ $isEdit ? 'Simpan Perubahan' : 'Buat Rencana' }}
-                </button>
-            </div>
-        </form>
-    </x-partials.modal>
-
-    <!-- Finalize Modal -->
-    <x-partials.modal id="finalize-modal" title="Penyelesaian Produksi">
-        <div class="flex flex-col items-center text-center py-4">
-            <div class="w-16 h-16 bg-success/10 text-success rounded-full flex items-center justify-center mb-4 border border-success/20">
-                <x-heroicon-o-bolt class="w-10 h-10" />
-            </div>
-            <h4 class="text-lg font-bold">Selesaikan Produksi?</h4>
-            <p class="text-base-content/60 mt-1 max-w-sm">Tindakan ini akan secara otomatis memotong stok bahan baku sesuai resep dan menambah stok produk jadi.</p>
-            
-            <div class="bg-warning/10 border border-warning/20 p-3 rounded-lg mt-4 text-xs text-warning-content flex gap-3 text-left">
-                <x-heroicon-o-information-circle class="w-5 h-5 shrink-0" />
-                <span>Pastikan resep produk sudah diatur dengan benar sebelum menyelesaikan produksi ini.</span>
-            </div>
-
-            <div class="divider">Konfirmasi Hasil Riil</div>
-
-            <div class="w-full space-y-3">
-                <div class="form-control w-full">
-                    <label class="label"><span class="label-text font-semibold text-xs">Jumlah Produk Berhasil (pcs)</span></label>
-                    <input type="number" wire:model="actual_qty" class="input input-bordered w-full text-center font-bold text-lg @error('actual_qty') input-error @enderror" />
-                    @error('actual_qty') <span class="text-error text-[10px] mt-1 text-left block">{{ $message }}</span> @enderror
-                </div>
-                
-                @if($actual_qty < $planned_qty)
-                <div class="form-control w-full animate-in fade-in duration-300">
-                    <label class="label"><span class="label-text font-semibold text-xs text-error">Alasan Produk Gagal (Waste)</span></label>
-                    <textarea wire:model="waste_reason" class="textarea textarea-bordered textarea-error w-full text-xs" rows="2" placeholder="Contoh: Gosong, rasa kurang pas..."></textarea>
-                    @error('waste_reason') <span class="text-error text-xs mt-1">{{ $message }}</span> @enderror
-                </div>
-                <div class="alert alert-error text-[10px] p-2 rounded-lg">
-                    <span>Akan dicatat sebagai waste: <strong>{{ $planned_qty - $actual_qty }} pcs</strong></span>
-                </div>
-                @endif
-
-                <div class="divider text-xs opacity-50">Limbah Bahan Baku (Opsional)</div>
-                <p class="text-[10px] text-base-content/50 -mt-2 mb-2">Gunakan jika ada bahan tumpah atau rusak selama proses.</p>
-
-                <div class="space-y-3">
-                    @foreach($material_wastes as $index => $mw)
-                    <div class="p-3 bg-base-200 rounded-xl relative group border border-base-300">
-                        <button type="button" wire:click="removeMaterialWaste({{ $index }})" class="btn btn-circle btn-xs btn-error absolute -top-2 -right-2">
-                            <x-heroicon-s-x-mark class="w-3 h-3" />
-                        </button>
-                        
-                        <div class="grid grid-cols-1 gap-2">
-                            <div class="form-control">
-                                <select wire:model="material_wastes.{{ $index }}.material_id" class="select select-bordered select-xs w-full">
-                                    <option value="">Pilih Bahan yang Rusak</option>
-                                    @foreach($products->find($product_id)->materials ?? [] as $mat)
-                                        <option value="{{ $mat->id }}">{{ $mat->name }} ({{ $mat->unit->name ?? 'unit' }})</option>
-                                    @endforeach
-                                </select>
-                                @error('material_wastes.'.$index.'.material_id') <span class="text-error text-[9px] mt-1">{{ $message }}</span> @enderror
-                            </div>
-                            
-                            <div class="flex gap-2">
-                                <div class="form-control flex-1">
-                                    <input type="number" step="0.01" wire:model="material_wastes.{{ $index }}.qty" class="input input-bordered input-xs" placeholder="Jumlah" />
-                                    @error('material_wastes.'.$index.'.qty') <span class="text-error text-[9px] mt-1">{{ $message }}</span> @enderror
-                                </div>
-                                <div class="form-control flex-[2]">
-                                    <input type="text" wire:model="material_wastes.{{ $index }}.reason" class="input input-bordered input-xs" placeholder="Alasan kerusakan" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-
-                    <button type="button" wire:click="addMaterialWaste" class="btn btn-ghost btn-xs w-full gap-1 border-dashed border-2 border-base-300">
-                        <x-heroicon-o-plus-circle class="w-4 h-4" />
-                        Tambah Laporan Kerusakan Bahan
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="modal-action justify-center gap-3">
-            <button type="button" class="btn" onclick="document.getElementById('finalize-modal').close()">Belum Selesai</button>
-            <button wire:click="finalize" class="btn btn-success text-white min-w-[120px]">
-                <span wire:loading wire:target="finalize" class="loading loading-spinner loading-xs"></span>
-                Ya, Selesaikan
-            </button>
-        </div>
-    </x-partials.modal>
-
-    <!-- Delete Confirmation Modal -->
-    <x-partials.modal id="delete-modal" title="Hapus Rencana Produksi">
-        <div class="flex flex-col items-center text-center py-4">
-            <div class="w-16 h-16 bg-error/10 text-error rounded-full flex items-center justify-center mb-4">
-                <x-heroicon-o-trash class="w-10 h-10" />
-            </div>
-            <h4 class="text-lg font-bold">Hapus rencana ini?</h4>
-            <p class="text-base-content/60 mt-1">Data yang dihapus tidak dapat dikembalikan.</p>
-        </div>
-        <div class="modal-action justify-center gap-3">
-            <button type="button" class="btn" onclick="document.getElementById('delete-modal').close()">Batal</button>
-            <button wire:click="delete" class="btn btn-error text-white min-w-[100px]">
-                <span wire:loading wire:target="delete" class="loading loading-spinner loading-xs"></span>
-                Hapus
-            </button>
-        </div>
-    </x-partials.modal>
 </div>
