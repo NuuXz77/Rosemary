@@ -107,8 +107,9 @@
                         $canMasterDivisions;
                     $canAppSettings = $user->can('settings.app.view');
                     $canDiscountSettings = $user->can('discounts.manage');
+                    $canLogs = $user->hasRole('Admin');
                     $settingsItems =
-                        ($hasMasterMenu ? 1 : 0) + ($canAppSettings ? 1 : 0) + ($canDiscountSettings ? 1 : 0);
+                        ($hasMasterMenu ? 1 : 0) + ($canAppSettings ? 1 : 0) + ($canDiscountSettings ? 1 : 0) + ($canLogs ? 1 : 0);
                 @endphp
 
                 <!-- ADMIN MENU -->
@@ -658,9 +659,15 @@
                                     <x-heroicon-o-cog-6-tooth class="w-5" />
                                     Set Diskon
                                 </a>
+                            @elseif($canLogs)
+                                <a wire:navigate href="{{ route('laravel-logs') }}"
+                                    class="{{ request()->routeIs('laravel-logs') ? 'bg-base-300' : '' }}">
+                                    <x-heroicon-o-cog-6-tooth class="w-5" />
+                                    Sistem Logs
+                                </a>
                             @endif
                         @else
-                            <details {{ request()->is('settings*', 'master*') ? 'open' : '' }}>
+                            <details {{ request()->is('settings*', 'master*') || request()->routeIs('laravel-logs') ? 'open' : '' }}>
                                 <summary>
                                     <x-heroicon-o-cog-6-tooth class="w-5" />
                                     Pengaturan
@@ -735,6 +742,15 @@
                                             <a wire:navigate href="/settings/discounts"
                                                 class="{{ request()->is('settings/discounts*') ? 'bg-base-300' : '' }}">
                                                 Set Diskon
+                                            </a>
+                                        </li>
+                                    @endif
+                                    @if ($canLogs)
+                                        <li>
+                                            <a wire:navigate href="{{ route('laravel-logs') }}"
+                                                class="{{ request()->routeIs('laravel-logs') ? 'bg-base-300' : '' }}">
+                                                <x-heroicon-o-command-line class="w-4 h-4" />
+                                                Sistem Logs
                                             </a>
                                         </li>
                                     @endif
