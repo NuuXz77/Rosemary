@@ -26,7 +26,7 @@
             <div class="lg:col-span-2 flex flex-col gap-4">
 
                 {{-- Items card --}}
-                <div class="card bg-base-100 shadow-sm border border-base-200">
+                <div class="card bg-base-100 border border-base-300">
                     <div class="card-body p-0">
                         <div class="px-6 py-4 border-b border-base-200 flex items-center justify-between">
                             <h2 class="font-bold flex items-center gap-2">
@@ -76,7 +76,7 @@
                 </div>
 
                 {{-- Customer card (read-only — data from confirm modal) --}}
-                <div class="card bg-base-100 shadow-sm border border-base-200">
+                <div class="card bg-base-100 border border-base-300">
                     <div class="card-body p-5">
                         <h2 class="font-bold mb-3 flex items-center gap-2 text-sm">
                             <x-heroicon-o-user class="w-4 h-4 text-primary" />
@@ -125,7 +125,7 @@
                 </div>
 
                 {{-- Payment method card --}}
-                <div class="card bg-base-100 shadow-sm border border-base-200">
+                <div class="card bg-base-100 border border-base-300">
                     <div class="card-body p-6">
                         <h2 class="font-bold mb-4 flex items-center gap-2">
                             <x-heroicon-o-credit-card class="w-5 h-5 text-primary" />
@@ -178,7 +178,7 @@
                 </div>
 
                 {{-- Payment Status card --}}
-                <div class="card bg-base-100 shadow-sm border border-base-200">
+                <div class="card bg-base-100 border border-base-300">
                     <div class="card-body p-6">
                         <h2 class="font-bold mb-4 flex items-center gap-2">
                             <x-heroicon-o-clipboard-document-check class="w-5 h-5 text-primary" />
@@ -236,7 +236,7 @@
             <div class="flex flex-col gap-4">
 
                 {{-- Order total breakdown --}}
-                <div class="card bg-base-100 shadow-sm border border-base-200">
+                <div class="card bg-base-100 border border-base-300">
                     <div class="card-body p-6">
                         <h2 class="font-bold mb-4 flex items-center gap-2">
                             <x-heroicon-o-receipt-percent class="w-5 h-5 text-primary" />
@@ -270,7 +270,7 @@
 
                 {{-- Cash input (only when cash & paid) --}}
                 @if($payment_status === 'paid' && $payment_method === 'cash')
-                    <div class="card bg-base-100 shadow-sm border border-base-200">
+                    <div class="card bg-base-100 border border-base-300">
                         <div class="card-body p-6">
                             <h2 class="font-bold mb-4 flex items-center gap-2">
                                 <x-heroicon-o-banknotes class="w-5 h-5 text-primary" />
@@ -329,7 +329,7 @@
                         </div>
                     </div>
                 @else
-                    <div class="card bg-base-100 shadow-sm border border-base-200">
+                    <div class="card bg-base-100 border border-base-300">
                         <div class="card-body p-6 flex flex-col items-center text-center gap-3">
                             <x-heroicon-o-qr-code class="w-16 h-16 text-primary opacity-60" />
                             <div>

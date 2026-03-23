@@ -10,6 +10,13 @@
     saveAction="save"
     modalSize="modal-box max-w-3xl">
 
+    @if ($isProductionLocked)
+        <div class="alert alert-info text-sm mb-4">
+            <x-heroicon-o-lock-closed class="w-5 h-5" />
+            <span>Shift dan Kelompok otomatis mengikuti jadwal produksi akun kamu untuk tanggal yang dipilih.</span>
+        </div>
+    @endif
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <x-form.input
             label="Tanggal Produksi"
@@ -26,6 +33,7 @@
             icon="heroicon-o-clock"
             placeholder="Pilih Shift"
             wireModel="shift_id"
+            :disabled="$isProductionLocked"
             :required="true"
             validatorMessage="Shift wajib dipilih">
             @foreach ($shifts as $shift)
@@ -54,6 +62,7 @@
             icon="heroicon-o-users"
             placeholder="Pilih Kelompok"
             wireModel="student_group_id"
+            :disabled="$isProductionLocked"
             :required="true"
             validatorMessage="Kelompok wajib dipilih">
             @foreach ($groups as $group)

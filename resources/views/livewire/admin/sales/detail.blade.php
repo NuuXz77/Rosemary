@@ -23,7 +23,7 @@
     {{-- Top Summary Cards --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {{-- Total --}}
-        <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card bg-base-100 border border-base-300">
             <div class="card-body p-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -38,7 +38,7 @@
         </div>
 
         {{-- Dibayar --}}
-        <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card bg-base-100 border border-base-300">
             <div class="card-body p-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center shrink-0">
@@ -53,7 +53,7 @@
         </div>
 
         {{-- Kembalian --}}
-        <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card bg-base-100 border border-base-300">
             <div class="card-body p-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-info/10 flex items-center justify-center shrink-0">
@@ -68,7 +68,7 @@
         </div>
 
         {{-- Status --}}
-        <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card bg-base-100 border border-base-300">
             <div class="card-body p-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl {{ $sale->status === 'paid' ? 'bg-success/10' : ($sale->status === 'unpaid' ? 'bg-warning/10' : 'bg-error/10') }} flex items-center justify-center shrink-0">
@@ -101,7 +101,7 @@
         <div class="lg:col-span-2 space-y-6">
 
             {{-- Info Transaksi --}}
-            <div class="card bg-base-100 shadow-sm border border-base-200">
+            <div class="card bg-base-100 border border-base-300">
                 <div class="card-body p-0">
                     <div class="px-6 py-4 border-b border-base-200">
                         <h2 class="font-bold flex items-center gap-2">
@@ -141,7 +141,7 @@
             </div>
 
             {{-- Daftar Produk --}}
-            <div class="card bg-base-100 shadow-sm border border-base-200">
+            <div class="card bg-base-100 border border-base-300">
                 <div class="card-body p-0">
                     <div class="px-6 py-4 border-b border-base-200 flex items-center justify-between">
                         <h2 class="font-bold flex items-center gap-2">
@@ -191,7 +191,7 @@
         <div class="space-y-6">
 
             {{-- Pelanggan --}}
-            <div class="card bg-base-100 shadow-sm border border-base-200">
+            <div class="card bg-base-100 border border-base-300">
                 <div class="card-body p-0">
                     <div class="px-6 py-4 border-b border-base-200">
                         <h2 class="font-bold flex items-center gap-2">
@@ -223,7 +223,7 @@
             </div>
 
             {{-- Ringkasan Biaya --}}
-            <div class="card bg-base-100 shadow-sm border border-base-200">
+            <div class="card bg-base-100 border border-base-300">
                 <div class="card-body p-0">
                     <div class="px-6 py-4 border-b border-base-200">
                         <h2 class="font-bold flex items-center gap-2">
@@ -269,7 +269,7 @@
             </div>
 
             {{-- Struk Thermal (Cetak) --}}
-            <div class="card bg-base-100 shadow-sm border border-base-200 print:hidden">
+            <div class="card bg-base-100 border border-base-300 print:hidden">
                 <div class="card-body p-0">
                     <div class="px-6 py-4 border-b border-base-200">
                         <h2 class="font-bold flex items-center gap-2">

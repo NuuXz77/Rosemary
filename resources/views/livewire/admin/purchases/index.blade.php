@@ -1,4 +1,10 @@
 <div>
+    @php
+        $canCreatePurchase = auth()->user()->can('purchases.create') || auth()->user()->can('purchases.manage');
+        $canEditPurchase = auth()->user()->can('purchases.edit') || auth()->user()->can('purchases.manage');
+        $canDeletePurchase = auth()->user()->can('purchases.delete') || auth()->user()->can('purchases.manage');
+    @endphp
+
     <div class="card bg-base-100 border border-base-300" style="overflow: visible !important;">
         <div class="card-body" style="overflow: visible !important;">
             <div class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mb-6">
@@ -9,11 +15,9 @@
                     </label>
                 </div>
 
-                <div>
-                    @can('purchases.create')
-                        <button wire:click.prevent="openCreate" class="btn btn-primary btn-sm">Buat Purchase</button>
-                    @endcan
-                </div>
+                @if ($canCreatePurchase)
+                    <livewire:admin.purchases.modals.create />
+                @endif
             </div>
 
             <x-partials.table
@@ -42,7 +46,10 @@
                         <td>{{ $purchase->created_at->format('d M Y H:i') }}</td>
                         <td class="text-center">
                             <div class="flex justify-center">
-                                <x-partials.dropdown-action :id="$purchase->id" :showEdit="false" :showDelete="false" />
+                                <x-partials.dropdown-action
+                                    :id="$purchase->id"
+                                    :showEdit="$canEditPurchase"
+                                    :showDelete="$canDeletePurchase" />
                             </div>
                         </td>
                     </tr>
@@ -64,10 +71,7 @@
         </div>
     </div>
 
-    <x-partials.modal id="modal_create_purchase" title="Buat Purchase (placeholder)">
-        <div class="p-4">
-            <p class="text-sm">Form pembelian belum diimplementasikan penuh. Placeholder awal.</p>
-        </div>
-    </x-partials.modal>
+    <livewire:admin.purchases.modals.edit />
+    <livewire:admin.purchases.modals.delete />
 
 </div>

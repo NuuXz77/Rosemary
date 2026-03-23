@@ -10,7 +10,7 @@
             </div> --}}
             <img src="{{ asset('img/logo.png') }}" alt="App Logo" class="w-8" />
             <div class="flex-1 min-w-0">
-                <h2 class="text-xl font-bold truncate">{{ config('app.name', 'RoseMarry POS') }}</h2>
+                <h2 class="text-xl font-bold truncate">{{ config('app.name', 'Rosemary POS') }}</h2>
                 <p class="text-xs text-gray-500">v1.0.0</p>
             </div>
         </div>
@@ -47,42 +47,42 @@
                 @php
                     $user = auth()->user();
 
-                    $canUsers = $user->can('users.manage');
-                    $canCategoryPermissions = $user->can('permissions.manage');
-                    $canRoles = $user->can('roles.view') || $user->can('roles.manage');
-                    $canPermissions = $user->can('permissions.view') || $user->can('permissions.manage');
+                    $canUsers = $user?->can('users.manage');
+                    $canCategoryPermissions = $user?->can('permissions.manage');
+                    $canRoles = $user?->can('roles.view') || $user?->can('roles.manage');
+                    $canPermissions = $user?->can('permissions.view') || $user?->can('permissions.manage');
                     $userManagementItems =
                         ($canUsers ? 1 : 0) + ($canCategoryPermissions || $canRoles || $canPermissions ? 1 : 0);
 
-                    $canStudents = $user->can('students.view');
-                    $canStudentGroups = $user->can('student-groups.view');
-                    $canStudentMembers = $user->can('student-group-members.view');
+                    $canStudents = $user?->can('students.view');
+                    $canStudentGroups = $user?->can('student-groups.view');
+                    $canStudentMembers = $user?->can('student-group-members.view');
                     $studentItems = ($canStudents ? 1 : 0) + ($canStudentGroups ? 1 : 0) + ($canStudentMembers ? 1 : 0);
 
                     $canMaterialGroup =
-                        $user->can('materials.view') ||
-                        $user->can('material-stocks.view') ||
-                        $user->can('material-stock-logs.view') ||
-                        $user->can('material-wastes.view');
+                        $user?->can('materials.view') ||
+                        $user?->can('material-stocks.view') ||
+                        $user?->can('material-stock-logs.view') ||
+                        $user?->can('material-wastes.view');
                     $canProductGroup =
-                        $user->can('products.view') ||
-                        $user->can('product-stocks.view') ||
-                        $user->can('product-stock-logs.view') ||
-                        $user->can('product-wastes.view');
-                    $canRecipe = $user->can('product-materials.view');
+                        $user?->can('products.view') ||
+                        $user?->can('product-stocks.view') ||
+                        $user?->can('product-stock-logs.view') ||
+                        $user?->can('product-wastes.view');
+                    $canRecipe = $user?->can('product-materials.view');
                     $inventoryItems = ($canMaterialGroup ? 1 : 0) + ($canProductGroup ? 1 : 0) + ($canRecipe ? 1 : 0);
 
-                    $isCashierRole = $user->hasRole('Cashier');
-                    $canPurchases = !$isCashierRole && $user->can('purchases.view');
-                    $canProductions = !$isCashierRole && $user->can('productions.view');
-                    $canSales = !$isCashierRole && $user->can('sales.view');
+                    $isCashierRole = $user?->hasRole('Cashier');
+                    $canPurchases = !$isCashierRole && $user?->can('purchases.view');
+                    $canProductions = !$isCashierRole && $user?->can('productions.view');
+                    $canSales = !$isCashierRole && $user?->can('sales.view');
                     $transactionItems = ($canPurchases ? 1 : 0) + ($canProductions ? 1 : 0) + ($canSales ? 1 : 0);
 
-                    $canReportSales = $user->can('reports.sales.view');
-                    $canReportPurchases = $user->can('reports.purchases.view');
-                    $canReportProductions = $user->can('reports.productions.view');
-                    $canReportStocks = $user->can('reports.stocks.view');
-                    $canReportSchedules = $user->can('reports.schedules.view');
+                    $canReportSales = $user?->can('reports.sales.view');
+                    $canReportPurchases = $user?->can('reports.purchases.view');
+                    $canReportProductions = $user?->can('reports.productions.view');
+                    $canReportStocks = $user?->can('reports.stocks.view');
+                    $canReportSchedules = $user?->can('reports.schedules.view');
                     $reportItems =
                         ($canReportSales ? 1 : 0) +
                         ($canReportPurchases ? 1 : 0) +
@@ -90,13 +90,13 @@
                         ($canReportStocks ? 1 : 0) +
                         ($canReportSchedules ? 1 : 0);
 
-                    $canMasterClasses = $user->can('master.classes.view');
-                    $canMasterCategories = $user->can('master.categories.view');
-                    $canMasterUnits = $user->can('master.units.view');
-                    $canMasterSuppliers = $user->can('master.suppliers.view');
-                    $canMasterCustomers = $user->can('master.customers.view');
-                    $canMasterShifts = $user->can('master.shifts.view');
-                    $canMasterDivisions = $user->can('master.divisions.view');
+                    $canMasterClasses = $user?->can('master.classes.view');
+                    $canMasterCategories = $user?->can('master.categories.view');
+                    $canMasterUnits = $user?->can('master.units.view');
+                    $canMasterSuppliers = $user?->can('master.suppliers.view');
+                    $canMasterCustomers = $user?->can('master.customers.view');
+                    $canMasterShifts = $user?->can('master.shifts.view');
+                    $canMasterDivisions = $user?->can('master.divisions.view');
                     $hasMasterMenu =
                         $canMasterClasses ||
                         $canMasterCategories ||
@@ -105,6 +105,7 @@
                         $canMasterCustomers ||
                         $canMasterShifts ||
                         $canMasterDivisions;
+
                     $canAppSettings = $user->can('settings.app.view');
                     $canDiscountSettings = $user->can('discounts.manage');
                     $canLogs = $user->hasRole('Admin');
@@ -157,7 +158,7 @@
                         </li>
                     @endrole
                 @endcan
-                @role('Cashier')
+                {{-- @role('Cashier')
                     @can('reports.sales.view')
                         <li>
                             <a wire:navigate href="/reports/sales"
@@ -167,7 +168,7 @@
                             </a>
                         </li>
                     @endcan
-                @endrole
+                @endrole --}}
 
                 {{-- MANAJEMEN PENGGUNA --}}
                 @if ($userManagementItems > 0)
@@ -345,11 +346,11 @@
                                 </a>
                             @elseif($canMaterialGroup)
                                 @php
-                                    $inventoryMaterialRoute = $user->can('material-stocks.view')
+                                    $inventoryMaterialRoute = $user?->can('material-stocks.view')
                                         ? '/material-stocks'
-                                        : ($user->can('materials.view')
+                                        : ($user?->can('materials.view')
                                             ? '/materials'
-                                            : ($user->can('material-stock-logs.view')
+                                            : ($user?->can('material-stock-logs.view')
                                                 ? '/material-stock-logs'
                                                 : '/material-wastes'));
                                 @endphp
@@ -360,11 +361,11 @@
                                 </a>
                             @elseif($canProductGroup)
                                 @php
-                                    $inventoryProductRoute = $user->can('product-stocks.view')
+                                    $inventoryProductRoute = $user?->can('product-stocks.view')
                                         ? '/product-stocks'
-                                        : ($user->can('products.view')
+                                        : ($user?->can('products.view')
                                             ? '/products'
-                                            : ($user->can('product-stock-logs.view')
+                                            : ($user?->can('product-stock-logs.view')
                                                 ? '/product-stock-logs'
                                                 : '/product-wastes'));
                                 @endphp
@@ -774,3 +775,4 @@
         </div> --}}
     </div>
 </aside>
+

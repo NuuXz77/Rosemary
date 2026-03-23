@@ -144,5 +144,15 @@ class RoleSeeder extends Seeder
                 $role->syncPermissions($permissions);
             }
         }
+
+        // Explicitly lock stock adjustment permission to Admin only
+        $adminOnlyPermission = 'product-stocks.adjust';
+        foreach (['Production', 'Inventory', 'Cashier'] as $roleName) {
+            /** @var Role|null $role */
+            $role = Role::where('name', $roleName)->first();
+            if ($role && $role->hasPermissionTo($adminOnlyPermission)) {
+                $role->revokePermissionTo($adminOnlyPermission);
+            }
+        }
     }
 }

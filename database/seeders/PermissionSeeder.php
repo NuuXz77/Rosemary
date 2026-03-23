@@ -94,6 +94,7 @@ class PermissionSeeder extends Seeder
             ['name' => 'products.delete', 'category_id' => optional($inventoryCategory)->id],
             ['name' => 'products.manage', 'category_id' => optional($inventoryCategory)->id],
             ['name' => 'product-stocks.view', 'category_id' => optional($inventoryCategory)->id],
+            ['name' => 'product-stocks.adjust', 'category_id' => optional($inventoryCategory)->id],
             ['name' => 'product-stocks.create', 'category_id' => optional($inventoryCategory)->id],
             ['name' => 'product-stocks.edit', 'category_id' => optional($inventoryCategory)->id],
             ['name' => 'product-stocks.delete', 'category_id' => optional($inventoryCategory)->id],
@@ -243,6 +244,7 @@ class PermissionSeeder extends Seeder
 
         $actionLabels = [
             'view' => 'Lihat',
+            'adjust' => 'Sesuaikan',
             'create' => 'Tambah',
             'edit' => 'Edit',
             'delete' => 'Hapus',

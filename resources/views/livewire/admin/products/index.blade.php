@@ -6,7 +6,7 @@
         $canDeleteProduct = auth()->user()->can('products.delete');
     @endphp
 
-    <div class="card bg-base-100 shadow-sm border border-base-200">
+    <div class="card bg-base-100 border border-base-300">
         <div class="card-body p-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                 <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">

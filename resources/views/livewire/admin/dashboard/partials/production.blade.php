@@ -1,24 +1,130 @@
 <div class="space-y-6">
+    @php($isEmbedded = $embedded ?? false)
+
+    @if($isEmbedded)
+        <div class="card bg-base-100 border border-base-300">
+            <div class="card-body p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-lg">Grafik Produksi {{ ($overallProductionScope ?? false) ? '(Semua Tim)' : 'Harian' }}</h3>
+                    <div class="flex items-center gap-1 bg-base-200/50 p-0.5 rounded-lg">
+                        @foreach(['daily' => 'Perhari', 'weekly' => 'Perminggu', 'monthly' => 'Perbulan', 'yearly' => 'Pertahun'] as $scope => $label)
+                            <button wire:click="$set('chartScope', '{{ $scope }}')" @class([
+                                'btn btn-xs rounded-md border-none',
+                                'btn-primary' => $chartScope === $scope,
+                                'btn-ghost opacity-60' => $chartScope !== $scope,
+                            ])>{{ $label }}</button>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div
+                    wire:key="production-chart-embedded-{{ $period }}-{{ $chartScope }}"
+                    x-data="{
+                        chart: null,
+                        observer: null,
+                        isEmpty: false,
+                        getTooltipTheme() {
+                            return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+                        },
+                        init() {
+                            if (!window.ApexCharts) {
+                                setTimeout(() => this.init(), 100);
+                                return;
+                            }
+
+                            this.destroy();
+
+                            this.chart = new window.ApexCharts(this.$refs.chart, {
+                                series: [{ name: 'Batch', data: [] }],
+                                chart: { type: 'line', height: 260, toolbar: { show: false }, fontFamily: 'inherit', zoom: { enabled: false } },
+                                colors: ['#0ea5e9'],
+                                stroke: { width: 3, curve: 'smooth' },
+                                markers: { size: 4, hover: { size: 6 } },
+                                dataLabels: { enabled: false },
+                                xaxis: { categories: [], axisBorder: { show: false }, axisTicks: { show: false } },
+                                yaxis: { labels: { formatter: (v) => Math.round(v) } },
+                                tooltip: { theme: this.getTooltipTheme() },
+                                grid: { show: false }
+                            });
+
+                            this.chart.render();
+                            this.refresh();
+
+                            this.observer = new MutationObserver(() => this.refresh());
+                            this.observer.observe(this.$refs.data, { childList: true, subtree: true, characterData: true });
+                        },
+                        refresh() {
+                            if (!this.chart) return;
+                            let labels = [];
+                            let series = [];
+                            try {
+                                labels = JSON.parse(this.$refs.labels.textContent.trim() || '[]');
+                                series = JSON.parse(this.$refs.series.textContent.trim() || '[]');
+                            } catch (_) {
+                                return;
+                            }
+                            this.isEmpty = series.length === 0;
+                            this.chart.updateOptions({
+                                xaxis: { categories: labels },
+                                tooltip: { theme: this.getTooltipTheme() }
+                            });
+                            this.chart.updateSeries([{ name: 'Batch', data: series }]);
+                        },
+                        destroy() {
+                            if (this.observer) {
+                                this.observer.disconnect();
+                                this.observer = null;
+                            }
+                            if (this.chart) {
+                                this.chart.destroy();
+                                this.chart = null;
+                            }
+                        }
+                    }"
+                    class="relative"
+                >
+                    <div x-ref="data" class="hidden">
+                        <span x-ref="labels">{{ collect($productionTrendLabels)->values()->toJson() }}</span>
+                        <span x-ref="series">{{ collect($productionTrendSeries)->values()->toJson() }}</span>
+                    </div>
+                    <div wire:ignore x-ref="chart" class="min-h-65"></div>
+                    <div x-cloak x-show="isEmpty"
+                         class="absolute inset-x-0 bottom-0 top-4 z-10 flex items-center justify-center bg-base-100/80 backdrop-blur-[2px] italic opacity-80 text-sm font-medium rounded-xl">
+                        Belum ada data produksi
+                    </div>
+                </div>
+            </div>
+        </div>
+    @else
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-black">Dashboard Produksi</h1>
-            <p class="text-sm text-base-content/50">Ringkasan performa tim produksi</p>
+            <h1 class="text-xl font-bold text-base-content">Dashboard Produksi</h1>
+            <p class="text-sm text-base-content/60">Ringkasan performa tim produksi {{ $productionGroupName ? '• ' . $productionGroupName : '' }}</p>
         </div>
-        <div class="flex items-center gap-1 bg-base-200/50 p-1 rounded-xl">
+        <div class="join bg-base-200/50 p-1 rounded-xl">
             @foreach(['today' => 'Hari Ini', 'week' => 'Minggu Ini', 'month' => 'Bulan Ini', 'year' => 'Tahun Ini'] as $key => $label)
-                <button wire:click="$set('period', '{{ $key }}')" @class([
-                    'btn btn-sm rounded-lg font-bold border-none',
-                    'btn-primary shadow-sm' => $period === $key,
-                    'btn-ghost' => $period !== $key,
-                ])>
-                    {{ $label }}
-                </button>
+                <input
+                    type="radio"
+                    name="production-period"
+                    class="join-item btn btn-sm rounded-lg font-bold border-none"
+                    aria-label="{{ $label }}"
+                    value="{{ $key }}"
+                    @checked($period === $key)
+                    wire:model.live="period"
+                />
             @endforeach
         </div>
     </div>
 
+    @if(!$productionGroupId && !($overallProductionScope ?? false))
+        <div class="alert alert-warning">
+            <x-heroicon-o-exclamation-triangle class="w-5 h-5" />
+            <span>Akun production ini belum terhubung ke kelompok (group_code). Hubungi admin untuk sinkronisasi akun dengan data kelompok.</span>
+        </div>
+    @endif
+
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card bg-base-100 border border-base-300">
             <div class="card-body p-5">
                 <p class="text-xs font-bold uppercase text-base-content/50">Batch Selesai</p>
                 <div class="flex items-end justify-between mt-1">
@@ -36,7 +142,7 @@
             </div>
         </div>
 
-        <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card bg-base-100 border border-base-300">
             <div class="card-body p-5">
                 <p class="text-xs font-bold uppercase text-base-content/50">Output Produksi</p>
                 <div class="flex items-end justify-between mt-1">
@@ -47,7 +153,7 @@
             </div>
         </div>
 
-        <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card bg-base-100 border border-base-300">
             <div class="card-body p-5">
                 <p class="text-xs font-bold uppercase text-base-content/50">Draft Produksi</p>
                 <div class="flex items-end justify-between mt-1">
@@ -58,7 +164,7 @@
             </div>
         </div>
 
-        <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card bg-base-100 border border-base-300">
             <div class="card-body p-5">
                 <p class="text-xs font-bold uppercase text-base-content/50">Alert Produk</p>
                 <div class="flex items-end justify-between mt-1">
@@ -71,68 +177,102 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 card bg-base-100 shadow-sm border border-base-200">
+        <div class="lg:col-span-2 card bg-base-100 border border-base-300">
             <div class="card-body p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="font-bold text-lg">Grafik Produksi Harian</h3>
                     <div class="flex items-center gap-1 bg-base-200/50 p-0.5 rounded-lg">
-                        @foreach([7 => '7H', 14 => '14H', 30 => '30H'] as $days => $label)
-                            <button wire:click="$set('chartDays', {{ $days }})" @class([
+                        @foreach(['daily' => 'Perhari', 'weekly' => 'Perminggu', 'monthly' => 'Perbulan', 'yearly' => 'Pertahun'] as $scope => $label)
+                            <button wire:click="$set('chartScope', '{{ $scope }}')" @class([
                                 'btn btn-xs rounded-md border-none',
-                                'btn-primary' => $chartDays === $days,
-                                'btn-ghost opacity-60' => $chartDays !== $days,
+                                'btn-primary' => $chartScope === $scope,
+                                'btn-ghost opacity-60' => $chartScope !== $scope,
                             ])>{{ $label }}</button>
                         @endforeach
                     </div>
                 </div>
 
                 <div
+                    wire:key="production-chart-{{ $period }}-{{ $chartScope }}"
                     x-data="{
                         chart: null,
+                        observer: null,
+                        isEmpty: false,
+                        getTooltipTheme() {
+                            return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+                        },
                         init() {
                             if (!window.ApexCharts) {
                                 setTimeout(() => this.init(), 100);
                                 return;
                             }
 
+                            this.destroy();
+
                             this.chart = new window.ApexCharts(this.$refs.chart, {
                                 series: [{ name: 'Batch', data: [] }],
-                                chart: { type: 'bar', height: 260, toolbar: { show: false }, fontFamily: 'inherit' },
+                                chart: { type: 'line', height: 260, toolbar: { show: false }, fontFamily: 'inherit', zoom: { enabled: false } },
                                 colors: ['#0ea5e9'],
-                                plotOptions: { bar: { borderRadius: 6, columnWidth: '45%' } },
+                                stroke: { width: 3, curve: 'smooth' },
+                                markers: { size: 4, hover: { size: 6 } },
                                 dataLabels: { enabled: false },
-                                xaxis: { categories: [] },
+                                xaxis: { categories: [], axisBorder: { show: false }, axisTicks: { show: false } },
                                 yaxis: { labels: { formatter: (v) => Math.round(v) } },
-                                grid: { borderColor: 'rgba(156,163,175,0.12)' }
+                                tooltip: { theme: this.getTooltipTheme() },
+                                grid: { show: false }
                             });
 
                             this.chart.render();
                             this.refresh();
 
-                            new MutationObserver(() => this.refresh())
-                                .observe(this.$refs.data, { childList: true, subtree: true, characterData: true });
+                            this.observer = new MutationObserver(() => this.refresh());
+                            this.observer.observe(this.$refs.data, { childList: true, subtree: true, characterData: true });
                         },
                         refresh() {
                             if (!this.chart) return;
-                            const labels = JSON.parse(this.$refs.labels.textContent.trim() || '[]');
-                            const series = JSON.parse(this.$refs.series.textContent.trim() || '[]');
-                            this.chart.updateOptions({ xaxis: { categories: labels } });
-                            this.chart.updateSeries([{ data: series }]);
+                            let labels = [];
+                            let series = [];
+                            try {
+                                labels = JSON.parse(this.$refs.labels.textContent.trim() || '[]');
+                                series = JSON.parse(this.$refs.series.textContent.trim() || '[]');
+                            } catch (_) {
+                                return;
+                            }
+                            this.isEmpty = series.length === 0;
+                            this.chart.updateOptions({
+                                xaxis: { categories: labels },
+                                tooltip: { theme: this.getTooltipTheme() }
+                            });
+                            this.chart.updateSeries([{ name: 'Batch', data: series }]);
+                        },
+                        destroy() {
+                            if (this.observer) {
+                                this.observer.disconnect();
+                                this.observer = null;
+                            }
+                            if (this.chart) {
+                                this.chart.destroy();
+                                this.chart = null;
+                            }
                         }
                     }"
                     class="relative"
                 >
                     <div x-ref="data" class="hidden">
-                        <span x-ref="labels">{{ $productionTrend->map(fn($t) => date('d/m', strtotime($t->date)))->toJson() }}</span>
-                        <span x-ref="series">{{ $productionTrend->map(fn($t) => (int)$t->total)->toJson() }}</span>
+                        <span x-ref="labels">{{ collect($productionTrendLabels)->values()->toJson() }}</span>
+                        <span x-ref="series">{{ collect($productionTrendSeries)->values()->toJson() }}</span>
                     </div>
                     <div wire:ignore x-ref="chart" class="min-h-65"></div>
+                    <div x-cloak x-show="isEmpty"
+                         class="absolute inset-x-0 bottom-0 top-4 z-10 flex items-center justify-center bg-base-100/80 backdrop-blur-[2px] italic opacity-80 text-sm font-medium rounded-xl">
+                        Belum ada data produksi
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="space-y-6">
-            <div class="card bg-base-100 shadow-sm border border-base-200">
+            <div class="card bg-base-100 border border-base-300">
                 <div class="card-body p-5">
                     <h3 class="font-bold text-base mb-3">Waste Produk</h3>
                     <div class="text-3xl font-black text-error">{{ number_format($productWasteQty, 0, ',', '.') }}</div>
@@ -152,4 +292,5 @@
             </div>
         </div>
     </div>
+    @endif
 </div>

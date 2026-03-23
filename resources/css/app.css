@@ -92,3 +92,24 @@
   --depth: 1;
   --noise: 0;
 }
+
+/* Livewire navigate progress bar (NProgress) */
+#nprogress {
+    pointer-events: none;
+}
+
+#nprogress .bar {
+    background: var(--color-primary) !important;
+    height: 4px !important;
+    border-radius: 0 0 0.75rem 0.75rem;
+}
+
+#nprogress .peg {
+    box-shadow:
+        0 0 12px var(--color-primary),
+        0 0 6px var(--color-primary) !important;
+}
+
+#nprogress .spinner {
+    display: none !important;
+}

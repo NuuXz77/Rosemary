@@ -16,7 +16,7 @@ class AppSettingSeeder extends Seeder
             [
                 'key' => 'app_name',
                 'label' => 'Nama Aplikasi',
-                'value' => 'RoseMarry App',
+                'value' => 'Rosemary App',
                 'group' => 'general',
                 'type' => 'text',
                 'description' => 'Nama utama dari aplikasi ini.'
@@ -32,7 +32,7 @@ class AppSettingSeeder extends Seeder
             [
                 'key' => 'contact_email',
                 'label' => 'Email Kontak',
-                'value' => 'admin@rosemarry.com',
+                'value' => 'admin@rosemary.com',
                 'group' => 'contact',
                 'type' => 'email',
                 'description' => 'Email resmi untuk dukungan teknis.'

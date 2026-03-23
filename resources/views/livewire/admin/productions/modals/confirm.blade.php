@@ -37,7 +37,7 @@
                 <legend class="fieldset-legend text-error">Alasan Produk Gagal (Waste)</legend>
                 <label class="textarea textarea-bordered w-full flex items-start gap-2 @error('waste_reason') textarea-error @enderror">
                     <x-heroicon-o-exclamation-triangle class="w-4 h-4 opacity-70 mt-3" />
-                    <textarea wire:model="waste_reason" rows="2" placeholder="Contoh: Gosong, rasa kurang pas..." class="grow"></textarea>
+                    <textarea wire:model.live="waste_reason" rows="2" placeholder="Wajib diisi, contoh: Gosong, kematangan kurang, tekstur tidak sesuai" class="grow"></textarea>
                 </label>
                 @error('waste_reason')
                     <p class="text-error text-xs mt-1">{{ $message }}</p>
@@ -55,34 +55,45 @@
 
         <div class="space-y-4">
             @foreach ($material_wastes as $index => $materialWaste)
-                <div class="p-4 pr-14 bg-base-200 rounded-xl relative border border-base-300">
-                    <button type="button" wire:click="removeMaterialWaste({{ $index }})" class="btn btn-circle btn-sm btn-error absolute top-3 right-3">
-                        <x-heroicon-s-x-mark class="w-3 h-3" />
-                    </button>
+                <div class="p-4 bg-base-200 rounded-xl border border-base-300">
+                    <div class="flex items-center justify-between gap-3 mb-2">
+                        <p class="text-xs font-medium text-base-content/70">Limbah Bahan #{{ $loop->iteration }}</p>
+                        <button type="button" wire:click="removeMaterialWaste({{ $index }})" class="btn btn-circle btn-sm btn-error shrink-0">
+                            <x-heroicon-s-x-mark class="w-3 h-3" />
+                        </button>
+                    </div>
 
                     <div class="grid grid-cols-1 gap-3">
-                        <div class="form-control">
-                            <select wire:model="material_wastes.{{ $index }}.material_id" class="select select-bordered w-full">
-                                <option value="">Pilih Bahan yang Rusak</option>
-                                @foreach ($selectedProduct->materials ?? [] as $material)
-                                    <option value="{{ $material->id }}">{{ $material->name }} ({{ $material->unit->name ?? 'unit' }})</option>
-                                @endforeach
-                            </select>
-                            @error('material_wastes.' . $index . '.material_id')
-                                <span class="text-error text-xs mt-1">{{ $message }}</span>
-                            @enderror
-                        </div>
+                        <x-form.select
+                            label="Bahan yang Rusak"
+                            name="material_wastes.{{ $index }}.material_id"
+                            wireModel="material_wastes.{{ $index }}.material_id"
+                            placeholder="Pilih Bahan yang Rusak"
+                            validatorMessage="Bahan wajib dipilih">
+                            @foreach ($availableMaterials ?? [] as $material)
+                                <option value="{{ $material->id }}">{{ $material->name }} ({{ $material->unit->name ?? 'unit' }})</option>
+                            @endforeach
+                        </x-form.select>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <div class="form-control md:col-span-1">
-                                <input type="number" step="0.01" wire:model="material_wastes.{{ $index }}.qty" class="input input-bordered" placeholder="Jumlah" />
-                                @error('material_wastes.' . $index . '.qty')
-                                    <span class="text-error text-xs mt-1">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="form-control md:col-span-2">
-                                <input type="text" wire:model="material_wastes.{{ $index }}.reason" class="input input-bordered" placeholder="Alasan kerusakan" />
-                            </div>
+                            <x-form.input
+                                containerClass="md:col-span-1"
+                                label="Jumlah Limbah"
+                                name="material_wastes.{{ $index }}.qty"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                placeholder="Contoh: 0.5"
+                                wireModel="material_wastes.{{ $index }}.qty"
+                                validatorMessage="Jumlah limbah wajib diisi" />
+
+                            <x-form.input
+                                containerClass="md:col-span-2"
+                                label="Alasan Kerusakan"
+                                name="material_wastes.{{ $index }}.reason"
+                                type="text"
+                                placeholder="Contoh: Tumpah saat mixing"
+                                wireModel="material_wastes.{{ $index }}.reason" />
                         </div>
                     </div>
                 </div>
