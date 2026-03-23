@@ -1,6 +1,6 @@
 <div>
     {{-- ── Header Controls ───────────────────────────────────────── --}}
-    <div class="card bg-base-100 shadow-sm border border-base-200 mb-4">
+    <div class="card bg-base-100 border border-base-300 mb-4">
         <div class="card-body p-4 md:p-6 space-y-4">
 
             {{-- Month navigation + title --}}
@@ -103,7 +103,7 @@
     </div>
 
     {{-- ── Calendar ──────────────────────────────────────────────── --}}
-    <div class="card bg-base-100 shadow-sm border border-base-200">
+    <div class="card bg-base-100 border border-base-300">
         <div class="card-body p-4 md:p-6">
 
             {{-- Warning: Filter Required --}}

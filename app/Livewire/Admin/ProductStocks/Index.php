@@ -28,6 +28,7 @@ class Index extends Component
 
     public function openAdjustment(int $id): void
     {
+        abort_unless(auth()->user()?->can('product-stocks.adjust'), 403);
         $this->dispatch('open-adjust-product', id: $id);
     }
 
@@ -53,6 +54,7 @@ class Index extends Component
             'stocks' => $stocks,
             'categories' => \App\Models\Categories::where('type', 'product')->get(),
             'divisions' => \App\Models\Divisions::all(),
+            'canAdjustProductStock' => auth()->user()?->can('product-stocks.adjust') ?? false,
         ]);
     }
 }

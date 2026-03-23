@@ -16,7 +16,7 @@ class Index extends Component
 {
     use WithPagination;
 
-    #[Title('Analitik Limbah (Waste) — RoseMarry')]
+    #[Title('Analitik Limbah (Waste)')]
 
     public $startDate;
     public $endDate;

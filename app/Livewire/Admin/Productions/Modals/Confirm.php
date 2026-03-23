@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Productions\Modals;
 
+use App\Models\Materials;
 use App\Models\MaterialStockLogs;
 use App\Models\MaterialStocks;
 use App\Models\MaterialWastes;
@@ -19,7 +20,7 @@ class Confirm extends Component
     public $product_id;
     public $planned_qty = 0;
     public $actual_qty = 0;
-    public $waste_reason = 'Rejected saat produksi';
+    public $waste_reason = '';
     public array $material_wastes = [];
 
     protected $listeners = ['open-confirm-modal' => 'loadConfirm'];
@@ -37,7 +38,7 @@ class Confirm extends Component
         $this->product_id = $production->product_id;
         $this->planned_qty = $production->qty_produced;
         $this->actual_qty = $production->qty_produced;
-        $this->waste_reason = 'Rejected saat produksi';
+        $this->waste_reason = '';
         $this->material_wastes = [];
         $this->resetValidation();
     }
@@ -65,14 +66,25 @@ class Confirm extends Component
             'actual_qty.max' => 'Hasil riil tidak boleh melebihi rencana produksi.',
         ]);
 
-        $production = Productions::with('product.materials.unit')->findOrFail($this->productionId);
+        $production = Productions::with(['product.materials.unit', 'studentGroup'])->findOrFail($this->productionId);
 
         if ($production->status === 'completed') {
             $this->dispatch('show-toast', type: 'error', message: 'Produksi sudah diselesaikan sebelumnya.');
             return;
         }
 
+        if ((int) $this->actual_qty < (int) $production->qty_produced) {
+            $this->validate([
+                'waste_reason' => 'required|string|min:3|max:255',
+            ], [
+                'waste_reason.required' => 'Keterangan produk gagal wajib diisi.',
+                'waste_reason.min' => 'Keterangan produk gagal minimal 3 karakter.',
+            ]);
+        }
+
         $product = $production->product;
+        $groupName = $production->studentGroup->name ?? 'Tanpa Kelompok';
+        $actorId = auth()->id() ?? $production->created_by;
         $materialsNeeded = [];
 
         foreach ($product->materials as $material) {
@@ -101,10 +113,10 @@ class Confirm extends Component
                     'material_id' => $item['material_id'],
                     'type' => 'out',
                     'qty' => -$item['qty'],
-                    'description' => "Produksi #{$production->id}: {$product->name}",
+                    'description' => "Produksi #{$production->id} - Kelompok {$groupName}: {$product->name}",
                     'reference_type' => Productions::class,
                     'reference_id' => $production->id,
-                    'created_by' => auth()->id(),
+                    'created_by' => $actorId,
                 ]);
             }
 
@@ -115,10 +127,10 @@ class Confirm extends Component
                 'product_id' => $product->id,
                 'type' => 'in',
                 'qty' => $production->qty_produced,
-                'description' => "Hasil Produksi #{$production->id} (Rencana)",
+                'description' => "Hasil Produksi #{$production->id} - Kelompok {$groupName} (Rencana)",
                 'reference_type' => Productions::class,
                 'reference_id' => $production->id,
-                'created_by' => auth()->id(),
+                'created_by' => $actorId,
             ]);
 
             $wasteQty = $production->qty_produced - $this->actual_qty;
@@ -129,7 +141,7 @@ class Confirm extends Component
                     'qty' => $wasteQty,
                     'reason' => $this->waste_reason,
                     'waste_date' => now(),
-                    'created_by' => auth()->id(),
+                    'created_by' => $actorId,
                 ]);
             }
 
@@ -141,7 +153,7 @@ class Confirm extends Component
                         'qty' => $materialWaste['qty'],
                         'reason' => $materialWaste['reason'] ?: 'Kerusakan saat produksi',
                         'waste_date' => now(),
-                        'created_by' => auth()->id(),
+                        'created_by' => $actorId,
                     ]);
                 }
             }
@@ -167,19 +179,34 @@ class Confirm extends Component
     public function resetForm(): void
     {
         $this->reset(['productionId', 'product_id', 'planned_qty', 'actual_qty', 'material_wastes']);
-        $this->waste_reason = 'Rejected saat produksi';
+        $this->waste_reason = '';
         $this->resetValidation();
     }
 
     public function render()
     {
         $selectedProduct = null;
+        $availableMaterials = collect();
+
         if ($this->product_id) {
             $selectedProduct = Products::with(['materials.unit'])->find($this->product_id);
+
+            $availableMaterials = $selectedProduct && $selectedProduct->materials->isNotEmpty()
+                ? $selectedProduct->materials
+                : Materials::with('unit')
+                    ->where('status', true)
+                    ->orderBy('name')
+                    ->get();
+        } else {
+            $availableMaterials = Materials::with('unit')
+                ->where('status', true)
+                ->orderBy('name')
+                ->get();
         }
 
         return view('livewire.admin.productions.modals.confirm', [
             'selectedProduct' => $selectedProduct,
+            'availableMaterials' => $availableMaterials,
         ]);
     }
 }

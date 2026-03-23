@@ -5,17 +5,18 @@
         <span>Keluar</span>
     </a>
 
-    <x-partials.modal id="logout_modal" title="Konfirmasi Logout">
-        <div class="py-4">
-            <p>Apakah Anda yakin ingin keluar dari aplikasi RoseMarry?</p>
-        </div>
-        <div class="modal-action">
-            <button type="button" class="btn btn-ghost"
-                onclick="document.getElementById('logout_modal').close()">Batal</button>
-            <button type="button" wire:click="logout" class="btn btn-error gap-2">
-                <x-heroicon-o-arrow-right-on-rectangle class="w-4 h-4" />
-                Ya, Keluar
-            </button>
-        </div>
-    </x-partials.modal>
+    <div class="hidden">
+        <x-form.modal
+            modalId="logout_modal"
+            title="Konfirmasi Logout"
+            :showButton="false"
+            saveAction="logout"
+            saveButtonText="Ya, Keluar"
+            saveButtonIcon="heroicon-o-arrow-right-on-rectangle"
+            saveButtonClass="btn btn-error gap-2 btn-sm"
+            modalSize="modal-box max-w-md"
+        >
+            <p>Apakah Anda yakin ingin keluar dari aplikasi Rosemary?</p>
+        </x-form.modal>
+    </div>
 </li>

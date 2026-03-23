@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Productions\Modals;
 
 use App\Models\Productions;
 use App\Models\Products;
+use App\Models\Schedules;
 use App\Models\Shift;
 use App\Models\StudentGroups;
 use Livewire\Component;
@@ -27,10 +28,75 @@ class Create extends Component
     public function mount(): void
     {
         $this->production_date = now()->format('Y-m-d');
+
+        if ($this->isProductionUser()) {
+            $this->syncScheduleFields();
+        }
+    }
+
+    public function updatedProductionDate(): void
+    {
+        if ($this->isProductionUser()) {
+            $this->syncScheduleFields();
+        }
+    }
+
+    private function isAdminUser(): bool
+    {
+        return auth()->check() && auth()->user()->hasRole('Admin');
+    }
+
+    private function isProductionUser(): bool
+    {
+        return auth()->check() && auth()->user()->hasRole('Production') && !$this->isAdminUser();
+    }
+
+    private function getProductionScheduleForDate(?string $date = null): ?Schedules
+    {
+        $targetDate = $date ?: $this->production_date ?: now()->toDateString();
+
+        return Schedules::query()
+            ->where('type', 'production')
+            ->whereDate('date', $targetDate)
+            ->where('status', true)
+            ->where(function ($query) {
+                $query->whereNull('absence_type')
+                    ->orWhere('absence_type', Schedules::ABSENCE_NONE);
+            })
+            ->orderBy('shift_id')
+            ->first();
+    }
+
+    private function syncScheduleFields(): void
+    {
+        $schedule = $this->getProductionScheduleForDate();
+
+        if (!$schedule) {
+            $this->student_group_id = null;
+            $this->shift_id = null;
+            return;
+        }
+
+        $this->student_group_id = $schedule->student_group_id;
+        $this->shift_id = $schedule->shift_id;
     }
 
     public function save(): void
     {
+        if ($this->isProductionUser()) {
+            $schedule = $this->getProductionScheduleForDate();
+
+            if (!$schedule || !$schedule->student_group_id || !$schedule->shift_id) {
+                $this->dispatch('show-toast',
+                    type: 'error',
+                    message: 'Kamu tidak memiliki jadwal produksi aktif di tanggal tersebut. Hanya Admin yang bisa memilih shift/kelompok manual.');
+                return;
+            }
+
+            $this->student_group_id = $schedule->student_group_id;
+            $this->shift_id = $schedule->shift_id;
+        }
+
         $this->validate();
 
         Productions::create([
@@ -59,10 +125,13 @@ class Create extends Component
 
     public function render()
     {
+        $isProductionLocked = $this->isProductionUser();
+
         return view('livewire.admin.productions.modals.create', [
             'products' => Products::where('status', true)->get(),
             'groups' => StudentGroups::where('status', true)->get(),
             'shifts' => Shift::where('status', true)->get(),
+            'isProductionLocked' => $isProductionLocked,
         ]);
     }
 }

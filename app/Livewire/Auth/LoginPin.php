@@ -7,9 +7,12 @@ use App\Models\StudentAttendance;
 use App\Models\Students;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 #[Layout('components.layouts.guest')]
 #[Title('Kasir — Login PIN')]
@@ -125,7 +128,7 @@ class LoginPin extends Component
             $attendanceStatus = 'on_time';
         } else {
             $attendanceStatus = 'late';
-            $lateMinutes = (int) $currentTime->diffInMinutes($shiftStart);
+            $lateMinutes = (int) max(0, $shiftStart->diffInMinutes($currentTime, true));
         }
 
         // Record attendance
@@ -163,20 +166,55 @@ class LoginPin extends Component
             ->where('status', true)
             ->first();
 
+        // Login ke Laravel Auth menggunakan shared Cashier user
+        // agar Spatie role/permission aktif untuk sidebar
+        $cashierUser = User::query()
+            ->where('is_active', true)
+            ->where(function ($query) {
+                $query->whereHas('roles', fn($q) => $q->whereIn('name', ['Cashier', 'cashier']))
+                    ->orWhereHas('permissions', fn($q) => $q->where('name', 'sales.view'));
+            })
+            ->first();
+
+        if (! $cashierUser) {
+            $cashierUser = User::firstOrCreate(
+                ['username' => 'cashier'],
+                [
+                    'password' => Str::password(16),
+                    'is_active' => true,
+                ]
+            );
+
+            $cashierRole = Role::query()->whereIn('name', ['Cashier', 'cashier'])->first();
+            if ($cashierRole && ! $cashierUser->hasRole($cashierRole->name)) {
+                $cashierUser->assignRole($cashierRole->name);
+            }
+
+            $salesPermission = Permission::query()->where('name', 'sales.view')->first();
+            if ($salesPermission && ! $cashierUser->hasPermissionTo('sales.view')) {
+                $cashierUser->givePermissionTo('sales.view');
+            }
+        }
+
+        if (! $cashierUser->is_active) {
+            $cashierUser->update(['is_active' => true]);
+        }
+
+        Auth::guard('web')->login($cashierUser);
+        request()->session()->regenerate();
+
+        if (! Auth::guard('web')->check()) {
+            $this->dispatch('show-toast', type: 'error', message: 'Gagal menyimpan sesi login. Silakan coba lagi.');
+            $this->digits = [];
+            $this->studentName = null;
+            return;
+        }
+
         session([
             'pos_student_id'   => $student->id,
             'pos_student_name' => $student->name,
             'pos_shift_id'     => $schedule?->shift_id,
         ]);
-
-        // Login ke Laravel Auth menggunakan shared Cashier user
-        // agar Spatie role/permission aktif untuk sidebar
-        $cashierUser = User::whereHas('roles', fn($q) => $q->where('name', 'cashier'))
-            ->where('is_active', true)
-            ->first();
-        if ($cashierUser) {
-            Auth::login($cashierUser);
-        }
 
         $this->studentName = $student->name;
 

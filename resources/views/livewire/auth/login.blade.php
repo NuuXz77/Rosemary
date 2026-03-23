@@ -1,5 +1,7 @@
 <div class="h-screen flex flex-col lg:flex-row overflow-hidden">
 
+    <x-partials.toast />
+
     {{-- Ilustrasi Kiri - Full Height (Hidden on mobile) --}}
         {{-- Theme Dropdown (Top Right Corner) --}}
         <div class="absolute top-4 right-4 z-50">
@@ -152,8 +154,7 @@
                 <div class="form-control">
                     <label class="input validator w-full input-primary">
                         <x-heroicon-o-user class="w-5 opacity-50" />
-                        <input type="text" required placeholder="Username" pattern="[A-Za-z][A-Za-z0-9\-]*"
-                            minlength="3" maxlength="30" title="Isi yang bener" wire:model="username" />
+                        <input type="text" required placeholder="Username" wire:model="username" />
                     </label>
                     <p class="validator-hint hidden">
                         Username Wajib Diisi
@@ -165,8 +166,7 @@
                     <label class="input validator w-full input-primary">
                         <x-solar-lock-password-linear class="w-5 opacity-50" />
 
-                        <input type="password" required placeholder="Password" minlength="3" maxlength="30"
-                            title="Isi yang bener" wire:model="password" />
+                        <input type="password" required placeholder="Password" wire:model="password" />
                     </label>
                     <p class="validator-hint hidden">
                         Password Wajib Diisi

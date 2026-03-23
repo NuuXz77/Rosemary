@@ -1,24 +1,128 @@
 <div class="space-y-6">
+    @php($isEmbedded = $embedded ?? false)
+
+    @if($isEmbedded)
+        <div class="card bg-base-100 border border-base-300">
+            <div class="card-body p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-lg">Grafik Pergerakan Bahan (Inventory)</h3>
+                    <div class="flex items-center gap-1 bg-base-200/50 p-0.5 rounded-lg">
+                        @foreach(['daily' => 'Perhari', 'weekly' => 'Perminggu', 'monthly' => 'Perbulan', 'yearly' => 'Pertahun'] as $scope => $label)
+                            <button type="button" wire:click="$set('chartScope', '{{ $scope }}')" @class([
+                                'btn btn-xs rounded-md border-none',
+                                'btn-primary' => $chartScope === $scope,
+                                'btn-ghost opacity-60' => $chartScope !== $scope,
+                            ])>{{ $label }}</button>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div
+                    wire:key="inventory-chart-embedded-{{ $period }}-{{ $chartScope }}"
+                    x-data="{
+                        chart: null,
+                        observer: null,
+                        getTooltipTheme() {
+                            return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+                        },
+                        init() {
+                            if (!window.ApexCharts) {
+                                setTimeout(() => this.init(), 100);
+                                return;
+                            }
+
+                            this.destroy();
+
+                            this.chart = new window.ApexCharts(this.$refs.chart, {
+                                series: [
+                                    { name: 'Masuk', data: [] },
+                                    { name: 'Keluar', data: [] }
+                                ],
+                                chart: { type: 'line', height: 260, toolbar: { show: false }, fontFamily: 'inherit' },
+                                stroke: { width: 3, curve: 'smooth' },
+                                markers: { size: 4, hover: { size: 6 } },
+                                colors: ['#22c55e', '#f59e0b'],
+                                dataLabels: { enabled: false },
+                                xaxis: { categories: [] },
+                                yaxis: { labels: { formatter: (v) => Math.round(v) } },
+                                tooltip: { theme: this.getTooltipTheme() },
+                                grid: { borderColor: 'rgba(156,163,175,0.12)' }
+                            });
+
+                            this.chart.render();
+                            this.refresh();
+
+                            this.observer = new MutationObserver(() => this.refresh());
+                            this.observer.observe(this.$refs.data, { childList: true, subtree: true, characterData: true });
+                        },
+                        refresh() {
+                            if (!this.chart) return;
+                            let labels = [];
+                            let seriesIn = [];
+                            let seriesOut = [];
+
+                            try {
+                                labels = JSON.parse(this.$refs.labels.textContent.trim() || '[]');
+                                seriesIn = JSON.parse(this.$refs.seriesIn.textContent.trim() || '[]');
+                                seriesOut = JSON.parse(this.$refs.seriesOut.textContent.trim() || '[]');
+                            } catch (_) {
+                                return;
+                            }
+
+                            this.chart.updateOptions({
+                                xaxis: { categories: labels },
+                                tooltip: { theme: this.getTooltipTheme() }
+                            });
+                            this.chart.updateSeries([
+                                { name: 'Masuk', data: seriesIn },
+                                { name: 'Keluar', data: seriesOut }
+                            ]);
+                        },
+                        destroy() {
+                            if (this.observer) {
+                                this.observer.disconnect();
+                                this.observer = null;
+                            }
+                            if (this.chart) {
+                                this.chart.destroy();
+                                this.chart = null;
+                            }
+                        }
+                    }"
+                    class="relative"
+                >
+                    <div x-ref="data" class="hidden">
+                        <span x-ref="labels">{{ collect($inventoryTrendLabels)->values()->toJson() }}</span>
+                        <span x-ref="seriesIn">{{ collect($inventoryTrendSeriesIn)->values()->toJson() }}</span>
+                        <span x-ref="seriesOut">{{ collect($inventoryTrendSeriesOut)->values()->toJson() }}</span>
+                    </div>
+                    <div wire:ignore x-ref="chart" class="min-h-65"></div>
+                </div>
+            </div>
+        </div>
+    @else
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-black">Dashboard Inventory</h1>
-            <p class="text-sm text-base-content/50">Ringkasan stok, pergerakan, dan limbah bahan</p>
+            <h1 class="text-xl font-bold text-base-content">Dashboard Inventory</h1>
+            <p class="text-sm text-base-content/60">Ringkasan stok, pergerakan, dan limbah bahan</p>
         </div>
-        <div class="flex items-center gap-1 bg-base-200/50 p-1 rounded-xl">
+        <div class="join bg-base-200/50 p-1 rounded-xl">
             @foreach(['today' => 'Hari Ini', 'week' => 'Minggu Ini', 'month' => 'Bulan Ini', 'year' => 'Tahun Ini'] as $key => $label)
-                <button wire:click="$set('period', '{{ $key }}')" @class([
-                    'btn btn-sm rounded-lg font-bold border-none',
-                    'btn-primary shadow-sm' => $period === $key,
-                    'btn-ghost' => $period !== $key,
-                ])>
-                    {{ $label }}
-                </button>
+                <input
+                    type="radio"
+                    name="inventory-period"
+                    class="join-item btn btn-sm rounded-lg font-bold border-none"
+                    aria-label="{{ $label }}"
+                    value="{{ $key }}"
+                    @checked($period === $key)
+                    wire:model.live="period"
+                />
             @endforeach
         </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card bg-base-100 border border-base-300">
             <div class="card-body p-5">
                 <p class="text-xs font-bold uppercase text-base-content/50">Bahan Menipis</p>
                 <div class="flex items-end justify-between mt-1">
@@ -29,7 +133,7 @@
             </div>
         </div>
 
-        <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card bg-base-100 border border-base-300">
             <div class="card-body p-5">
                 <p class="text-xs font-bold uppercase text-base-content/50">Total Bahan</p>
                 <div class="flex items-end justify-between mt-1">
@@ -40,7 +144,7 @@
             </div>
         </div>
 
-        <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card bg-base-100 border border-base-300">
             <div class="card-body p-5">
                 <p class="text-xs font-bold uppercase text-base-content/50">Stok Masuk</p>
                 <div class="flex items-end justify-between mt-1">
@@ -58,7 +162,7 @@
             </div>
         </div>
 
-        <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card bg-base-100 border border-base-300">
             <div class="card-body p-5">
                 <p class="text-xs font-bold uppercase text-base-content/50">Stok Keluar</p>
                 <div class="flex items-end justify-between mt-1">
@@ -78,29 +182,36 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 card bg-base-100 shadow-sm border border-base-200">
+        <div class="lg:col-span-2 card bg-base-100 border border-base-300">
             <div class="card-body p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="font-bold text-lg">Grafik Pergerakan Bahan</h3>
                     <div class="flex items-center gap-1 bg-base-200/50 p-0.5 rounded-lg">
-                        @foreach([7 => '7H', 14 => '14H', 30 => '30H'] as $days => $label)
-                            <button wire:click="$set('chartDays', {{ $days }})" @class([
+                        @foreach(['daily' => 'Perhari', 'weekly' => 'Perminggu', 'monthly' => 'Perbulan', 'yearly' => 'Pertahun'] as $scope => $label)
+                            <button type="button" wire:click="$set('chartScope', '{{ $scope }}')" @class([
                                 'btn btn-xs rounded-md border-none',
-                                'btn-primary' => $chartDays === $days,
-                                'btn-ghost opacity-60' => $chartDays !== $days,
+                                'btn-primary' => $chartScope === $scope,
+                                'btn-ghost opacity-60' => $chartScope !== $scope,
                             ])>{{ $label }}</button>
                         @endforeach
                     </div>
                 </div>
 
                 <div
+                    wire:key="inventory-chart-{{ $period }}-{{ $chartScope }}"
                     x-data="{
                         chart: null,
+                        observer: null,
+                        getTooltipTheme() {
+                            return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+                        },
                         init() {
                             if (!window.ApexCharts) {
                                 setTimeout(() => this.init(), 100);
                                 return;
                             }
+
+                            this.destroy();
 
                             this.chart = new window.ApexCharts(this.$refs.chart, {
                                 series: [
@@ -109,37 +220,61 @@
                                 ],
                                 chart: { type: 'line', height: 260, toolbar: { show: false }, fontFamily: 'inherit' },
                                 stroke: { width: 3, curve: 'smooth' },
+                                markers: { size: 4, hover: { size: 6 } },
                                 colors: ['#22c55e', '#f59e0b'],
                                 dataLabels: { enabled: false },
                                 xaxis: { categories: [] },
                                 yaxis: { labels: { formatter: (v) => Math.round(v) } },
+                                tooltip: { theme: this.getTooltipTheme() },
                                 grid: { borderColor: 'rgba(156,163,175,0.12)' }
                             });
 
                             this.chart.render();
                             this.refresh();
 
-                            new MutationObserver(() => this.refresh())
-                                .observe(this.$refs.data, { childList: true, subtree: true, characterData: true });
+                            this.observer = new MutationObserver(() => this.refresh());
+                            this.observer.observe(this.$refs.data, { childList: true, subtree: true, characterData: true });
                         },
                         refresh() {
                             if (!this.chart) return;
-                            const labels = JSON.parse(this.$refs.labels.textContent.trim() || '[]');
-                            const seriesIn = JSON.parse(this.$refs.seriesIn.textContent.trim() || '[]');
-                            const seriesOut = JSON.parse(this.$refs.seriesOut.textContent.trim() || '[]');
-                            this.chart.updateOptions({ xaxis: { categories: labels } });
+                            let labels = [];
+                            let seriesIn = [];
+                            let seriesOut = [];
+
+                            try {
+                                labels = JSON.parse(this.$refs.labels.textContent.trim() || '[]');
+                                seriesIn = JSON.parse(this.$refs.seriesIn.textContent.trim() || '[]');
+                                seriesOut = JSON.parse(this.$refs.seriesOut.textContent.trim() || '[]');
+                            } catch (_) {
+                                return;
+                            }
+
+                            this.chart.updateOptions({
+                                xaxis: { categories: labels },
+                                tooltip: { theme: this.getTooltipTheme() }
+                            });
                             this.chart.updateSeries([
                                 { name: 'Masuk', data: seriesIn },
                                 { name: 'Keluar', data: seriesOut }
                             ]);
+                        },
+                        destroy() {
+                            if (this.observer) {
+                                this.observer.disconnect();
+                                this.observer = null;
+                            }
+                            if (this.chart) {
+                                this.chart.destroy();
+                                this.chart = null;
+                            }
                         }
                     }"
                     class="relative"
                 >
                     <div x-ref="data" class="hidden">
-                        <span x-ref="labels">{{ $inventoryTrend->map(fn($t) => date('d/m', strtotime($t->date)))->toJson() }}</span>
-                        <span x-ref="seriesIn">{{ $inventoryTrend->map(fn($t) => (float)$t->total_in)->toJson() }}</span>
-                        <span x-ref="seriesOut">{{ $inventoryTrend->map(fn($t) => (float)$t->total_out)->toJson() }}</span>
+                        <span x-ref="labels">{{ collect($inventoryTrendLabels)->values()->toJson() }}</span>
+                        <span x-ref="seriesIn">{{ collect($inventoryTrendSeriesIn)->values()->toJson() }}</span>
+                        <span x-ref="seriesOut">{{ collect($inventoryTrendSeriesOut)->values()->toJson() }}</span>
                     </div>
                     <div wire:ignore x-ref="chart" class="min-h-65"></div>
                 </div>
@@ -147,7 +282,7 @@
         </div>
 
         <div class="space-y-6">
-            <div class="card bg-base-100 shadow-sm border border-base-200">
+            <div class="card bg-base-100 border border-base-300">
                 <div class="card-body p-5">
                     <h3 class="font-bold text-base mb-3">Limbah Bahan</h3>
                     <div class="text-3xl font-black text-error">{{ number_format($materialWasteQty, 0, ',', '.') }}</div>
@@ -167,4 +302,5 @@
             </div>
         </div>
     </div>
+    @endif
 </div>

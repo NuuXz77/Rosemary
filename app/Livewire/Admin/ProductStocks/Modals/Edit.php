@@ -24,6 +24,8 @@ class Edit extends Component
     #[On('open-adjust-product')]
     public function loadAdjustment(int $id): void
     {
+        abort_unless(auth()->user()?->can('product-stocks.adjust'), 403);
+
         $stock = ProductStocks::with('product')->findOrFail($id);
         $this->selectedStockId = $stock->id;
         $this->productName = $stock->product->name;
@@ -34,6 +36,8 @@ class Edit extends Component
 
     public function saveAdjustment(): void
     {
+        abort_unless(auth()->user()?->can('product-stocks.adjust'), 403);
+
         $this->validate();
 
         $stock = ProductStocks::findOrFail($this->selectedStockId);

@@ -22,7 +22,7 @@ class Detail extends Component
     public function render()
     {
         return view('livewire.admin.sales.detail', [
-            'appName' => AppSetting::get('app_name', config('app.name', 'RoseMarry')),
+            'appName' => AppSetting::get('app_name', config('app.name', 'Rosemary')),
         ]);
     }
 }
