@@ -226,6 +226,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/settings/app', App\Livewire\Admin\Settings\App\Index::class)->name('settings.app.index');
     });
 
+    // Sistem Logs - Hanya Admin
+    Route::middleware('role:Admin')->group(function () {
+        Route::get('/laravel-logs', App\Livewire\Admin\Settings\Logs\Index::class)->name('laravel-logs');
+    });
+
     // --------------------------------------------
     // LOGOUT
     // --------------------------------------------
