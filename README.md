@@ -1,12 +1,22 @@
 # Rosemary — Smart Food Production, Inventory & POS
 
 <p align="center">
-  <img alt="Laravel" src="https://img.shields.io/badge/Laravel-12-red" />
-  <img alt="Livewire" src="https://img.shields.io/badge/Livewire-3.x-purple" />
-  <img alt="PHP" src="https://img.shields.io/badge/PHP-8.2-blue" />
-  <img alt="Vite" src="https://img.shields.io/badge/Vite-7.x-646CFF" />
-  <img alt="Tailwind" src="https://img.shields.io/badge/TailwindCSS-4.x-38BDF8" />
-  <img alt="License" src="https://img.shields.io/badge/License-MIT-green" />
+  <img alt="Laravel" src="https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" />
+  <img alt="Livewire" src="https://img.shields.io/badge/Livewire-3.x-4E56A6?style=for-the-badge&logo=livewire&logoColor=white" />
+  <img alt="PHP" src="https://img.shields.io/badge/PHP-8.2-777BB4?style=for-the-badge&logo=php&logoColor=white" />
+  <img alt="Vite" src="https://img.shields.io/badge/Vite-7.x-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
+  <img alt="TailwindCSS" src="https://img.shields.io/badge/TailwindCSS-4.x-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" />
+  <img alt="License" src="https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge" />
+</p>
+
+<p align="center">
+  <img alt="Tech Stack Icons" src="https://skillicons.dev/icons?i=laravel,php,js,vite,tailwind,mysql,github,npm&perline=8" />
+</p>
+
+<p align="center">
+  <img alt="Livewire" src="https://cdn.simpleicons.org/livewire/FB70A9" width="40" height="40" />
+  <img alt="DaisyUI" src="https://img.shields.io/badge/daisyUI-5.5.18-1AD1A5?style=flat-square&logo=daisyui&logoColor=white" />
+  <img alt="ApexCharts" src="https://img.shields.io/badge/ApexCharts-5.10.3-00E396?style=flat-square&logo=apexcharts&logoColor=white" />
 </p>
 
 Platform manajemen produksi makanan modern berbasis Laravel + Livewire untuk kebutuhan:
