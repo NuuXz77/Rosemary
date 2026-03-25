@@ -31,9 +31,9 @@ class StocksExport implements FromCollection, WithHeadings, WithMapping, ShouldA
     public function map($stock): array
     {
         return [
-            $stock->product->name ?? '-',
+            $stock->product?->name ?? '-',
             $stock->qty_available,
-            $stock->product->unit ?? '-',
+            $stock->product?->unit ?? '-',
             $stock->updated_at ? $stock->updated_at->format('d M Y H:i:s') : '-',
         ];
     }

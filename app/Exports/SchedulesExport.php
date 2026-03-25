@@ -45,10 +45,10 @@ class SchedulesExport implements FromCollection, WithHeadings, WithMapping, Shou
     public function map($schedule): array
     {
         return [
-            $schedule->date,
-            $schedule->studentGroup->name ?? '-',
-            $schedule->division->name ?? '-',
-            $schedule->shift->name ?? '-',
+            $schedule->date instanceof \Carbon\Carbon ? $schedule->date->format('d M Y') : $schedule->date,
+            $schedule->studentGroup?->name ?? '-',
+            $schedule->division?->name ?? '-',
+            $schedule->shift?->name ?? '-',
             $schedule->status ? 'Aktif' : 'Nonaktif',
             $schedule->notes,
         ];

@@ -44,9 +44,9 @@ class PurchasesExport implements FromCollection, WithHeadings, WithMapping, Shou
     {
         return [
             $purchase->invoice_number,
-            $purchase->date,
-            $purchase->supplier->name ?? '-',
-            $purchase->creator->name ?? '-',
+            $purchase->date instanceof \Carbon\Carbon ? $purchase->date->format('d M Y') : $purchase->date,
+            $purchase->supplier?->name ?? '-',
+            $purchase->creator?->name ?? '-',
             $purchase->total_amount,
             ucfirst($purchase->status),
             $purchase->notes,

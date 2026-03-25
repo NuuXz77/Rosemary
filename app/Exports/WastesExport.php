@@ -86,10 +86,10 @@ class ProductWastesSheet implements FromCollection, WithTitle, WithHeadings, Wit
     public function map($row): array
     {
         return [
-            $row->waste_date,
-            $row->creator->name ?? '-',
-            $row->production->studentGroup->name ?? '-',
-            $row->product->name ?? '-',
+            $row->waste_date instanceof \Carbon\Carbon ? $row->waste_date->format('d M Y') : $row->waste_date,
+            $row->creator?->name ?? '-',
+            $row->production?->studentGroup?->name ?? 'Gudang',
+            $row->product?->name ?? '-',
             $row->reason,
             $row->qty,
             $row->notes ?? '-'
@@ -152,13 +152,13 @@ class MaterialWastesSheet implements FromCollection, WithTitle, WithHeadings, Wi
     public function map($row): array
     {
         return [
-            $row->waste_date,
-            $row->creator->name ?? '-',
-            $row->production->studentGroup->name ?? '-',
-            $row->material->name ?? '-',
+            $row->waste_date instanceof \Carbon\Carbon ? $row->waste_date->format('d M Y') : $row->waste_date,
+            $row->creator?->name ?? '-',
+            $row->production?->studentGroup?->name ?? 'Gudang',
+            $row->material?->name ?? '-',
             $row->reason,
             $row->qty,
-            $row->material->unit ?? '-',
+            $row->material?->unit ?? '-',
             $row->notes ?? '-'
         ];
     }

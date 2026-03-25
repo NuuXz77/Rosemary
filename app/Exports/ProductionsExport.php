@@ -49,14 +49,14 @@ class ProductionsExport implements FromCollection, WithHeadings, WithMapping, Sh
     public function map($production): array
     {
         return [
-            $production->production_date,
-            $production->product->name ?? '-',
-            $production->studentGroup->name ?? '-',
-            $production->shift->name ?? '-',
+            $production->production_date instanceof \Carbon\Carbon ? $production->production_date->format('d M Y') : $production->production_date,
+            $production->product?->name ?? '-',
+            $production->studentGroup?->name ?? '-',
+            $production->shift?->name ?? '-',
             $production->qty_produced,
-            $production->product->unit ?? '-',
+            $production->product?->unit ?? '-',
             ucfirst($production->status),
-            $production->creator->name ?? '-',
+            $production->creator?->name ?? '-',
         ];
     }
 

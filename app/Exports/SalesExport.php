@@ -50,7 +50,7 @@ class SalesExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
         $saleHpp = 0;
         if ($sale->status == 'paid') {
             foreach($sale->items as $item) {
-                $saleHpp += ($item->product->cost_price ?? 0) * $item->qty;
+                $saleHpp += ($item->product?->cost_price ?? 0) * $item->qty;
             }
             $profit = $sale->total_amount - $saleHpp;
         } else {
@@ -60,10 +60,10 @@ class SalesExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
         return [
             $sale->invoice_number,
             $sale->created_at->format('d M Y H:i:s'),
-            $sale->customer->name ?? '-',
+            $sale->customer?->name ?? $sale->guest_name ?? '-',
             ucfirst($sale->payment_method),
-            $sale->shift->name ?? '-',
-            $sale->cashier->name ?? '-',
+            $sale->shift?->name ?? '-',
+            $sale->cashier?->name ?? '-',
             $saleHpp,
             $sale->total_amount,
             $profit,
