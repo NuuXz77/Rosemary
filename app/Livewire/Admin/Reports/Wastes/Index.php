@@ -38,6 +38,14 @@ class Index extends Component
         }
     }
 
+    public function export()
+    {
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\WastesExport($this->startDate, $this->endDate, $this->search, $this->filterGroup), 
+            'laporan_limbah_'.now()->format('YmdHis').'.xlsx'
+        );
+    }
+
     public function render()
     {
         // 1. Data untuk Summary Cards

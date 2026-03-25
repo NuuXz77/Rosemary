@@ -40,6 +40,14 @@ class Index extends Component
         }
     }
 
+    public function export()
+    {
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\SalesExport($this->startDate, $this->endDate, $this->filterPayment, $this->filterShift, $this->filterCashier, $this->filterStatus, $this->search), 
+            'laporan_penjualan_'.now()->format('YmdHis').'.xlsx'
+        );
+    }
+
     public function render()
     {
         // Base query (tanpa filter status — supaya summary bisa hitung paid+cancelled)

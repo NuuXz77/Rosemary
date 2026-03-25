@@ -37,6 +37,14 @@ class Index extends Component
         }
     }
 
+    public function export()
+    {
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\PurchasesExport($this->startDate, $this->endDate, $this->filterSupplier, $this->filterStatus, $this->search), 
+            'laporan_pembelian_'.now()->format('YmdHis').'.xlsx'
+        );
+    }
+
     public function render()
     {
         // Base query (tanpa filter status — untuk summary)

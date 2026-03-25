@@ -10,7 +10,9 @@
                     </label>
                 </div>
                 <div>
-                    <a href="{{ route('reports.stocks.export') }}" class="btn btn-sm">Export Excel</a>
+                    <button wire:click="export" class="btn btn-sm btn-success text-white">
+                        <x-heroicon-o-document-arrow-down class="w-4 h-4" /> Export Excel
+                    </button>
                 </div>
             </div>
 

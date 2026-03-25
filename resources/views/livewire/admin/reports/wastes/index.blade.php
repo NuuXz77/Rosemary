@@ -188,6 +188,9 @@
                         <input type="text" wire:model.live.debounce.300ms="search" placeholder="Produk / Alasan..." class="input input-bordered input-sm" />
                     </div>
                 </div>
+                <button wire:click="export" class="btn btn-sm btn-success text-white">
+                    <x-heroicon-o-document-arrow-down class="w-4 h-4" /> Export Excel
+                </button>
             </div>
 
             <div class="divider">Detail Limbah Produk</div>

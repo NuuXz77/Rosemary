@@ -43,6 +43,14 @@ class Index extends Component
         }
     }
 
+    public function export()
+    {
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\SchedulesExport($this->startDate, $this->endDate, $this->filterShift, $this->filterGroup, $this->filterDivision, $this->search), 
+            'laporan_jadwal_'.now()->format('YmdHis').'.xlsx'
+        );
+    }
+
     public function render()
     {
         // Base query

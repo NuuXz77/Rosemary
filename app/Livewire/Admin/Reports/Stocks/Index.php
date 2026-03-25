@@ -22,6 +22,14 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function export()
+    {
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\StocksExport($this->search), 
+            'laporan_stok_'.now()->format('YmdHis').'.xlsx'
+        );
+    }
+
     public function render()
     {
         $stocks = ProductStocks::query()
