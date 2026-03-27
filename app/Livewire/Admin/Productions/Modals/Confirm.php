@@ -121,13 +121,13 @@ class Confirm extends Component
             }
 
             $productStock = ProductStocks::firstOrCreate(['product_id' => $product->id], ['qty_available' => 0]);
-            $productStock->increment('qty_available', $production->qty_produced);
+            $productStock->increment('qty_available', $this->actual_qty);
 
             ProductStockLogs::create([
                 'product_id' => $product->id,
                 'type' => 'in',
-                'qty' => $production->qty_produced,
-                'description' => "Hasil Produksi #{$production->id} - Kelompok {$groupName} (Rencana)",
+                'qty' => $this->actual_qty,
+                'description' => "Hasil Produksi #{$production->id} - Kelompok {$groupName} (Aktual)",
                 'reference_type' => Productions::class,
                 'reference_id' => $production->id,
                 'created_by' => $actorId,
@@ -166,7 +166,7 @@ class Confirm extends Component
             DB::commit();
 
             $this->dispatch('close-detail-modal');
-            $this->dispatch('show-toast', type: 'success', message: 'Produksi berhasil diselesaikan. Stok material dipotong (rencana) dan stok produk bertambah (aktual).');
+            $this->dispatch('show-toast', type: 'success', message: 'Produksi berhasil diselesaikan. Pemakaian bahan tercatat, stok material dipotong, dan stok produk bertambah sesuai hasil aktual.');
             $this->dispatch('production-finalized');
 
             $this->resetForm();

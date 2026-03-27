@@ -12,7 +12,13 @@
                 </div>
 
                 <div class="w-full md:w-auto flex justify-end">
-                    <livewire:admin.productions.modals.create />
+                    <div class="flex items-center gap-2">
+                        <a wire:navigate href="{{ route('guides.index', ['role' => 'production', 'module' => 'produksi']) }}" class="btn btn-ghost btn-sm gap-1">
+                            <x-heroicon-o-question-mark-circle class="w-4 h-4" />
+                            Bantuan
+                        </a>
+                        <livewire:admin.productions.modals.create />
+                    </div>
                 </div>
             </div>
 
@@ -62,7 +68,7 @@
                         </td>
                         <td>
                             @if($production->status === 'completed')
-                                <div class="badge badge-soft badge-success badge-sm text-white gap-1">
+                                <div class="badge badge-soft badge-success badge-sm gap-1">
                                     <x-heroicon-s-check-circle class="w-3 h-3" />
                                     Selesai
                                 </div>
@@ -80,9 +86,19 @@
                                         <x-heroicon-s-bolt class="w-3 h-3" />
                                         Selesaikan
                                     </button>
-                                    <x-partials.dropdown-action :id="$production->id" />
+                                    <x-partials.dropdown-action
+                                        :id="$production->id"
+                                        :showView="true"
+                                        :viewRoute="route('productions.detail', $production->id)"
+                                    />
                                 @else
-                                    <div class="text-[10px] italic opacity-40">No Actions</div>
+                                    <x-partials.dropdown-action
+                                        :id="$production->id"
+                                        :showView="true"
+                                        :viewRoute="route('productions.detail', $production->id)"
+                                        :showEdit="false"
+                                        :showDelete="true"
+                                    />
                                 @endif
                             </div>
                         </td>

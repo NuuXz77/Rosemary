@@ -71,6 +71,11 @@ class PermissionSeeder extends Seeder
             ['name' => 'schedules.edit', 'category_id' => optional($scheduleCategory)->id],
             ['name' => 'schedules.delete', 'category_id' => optional($scheduleCategory)->id],
             ['name' => 'schedules.manage', 'category_id' => optional($scheduleCategory)->id],
+            ['name' => 'student-group-attendances.view', 'category_id' => optional($scheduleCategory)->id],
+            ['name' => 'student-group-attendances.create', 'category_id' => optional($scheduleCategory)->id],
+            ['name' => 'student-group-attendances.edit', 'category_id' => optional($scheduleCategory)->id],
+            ['name' => 'student-group-attendances.delete', 'category_id' => optional($scheduleCategory)->id],
+            ['name' => 'student-group-attendances.manage', 'category_id' => optional($scheduleCategory)->id],
 
             // Manajemen Inventaris
             ['name' => 'materials.view', 'category_id' => optional($inventoryCategory)->id],
@@ -190,6 +195,8 @@ class PermissionSeeder extends Seeder
             ['name' => 'settings.app.view', 'category_id' => optional($settingCategory)->id],
             ['name' => 'settings.app.manage', 'category_id' => optional($settingCategory)->id],
             ['name' => 'discounts.manage', 'category_id' => optional($settingCategory)->id],
+            ['name' => 'guides.view', 'category_id' => optional($settingCategory)->id],
+            ['name' => 'guides.manage', 'category_id' => optional($settingCategory)->id],
         ];
 
         foreach ($permissions as $permission) {
@@ -214,6 +221,7 @@ class PermissionSeeder extends Seeder
             'student-groups' => 'Kelompok Siswa',
             'student-group-members' => 'Anggota Kelompok Siswa',
             'schedules' => 'Jadwal',
+            'student-group-attendances' => 'Kehadiran Grup',
             'materials' => 'Data Material',
             'material-stocks' => 'Stok Material',
             'material-stock-logs' => 'Riwayat Stok Material',
@@ -240,6 +248,7 @@ class PermissionSeeder extends Seeder
             'master.classes' => 'Master Kelas',
             'settings.app' => 'Pengaturan Aplikasi',
             'discounts' => 'Pengaturan Diskon',
+            'guides' => 'Pusat Panduan',
         ];
 
         $actionLabels = [

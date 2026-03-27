@@ -59,6 +59,11 @@
                     $canStudentMembers = $user?->can('student-group-members.view');
                     $studentItems = ($canStudents ? 1 : 0) + ($canStudentGroups ? 1 : 0) + ($canStudentMembers ? 1 : 0);
 
+                    $canSchedules = $user?->can('schedules.view');
+                    $canGroupAttendances = $user?->can('student-group-attendances.view');
+                    $canGuides = $user?->can('guides.view');
+                    $canGuideManage = $user?->can('guides.manage');
+
                     $canMaterialGroup =
                         $user?->can('materials.view') ||
                         $user?->can('material-stocks.view') ||
@@ -110,7 +115,7 @@
                     $canDiscountSettings = $user->can('discounts.manage');
                     $canLogs = $user->hasRole('Admin');
                     $settingsItems =
-                        ($hasMasterMenu ? 1 : 0) + ($canAppSettings ? 1 : 0) + ($canDiscountSettings ? 1 : 0) + ($canLogs ? 1 : 0);
+                        ($hasMasterMenu ? 1 : 0) + ($canAppSettings ? 1 : 0) + ($canDiscountSettings ? 1 : 0) + ($canLogs ? 1 : 0) + ($canGuides ? 1 : 0);
                 @endphp
 
                 <!-- ADMIN MENU -->
@@ -312,27 +317,36 @@
                 @endif
 
                 {{-- PENJADWALAN --}}
-                @can('schedules.view')
+                @if ($canSchedules || $canGroupAttendances)
                     <li>
-                        <details {{ request()->is('schedules*', 'student-attendances*') ? 'open' : '' }}>
+                        <details {{ request()->is('schedules*', 'student-attendances*', 'student-group-attendances*') ? 'open' : '' }}>
                             <summary>
                                 <x-heroicon-o-calendar class="w-5" />
                                 Penjadwalan
                             </summary>
                             <ul>
-                                <li>
-                                    <a wire:navigate href="/schedules"
-                                        class="{{ request()->is('schedules*') ? 'bg-base-300' : '' }}">Jadwal Harian</a>
-                                </li>
-                                <li>
-                                    <a wire:navigate href="/student-attendances"
-                                        class="{{ request()->is('student-attendances*') ? 'bg-base-300' : '' }}">Kehadiran
-                                        Siswa</a>
-                                </li>
+                                @if ($canSchedules)
+                                    <li>
+                                        <a wire:navigate href="/schedules"
+                                            class="{{ request()->is('schedules*') ? 'bg-base-300' : '' }}">Jadwal Harian</a>
+                                    </li>
+                                    <li>
+                                        <a wire:navigate href="/student-attendances"
+                                            class="{{ request()->is('student-attendances*') ? 'bg-base-300' : '' }}">Kehadiran
+                                            Siswa</a>
+                                    </li>
+                                @endif
+                                @if ($canGroupAttendances)
+                                    <li>
+                                        <a wire:navigate href="/student-group-attendances"
+                                            class="{{ request()->is('student-group-attendances*') ? 'bg-base-300' : '' }}">Kehadiran
+                                            Grup</a>
+                                    </li>
+                                @endif
                             </ul>
                         </details>
                     </li>
-                @endcan
+                @endif
 
                 {{-- MANAJEMEN INVENTARIS --}}
                 @if ($inventoryItems > 0)
@@ -753,6 +767,40 @@
                                                 <x-heroicon-o-command-line class="w-4 h-4" />
                                                 Sistem Logs
                                             </a>
+                                        </li>
+                                    @endif
+                                    @if ($canGuides)
+                                        <li>
+                                            <details {{ request()->routeIs('guides.*') ? 'open' : '' }}>
+                                                <summary>
+                                                    <x-heroicon-o-book-open class="w-5" />
+                                                    Guide
+                                                </summary>
+                                                <ul>
+                                                    <li>
+                                                        <a wire:navigate href="{{ route('guides.index') }}"
+                                                            class="{{ request()->routeIs('guides.index') ? 'bg-base-300' : '' }}">Pusat Panduan</a>
+                                                    </li>
+                                                    @if ($canGuideManage)
+                                                        <li>
+                                                            <a wire:navigate href="{{ route('guides.menus.index') }}"
+                                                                class="{{ request()->routeIs('guides.menus.*') ? 'bg-base-300' : '' }}">Kelola Menu</a>
+                                                        </li>
+                                                        <li>
+                                                            <a wire:navigate href="{{ route('guides.steps.index') }}"
+                                                                class="{{ request()->routeIs('guides.steps.*') ? 'bg-base-300' : '' }}">Kelola Step</a>
+                                                        </li>
+                                                        <li>
+                                                            <a wire:navigate href="{{ route('guides.faqs.index') }}"
+                                                                class="{{ request()->routeIs('guides.faqs.*') ? 'bg-base-300' : '' }}">Kelola FAQ</a>
+                                                        </li>
+                                                        <li>
+                                                            <a wire:navigate href="{{ route('guides.visuals.index') }}"
+                                                                class="{{ request()->routeIs('guides.visuals.*') ? 'bg-base-300' : '' }}">Kelola Visual</a>
+                                                        </li>
+                                                    @endif
+                                                </ul>
+                                            </details>
                                         </li>
                                     @endif
                                 </ul>

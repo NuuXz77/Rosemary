@@ -135,7 +135,7 @@
             </div>
         </div>
     <div class="hidden lg:block lg:w-3/5 lg:h-screen">
-        <img src="https://wallpapers-clan.com/wp-content/uploads/2026/01/dystopian-ruins-silhouette-dark-mood-desktop-wallpaper-preview.jpg"
+        <img src="{{ asset('img/wallpaper.jpeg') }}"
             alt="Ilustrasi Login" class="w-full h-full object-cover">
     </div>
 

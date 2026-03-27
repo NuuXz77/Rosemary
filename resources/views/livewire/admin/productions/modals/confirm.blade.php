@@ -20,6 +20,43 @@
             <span>Pastikan resep produk sudah diatur dengan benar sebelum menyelesaikan produksi ini.</span>
         </div>
 
+        <div class="rounded-xl border border-base-300 bg-base-200/40 p-4">
+            <div class="flex items-center justify-between gap-2 mb-3">
+                <h5 class="font-semibold text-sm">Preview Bahan yang Akan Dipotong</h5>
+                <span class="badge badge-soft badge-info badge-sm">Rencana: {{ $planned_qty }} pcs</span>
+            </div>
+
+            @if($selectedProduct && $selectedProduct->materials->isNotEmpty())
+                <div class="overflow-x-auto">
+                    <table class="table table-xs">
+                        <thead>
+                            <tr>
+                                <th>Bahan</th>
+                                <th class="text-right">Per 1 Produk</th>
+                                <th class="text-right">Total Dipotong</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($selectedProduct->materials as $material)
+                                @php
+                                    $qtyPerUnit = (float) $material->pivot->qty_used;
+                                    $qtyTotal = $qtyPerUnit * (float) $planned_qty;
+                                    $unitName = $material->unit->name ?? '';
+                                @endphp
+                                <tr>
+                                    <td>{{ $material->name }}</td>
+                                    <td class="text-right font-mono">{{ number_format($qtyPerUnit, 2, ',', '.') }} {{ $unitName }}</td>
+                                    <td class="text-right font-mono text-error">{{ number_format($qtyTotal, 2, ',', '.') }} {{ $unitName }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="text-sm text-base-content/60">Produk ini belum punya resep bahan. Tambahkan dulu di menu Product Materials (Resep).</div>
+            @endif
+        </div>
+
         <div class="divider">Konfirmasi Hasil Riil</div>
 
         <x-form.input

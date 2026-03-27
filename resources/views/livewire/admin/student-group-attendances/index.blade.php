@@ -3,11 +3,11 @@
         <div class="card-body p-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full flex-wrap">
-                    <div class="join w-full md:w-64">
+                    <div class="join w-full md:w-72">
                         <label class="input input-sm input-bordered join-item flex items-center gap-2 w-full">
                             <x-heroicon-o-magnifying-glass class="w-4 h-4 text-base-content/50" />
                             <input type="text" wire:model.live.debounce.300ms="search" class="grow"
-                                placeholder="Cari nama atau PIN..." />
+                                placeholder="Cari kelompok atau kode grup..." />
                         </label>
                     </div>
                     <input type="date" wire:model.live="filterDate"
@@ -34,22 +34,22 @@
 
                 @if($canCreateAttendance)
                     <div class="flex items-center gap-2 w-full md:w-auto justify-end">
-                        <a wire:navigate href="{{ route('guides.index', ['role' => 'student', 'module' => 'kehadiran siswa']) }}" class="btn btn-ghost btn-sm gap-1">
+                        <a wire:navigate href="{{ route('guides.index', ['role' => 'production', 'module' => 'kehadiran grup']) }}" class="btn btn-ghost btn-sm gap-1">
                             <x-heroicon-o-question-mark-circle class="w-4 h-4" />
                             Bantuan
                         </a>
-                        <livewire:admin.student-attendances.modals.create />
+                        <livewire:admin.student-group-attendances.modals.create />
                     </div>
                 @endif
             </div>
 
-            <livewire:admin.student-attendances.modals.edit />
-            <livewire:admin.student-attendances.modals.delete />
+            <livewire:admin.student-group-attendances.modals.edit />
+            <livewire:admin.student-group-attendances.modals.delete />
 
             @php
                 $columns = [
                     ['label' => 'No', 'class' => 'w-16'],
-                    ['label' => 'Siswa'],
+                    ['label' => 'Kelompok'],
                     ['label' => 'Kelas'],
                     ['label' => 'Shift'],
                     ['label' => 'Tanggal'],
@@ -60,19 +60,19 @@
                 ];
             @endphp
 
-            <x-partials.table :columns="$columns" :data="$attendances" emptyMessage="Belum ada data kehadiran.">
+            <x-partials.table :columns="$columns" :data="$attendances" emptyMessage="Belum ada data kehadiran grup.">
                 @foreach ($attendances as $index => $attendance)
-                    <tr wire:key="attendance-{{ $attendance->id }}" class="hover:bg-base-200/50 transition-colors">
+                    <tr wire:key="group-attendance-{{ $attendance->id }}" class="hover:bg-base-200/50 transition-colors">
                         <td class="font-medium text-base-content/50">{{ $attendances->firstItem() + $index }}</td>
                         <td>
-                            <div class="text-base-content">{{ $attendance->student->name ?? '-' }}</div>
+                            <div class="text-base-content">{{ $attendance->studentGroup->name ?? '-' }}</div>
                             <div class="flex items-center gap-1.5 mt-0.5">
                                 <x-heroicon-o-key class="w-3 h-3 text-base-content/40" />
-                                <span class="text-xs font-mono text-base-content/60 tracking-widest">{{ $attendance->student->pin ?? '-' }}</span>
+                                <span class="text-xs font-mono text-base-content/60 tracking-widest">{{ $attendance->studentGroup->group_code ?? '-' }}</span>
                             </div>
                         </td>
                         <td>
-                            <span class="badge badge-primary badge-outline badge-sm">{{ $attendance->student->schoolClass->name ?? '-' }}</span>
+                            <span class="badge badge-primary badge-outline badge-sm">{{ $attendance->studentGroup->schoolClass->name ?? '-' }}</span>
                         </td>
                         <td>
                             <span class="text-sm">{{ $attendance->shift->name ?? '-' }}</span>
