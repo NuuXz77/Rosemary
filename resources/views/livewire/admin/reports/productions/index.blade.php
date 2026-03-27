@@ -254,6 +254,9 @@
             <div class="flex items-center justify-between gap-3 pt-4 pb-2">
                 <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari produk / kelompok..."
                     class="input input-bordered input-sm w-full sm:w-64" />
+                <button wire:click="export" class="btn btn-sm btn-success text-white">
+                    <x-heroicon-o-document-arrow-down class="w-4 h-4" /> Export Excel
+                </button>
             </div>
 
             {{-- Table --}}

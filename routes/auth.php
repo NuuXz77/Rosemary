@@ -181,7 +181,6 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('can:reports.stocks.view')->group(function () {
         Route::get('/reports/stocks', App\Livewire\Admin\Reports\Stocks\Index::class)->name('reports.stocks.index');
-        Route::get('/reports/stocks/export', [App\Http\Controllers\ExportController::class, 'exportStocks'])->name('reports.stocks.export');
     });
 
     Route::middleware('can:reports.schedules.view')->group(function () {
