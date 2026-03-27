@@ -33,7 +33,9 @@ class RoleSeeder extends Seeder
                 'product-stocks.view',
                 'product-materials.view',
                 'product-wastes.view',
+                'student-group-attendances.view',
                 'reports.productions.view',
+                'guides.view',
             ],
 
             'Inventory' => [
@@ -91,12 +93,14 @@ class RoleSeeder extends Seeder
                 'product-wastes.delete',
                 'product-wastes.manage',
                 'reports.stocks.view',
+                'guides.view',
             ],
 
             'Cashier' => [
                 'dashboard.view',
                 'sales.view',
                 'reports.sales.view',
+                'guides.view',
             ],
 
             // 'Supervisor' => [

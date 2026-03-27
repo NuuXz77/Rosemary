@@ -19,6 +19,7 @@
     'validatorMessage' => null,
     'hint' => null,
     'containerClass' => '',
+    'size' => '',
 ])
 
 <fieldset class="{{ $containerClass }}">
@@ -26,7 +27,7 @@
         <legend class="fieldset-legend">{{ $label }}</legend>
     @endif
     
-    <label class="input w-full validator input-bordered flex items-center gap-2 @error($name) input-error @enderror">
+    <label class="input w-full validator input-bordered flex items-center gap-2 {{ $size }} @error($name) input-error @enderror">
         {{-- Icon --}}
         @if($icon)
             <x-dynamic-component :component="$icon" class="w-4 h-4 opacity-70" />
@@ -68,7 +69,7 @@
             @if($step)
                 step="{{ $step }}"
             @endif
-            class="grow @if($uppercase) uppercase @endif @if($lowercase) lowercase @endif"
+            class="grow {{ $uppercase ? 'uppercase' : ($lowercase ? 'lowercase' : '') }}"
             {{ $attributes }}
         />
 

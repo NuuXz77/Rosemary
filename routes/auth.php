@@ -52,6 +52,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', App\Livewire\Admin\Profile\Index::class)
         ->name('profile.index');
 
+    Route::get('/settings/guides', App\Livewire\Admin\Guides\Index::class)
+        ->name('guides.index')
+        ->middleware('can:guides.view');
+
+    Route::middleware('can:guides.manage')->group(function () {
+        Route::get('/settings/guides/menus', App\Livewire\Admin\Guides\Menus\Index::class)->name('guides.menus.index');
+        Route::get('/settings/guides/steps', App\Livewire\Admin\Guides\Steps\Index::class)->name('guides.steps.index');
+        Route::get('/settings/guides/faqs', App\Livewire\Admin\Guides\Faqs\Index::class)->name('guides.faqs.index');
+        Route::get('/settings/guides/visuals', App\Livewire\Admin\Guides\Visuals\Index::class)->name('guides.visuals.index');
+    });
+
     // --------------------------------------------
     // MANAJEMEN PENGGUNA
     // --------------------------------------------
@@ -102,6 +113,10 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:schedules.view')->group(function () {
         Route::get('/schedules', App\Livewire\Admin\Schedules\Index::class)->name('schedules.index');
         Route::get('/student-attendances', App\Livewire\Admin\StudentAttendances\Index::class)->name('student-attendances.index');
+    });
+
+    Route::middleware('can:student-group-attendances.view')->group(function () {
+        Route::get('/student-group-attendances', App\Livewire\Admin\StudentGroupAttendances\Index::class)->name('student-group-attendances.index');
     });
 
     // --------------------------------------------
@@ -156,6 +171,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('can:productions.view')->group(function () {
         Route::get('/productions', App\Livewire\Admin\Productions\Index::class)->name('productions.index');
+        Route::get('/productions/{production}', App\Livewire\Admin\Productions\Detail::class)->whereNumber('production')->name('productions.detail');
     });
 
     Route::middleware('can:sales.view')->group(function () {
