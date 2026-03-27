@@ -38,7 +38,6 @@ class DatabaseSeeder extends Seeder
                 // Material data
             MaterialSeeder::class,    // butuh categories
             MaterialStockSeeder::class, // butuh materials
-            MaterialStockLogSeeder::class, // butuh materials
         ]);
     }
 }
