@@ -1,4 +1,6 @@
 <div>
+    <livewire:admin.student-groups.helper-form />
+
     <div class="card bg-base-100 shadow-sm border border-base-200">
         <div class="card-body p-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -14,6 +16,10 @@
                                 placeholder="Cari kelompok..." />
                         </label>
                     </div>
+                    <button type="button" wire:click="$dispatch('toggle-helper-form')" class="btn btn-sm btn-secondary">
+                        <x-heroicon-o-sparkles class="w-4 h-4" />
+                        Generate / Helper Form
+                    </button>
                     <button wire:click="create" class="btn btn-sm btn-primary">
                         <x-heroicon-o-plus class="w-4 h-4" />
                         Tambah Kelompok
@@ -24,6 +30,7 @@
             <x-partials.table :columns="[
         ['label' => 'No', 'class' => 'w-16'],
         ['label' => 'Nama Kelompok'],
+        ['label' => 'Periode Aktif'],
         ['label' => 'Kelas'],
         ['label' => 'Anggota'],
         ['label' => 'Status'],
@@ -36,6 +43,16 @@
                             <div class="font-bold">{{ $group->name }}</div>
                             <div class="text-xs text-base-content/40 italic">Dibuat
                                 {{ $group->created_at->diffForHumans() }}</div>
+                        </td>
+                        <td>
+                            @if($group->start_date && $group->end_date)
+                                <div class="text-xs whitespace-nowrap">
+                                    <div class="font-medium">{{ \Carbon\Carbon::parse($group->start_date)->format('d M Y') }}</div>
+                                    <div class="text-base-content/50">s/d {{ \Carbon\Carbon::parse($group->end_date)->format('d M Y') }}</div>
+                                </div>
+                            @else
+                                <span class="text-xs text-base-content/40 italic">Tidak ada batas</span>
+                            @endif
                         </td>
                         <td>
                             <span class="badge badge-sm badge-ghost">{{ $group->schoolClass->name ?? '-' }}</span>

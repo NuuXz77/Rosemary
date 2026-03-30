@@ -18,11 +18,15 @@ class StudentGroups extends Model
         'name',      // Nama kelompok
         'class_id',  // FK ke classes
         'division_id', // FK ke divisions
+        'start_date',
+        'end_date',
         'status',    // Boolean: aktif/nonaktif
     ];
 
     protected $casts = [
-        'status' => 'boolean',
+        'start_date' => 'date',
+        'end_date'   => 'date',
+        'status'     => 'boolean',
     ];
 
     /**

@@ -6,6 +6,7 @@ use App\Models\StudentGroups;
 use App\Models\Classes;
 use App\Models\Students;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -53,6 +54,12 @@ class Index extends Component
         $this->resetMembers();
     }
 
+    #[On('groups-updated')]
+    public function groupsUpdated()
+    {
+        $this->resetPage();
+    }
+
     public function resetMembers()
     {
         $this->reset(['manageGroupId', 'manageGroupTitle', 'availableStudents', 'selectedStudents']);
@@ -67,6 +74,16 @@ class Index extends Component
     public function store()
     {
         $this->validate();
+
+        // Validasi Unique Nama
+        $existsName = StudentGroups::where('class_id', $this->class_id)
+            ->where('name', $this->name)
+            ->exists();
+            
+        if ($existsName) {
+            $this->addError('name', 'Nama kelompok sudah digunakan di kelas ini.');
+            return;
+        }
 
         StudentGroups::create([
             'name' => $this->name,
@@ -97,6 +114,24 @@ class Index extends Component
         $this->validate();
 
         $group = StudentGroups::findOrFail($this->groupId);
+
+        // Mencegah perubahan kelas jika kelompok sudah memiliki anggota (Bisa merusak data integrity)
+        if ($group->class_id != $this->class_id && $group->members()->count() > 0) {
+            $this->addError('class_id', 'Gagal: Tidak bisa mengubah kelas karena kelompok ini masih berisi siswa dari kelas sebelumnya.');
+            return;
+        }
+
+        // Validasi Unique Nama saat edit
+        $existsName = StudentGroups::where('class_id', $this->class_id)
+            ->where('name', $this->name)
+            ->where('id', '!=', $group->id)
+            ->exists();
+            
+        if ($existsName) {
+            $this->addError('name', 'Nama kelompok sudah digunakan di kelas ini.');
+            return;
+        }
+
         $group->update([
             'name' => $this->name,
             'class_id' => $this->class_id,
@@ -117,6 +152,13 @@ class Index extends Component
         
         $this->availableStudents = Students::where('class_id', $group->class_id)
             ->where('status', true)
+            ->where(function ($query) use ($group) {
+                // Tampilkan siswa yang belum punya kelompok ATAU yang memang sudah di kelompok ini
+                $query->whereDoesntHave('groupMembers')
+                      ->orWhereHas('groupMembers', function ($q) use ($group) {
+                          $q->where('student_group_id', $group->id);
+                      });
+            })
             ->get()
             ->toArray();
             
@@ -128,6 +170,17 @@ class Index extends Component
     public function saveMembers()
     {
         $group = StudentGroups::findOrFail($this->manageGroupId);
+
+        // Validasi Strict: Pastikan siswa yang dipilih tidak ada di kelompok lain (kecuali kelompok ini sendiri)
+        $alreadyInOtherGroup = \Illuminate\Support\Facades\DB::table('student_group_members')
+            ->whereIn('student_id', $this->selectedStudents)
+            ->where('student_group_id', '!=', $group->id)
+            ->exists();
+
+        if ($alreadyInOtherGroup) {
+            $this->dispatch('show-toast', type: 'error', message: 'Gagal! Beberapa siswa yang dicentang sudah berada di kelompok lain.');
+            return;
+        }
         
         // Prepare pivot data to include timestamps since we are using sync
         $pivotData = array_fill_keys($this->selectedStudents, ['created_at' => now(), 'updated_at' => now()]);
@@ -149,9 +202,9 @@ class Index extends Component
     {
         $group = StudentGroups::findOrFail($this->groupId);
 
-        // Cek relasi
-        if ($group->members()->count() > 0 || $group->schedules()->count() > 0 || $group->productions()->count() > 0) {
-            $this->dispatch('show-toast', type: 'error', message: 'Kelompok tidak bisa dihapus karena masih digunakan dalam jadwal, produksi, atau sudah memiliki anggota.');
+        // Cek relasi (Jadwal dan Produksi, tidak perlu blokir bila sekedar punya anggota karena otomatis cascade)
+        if ($group->schedules()->count() > 0 || $group->productions()->count() > 0) {
+            $this->dispatch('show-toast', type: 'error', message: 'Kelompok tidak bisa dihapus karena masih digunakan dalam aktifitas jadwal atau produksi.');
             $this->dispatch('close-modal', id: 'delete-modal');
             return;
         }

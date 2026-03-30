@@ -49,7 +49,7 @@ class Students extends Model
      */
     public function groupMembers(): HasMany
     {
-        return $this->hasMany(StudentGroupMembers::class);
+        return $this->hasMany(StudentGroupMembers::class, 'student_id');
     }
 
     /**
