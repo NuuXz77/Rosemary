@@ -11,10 +11,16 @@ class StudentSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     * 
+     * Dinamis: Jumlah siswa per kelas bisa dikonfigurasi.
+     * Config: SEEDER_STUDENTS_PER_CLASS untuk jumlah siswa (default: 5)
      */
     public function run(): void
     {
+        Students::query()->delete();
+
         $classes = Classes::all();
+        $studentsPerClass = (int)env('SEEDER_STUDENTS_PER_CLASS', 5);
 
         // Nama-nama Indonesia untuk siswa
         $firstNames = [
@@ -32,10 +38,10 @@ class StudentSeeder extends Seeder
             'Handayani', 'Gunawan', 'Hidayat', 'Nurjannah', 'Kurniawan'
         ];
 
-        $pinCounter = 1000; // Start PIN from 1000
+        $pinCounter = 1000;
 
         foreach ($classes as $class) {
-            for ($i = 0; $i < 5; $i++) {
+            for ($i = 0; $i < $studentsPerClass; $i++) {
                 $firstName = $firstNames[array_rand($firstNames)];
                 $lastName = $lastNames[array_rand($lastNames)];
                 

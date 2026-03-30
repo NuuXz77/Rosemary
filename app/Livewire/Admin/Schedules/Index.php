@@ -59,11 +59,11 @@ class Index extends Component
 
     public function updated($property): void
     {
-        // Reset division filter when type changes
+        // Reset applicable filters when type changes
         if ($property === 'filterType') {
+            // Keep filterShift, but reset class and division when type changes
             $this->filterClass    = '';
             $this->filterDivision = '';
-            $this->filterShift    = '';
         }
     }
 
@@ -126,11 +126,12 @@ class Index extends Component
                     });
                 })
                 ->when($this->filterClass, function ($q) {
-                    // Filter by class: cashier uses student.class_id, production uses studentGroup.class_id
-                    $q->where(function ($query) {
-                        $query->whereHas('student', fn($q2) => $q2->where('class_id', $this->filterClass))
-                              ->orWhereHas('studentGroup', fn($q2) => $q2->where('class_id', $this->filterClass));
-                    });
+                    // Filter by class: cashier uses class_id, production uses studentGroup.class_id
+                    if ($this->filterType === 'cashier') {
+                        $q->where('class_id', $this->filterClass);
+                    } else {
+                        $q->whereHas('studentGroup', fn($q2) => $q2->where('class_id', $this->filterClass));
+                    }
                 })
                 ->when($this->filterDivision, fn ($q) => $q->where('division_id', $this->filterDivision))
                 ->when($this->filterShift,    fn ($q) => $q->where('shift_id', $this->filterShift))

@@ -17,9 +17,14 @@ class StudentGroupSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     * 
+     * Dinamis: Kelompok dibuat untuk semua kelas yang ada.
+     * Config: SEEDER_GROUPS_PER_CLASS untuk jumlah kelompok per kelas (default: 2)
      */
     public function run(): void
     {
+        StudentGroups::query()->delete();
+
         $classes = Classes::where('status', true)
             ->orderBy('name')
             ->get();
@@ -29,7 +34,8 @@ class StudentGroupSeeder extends Seeder
             ->orderBy('name')
             ->get();
 
-        $labels = ['A', 'B'];
+        $groupsPerClass = (int)env('SEEDER_GROUPS_PER_CLASS', 2);
+        $labels = array_slice(range('A', 'Z'), 0, $groupsPerClass);
         $productionRole = Role::where('name', 'Production')->first();
         $credentialRows = [
             'group_name,group_code,username,password,status',

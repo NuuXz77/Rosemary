@@ -26,6 +26,7 @@ class Schedules extends Model
         'date',               // Tanggal jadwal
         'shift_id',           // FK ke shifts
         'student_id',         // FK ke students (cashier only)
+        'class_id',           // FK ke classes (cashier only)
         'student_group_id',   // FK ke student_groups (production only)
         'division_id',        // FK ke divisions (production only)
         'status',             // Boolean: aktif/nonaktif
@@ -61,6 +62,14 @@ class Schedules extends Model
     public function student(): BelongsTo
     {
         return $this->belongsTo(Students::class, 'student_id');
+    }
+
+    /**
+     * Relasi Many-to-One ke Classes (kasir only)
+     */
+    public function class(): BelongsTo
+    {
+        return $this->belongsTo(Classes::class, 'class_id');
     }
 
     /**

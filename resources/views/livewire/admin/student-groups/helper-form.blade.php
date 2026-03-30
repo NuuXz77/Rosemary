@@ -2,13 +2,15 @@
     <x-form.modal
         modalId="helper-form-modal"
         title="Buat Kelompok Baru"
-        buttonText=""
+        buttonText="Generate / Helper Form"
+        buttonIcon="heroicon-o-sparkles"
+        buttonClass="btn btn-sm btn-secondary"
         saveAction="save"
         saveButtonText="Simpan Kelompok"
         saveButtonIcon="heroicon-o-check"
         saveButtonClass="btn btn-primary min-w-[150px]"
         modalSize="modal-box w-11/12 max-w-2xl"
-        :showButton="false">
+        :showButton="true">
         
         <div class="space-y-6 mt-2">
             <!-- Section 1: Info Kelompok -->

@@ -20,7 +20,7 @@ class HelperForm extends Component
     public string $end_date = '';
     public $class_id = '';
     public $division_id = null; // Opsional jika dibutuhkan
-    
+
     // Member Configs
     public int $numOfMembers = 6;
     public string $filterStart = '';
@@ -29,7 +29,7 @@ class HelperForm extends Component
 
     // Data for dropdowns
     public array $availableStudents = [];
-    
+
     // Array to hold selected student IDs (length depends on $numOfMembers)
     public array $selectedMembers = [];
 
@@ -39,7 +39,7 @@ class HelperForm extends Component
         'start_date' => 'required|date',
         'end_date' => 'required|date|after_or_equal:start_date',
         'numOfMembers' => 'required|integer|min:1',
-        'selectedMembers.*' => 'nullable|exists:students,id', 
+        'selectedMembers.*' => 'nullable|exists:students,id',
     ];
 
     public function mount()
@@ -76,7 +76,7 @@ class HelperForm extends Component
     public function syncMemberArray()
     {
         $currentSize = count($this->selectedMembers);
-        
+
         if ($this->numOfMembers > $currentSize) {
             // Add new null elements if size increased
             for ($i = $currentSize; $i < $this->numOfMembers; $i++) {
@@ -101,20 +101,25 @@ class HelperForm extends Component
             // Hanya ambil yang belum punya kelompok
             ->whereDoesntHave('groupMembers')
             ->orderBy('name', 'asc'); // Urut alfabet sbg simulasi absen
-        
+
         $students = $query->get();
 
         $this->filterError = '';
 
         // Filter range "absen" berdasarkan urutan setelah di-get
         if ($this->filterStart !== '' || $this->filterEnd !== '') {
-            $startIndex = (int) $this->filterStart > 0 ? ((int)$this->filterStart) - 1 : 0;
-            $endIndex = (int) $this->filterEnd > 0 ? ((int)$this->filterEnd) - 1 : $students->count() - 1;
-            
+            $startIndex = (int) $this->filterStart > 0 ? ((int) $this->filterStart) - 1 : 0;
+            $endIndex = (int) $this->filterEnd > 0 ? ((int) $this->filterEnd) - 1 : $students->count() - 1;
+
             // Safety check for indices
             if ($endIndex >= $startIndex) {
                 // array_slice untuk koleksi laravel -> dipotong dan key-nya reset kembali mulai 0
-                $students = collect($students->slice($startIndex, $endIndex - $startIndex + 1)->values()->all());
+                $students = collect(
+                    $students
+                        ->slice($startIndex, $endIndex - $startIndex + 1)
+                        ->values()
+                        ->all(),
+                );
             } else {
                 // Konfigurasi absen salah (Misal: dari absen 5 ke absen 2), kosongkan hasil
                 $students = collect([]);
@@ -128,13 +133,13 @@ class HelperForm extends Component
     public function randomizeMembers()
     {
         if (empty($this->availableStudents)) {
-             $this->dispatch('show-toast', type: 'error', message: 'Tidak ada data siswa untuk diacak.');
-             return;
+            $this->dispatch('show-toast', type: 'error', message: 'Tidak ada data siswa untuk diacak.');
+            return;
         }
 
-        // Coba acak siswa yang tersedia 
+        // Coba acak siswa yang tersedia
         // Dan pastikan tidak duplicate terpilih dalam percobaan random ini
-        
+
         $pool = $this->availableStudents;
         shuffle($pool);
 
@@ -151,20 +156,20 @@ class HelperForm extends Component
     #[On('toggle-helper-form')]
     public function toggleForm()
     {
-         // reset
-         $this->reset(['name', 'class_id', 'filterStart', 'filterEnd', 'filterError']);
-         $this->numOfMembers = 6;
-         $this->start_date = now()->toDateString();
-         $this->end_date = now()->endOfMonth()->toDateString();
-         $this->syncMemberArray();
-         $this->availableStudents = [];
-         
-         $this->dispatch('open-modal', id: 'helper-form-modal');
+        // reset
+        $this->reset(['name', 'class_id', 'filterStart', 'filterEnd', 'filterError']);
+        $this->numOfMembers = 6;
+        $this->start_date = now()->toDateString();
+        $this->end_date = now()->endOfMonth()->toDateString();
+        $this->syncMemberArray();
+        $this->availableStudents = [];
+
+        $this->dispatch('open-modal', id: 'helper-form-modal');
     }
 
     public function cancel()
     {
-        $this->dispatch('close-modal', id: 'helper-form-modal');
+        $this->dispatch('close-create-modal');
     }
 
     public function save()
@@ -172,10 +177,8 @@ class HelperForm extends Component
         $this->validate();
 
         // Validasi Unique Nama d dalam satu Kelas (Mencegah Kelompok 1 dobel di kelas yg sama)
-        $existsName = StudentGroups::where('class_id', $this->class_id)
-            ->where('name', $this->name)
-            ->exists();
-            
+        $existsName = StudentGroups::where('class_id', $this->class_id)->where('name', $this->name)->exists();
+
         if ($existsName) {
             $this->addError('name', 'Nama kelompok sudah digunakan di kelas ini.');
             return;
@@ -183,7 +186,7 @@ class HelperForm extends Component
 
         // Validasi: Pastikan list ID yang dipilih tidak double
         $selectedIds = array_filter($this->selectedMembers, fn($val) => $val !== '');
-        
+
         if (count($selectedIds) === 0) {
             $this->dispatch('show-toast', type: 'error', message: 'Pilih minimal satu anggota untuk kelompok ini.');
             return;
@@ -197,10 +200,8 @@ class HelperForm extends Component
 
         // Cek kembali ketersediaan mereka di DB sebelum di insert
         // Untuk pastikan 1 siswa = 1 kelompok Strictness
-        $alreadyInGroup = DB::table('student_group_members')
-                               ->whereIn('student_id', $selectedIds)
-                               ->exists();
-        
+        $alreadyInGroup = DB::table('student_group_members')->whereIn('student_id', $selectedIds)->exists();
+
         if ($alreadyInGroup) {
             $this->dispatch('show-toast', type: 'error', message: 'Beberapa siswa terpilih sudah berada di dalam kelompok lain.');
             return;
@@ -229,15 +230,14 @@ class HelperForm extends Component
                     'updated_at' => $now,
                 ];
             }
-            
+
             DB::table('student_group_members')->insert($pivotData);
 
             DB::commit();
 
             $this->dispatch('show-toast', type: 'success', message: 'Kelompok dan anggota berhasil dibuat.');
-            $this->dispatch('close-modal', id: 'helper-form-modal');
+            $this->dispatch('close-create-modal');
             $this->dispatch('groups-updated'); // trigger index component to refresh data
-            
         } catch (\Exception $e) {
             DB::rollBack();
             $this->dispatch('show-toast', type: 'error', message: 'Gagal membuat kelompok: ' . $e->getMessage());
@@ -247,7 +247,7 @@ class HelperForm extends Component
     public function render()
     {
         return view('livewire.admin.student-groups.helper-form', [
-            'classes' => Classes::where('status', true)->get()
+            'classes' => Classes::where('status', true)->get(),
         ]);
     }
 }
