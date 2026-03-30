@@ -15,11 +15,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Sales extends Model
 {
+    public const ORDER_STATUS_TAKE_AWAY = 'Take away';
+    public const ORDER_STATUS_DINE_IN = 'Dine in';
+
+    public const ORDER_STATUSES = [
+        self::ORDER_STATUS_TAKE_AWAY,
+        self::ORDER_STATUS_DINE_IN,
+    ];
+
     protected $fillable = [
         'invoice_number',    // Nomor invoice unik
         'customer_id',       // FK ke customers (optional, untuk pelanggan umum)
         'guest_name',        // Nama pembeli jika Guest (tidak terdaftar)
         'table_number',      // Nomor meja (optional)
+        'status_order',      // Enum: 'Take away', 'Dine in'
         'shift_id',          // FK ke shifts (shift saat transaksi)
         'cashier_student_id',// FK ke students (siswa kasir)
         'subtotal',          // Subtotal belanja
@@ -35,6 +44,11 @@ class Sales extends Model
     protected $casts = [
         'created_at' => 'datetime',
     ];
+
+    public function isDineIn(): bool
+    {
+        return $this->status_order === self::ORDER_STATUS_DINE_IN;
+    }
 
     /**
      * Relasi Many-to-One ke Customers

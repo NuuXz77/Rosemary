@@ -33,7 +33,7 @@
     @endif
 
     @teleport('body')
-        <dialog id="{{ $modalId }}" class="modal" wire:ignore.self>
+        <dialog id="{{ $modalId }}" class="modal backdrop-blur-sm" wire:ignore.self>
             <div class="{{ $modalSize }} border border-base-300">
                 <form method="dialog">
                     <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>

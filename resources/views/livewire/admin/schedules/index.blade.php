@@ -1,10 +1,6 @@
 <div>
-    {{-- ── Modal Components ─────────────────────────────────────── --}}
-    <livewire:admin.schedules.modals.edit />
-    <livewire:admin.schedules.modals.delete />
-    <livewire:admin.schedules.modals.bulk-delete />
     {{-- ── Header Controls ───────────────────────────────────────── --}}
-    <div class="card bg-base-100 shadow-sm border border-base-200 mb-4">
+    <div class="card bg-base-100 border border-base-300 mb-4">
         <div class="card-body p-4 md:p-6 space-y-4">
 
             {{-- Month navigation + title --}}
@@ -29,20 +25,7 @@
 
                 {{-- Action Buttons --}}
                 <div class="flex items-center gap-2">
-                    {{-- Bulk Delete Button --}}
-                    <button wire:click="openBulkDelete"
-                        class="btn btn-sm btn-ghost border border-error/30 gap-1.5 hover:bg-error/10">
-                        <x-heroicon-o-trash class="w-4 h-4 text-error" />
-                        <span class="hidden sm:inline text-xs font-medium">Hapus Massal</span>
-                    </button>
-
-                    {{-- Auto-generate passes current selected month/year --}}
-                    <button wire:click="openAutoGenerate"
-                        class="btn btn-sm btn-ghost border border-base-300 gap-1.5">
-                        <x-heroicon-o-bolt class="w-4 h-4 text-warning" />
-                        <span class="hidden sm:inline text-xs font-medium">Generate Otomatis</span>
-                    </button>
-
+                    <livewire:admin.schedules.modals.bulk-delete />
                     <livewire:admin.schedules.modals.auto-generate />
                     <livewire:admin.schedules.modals.create />
                 </div>
@@ -120,12 +103,12 @@
     </div>
 
     {{-- ── Calendar ──────────────────────────────────────────────── --}}
-    <div class="card bg-base-100 shadow-sm border border-base-200">
+    <div class="card bg-base-100 border border-base-300">
         <div class="card-body p-4 md:p-6">
 
             {{-- Warning: Filter Required --}}
             @if (!$filterType)
-                <div class="alert alert-warning mb-4">
+                <div class="alert alert-warning alert-soft mb-4">
                     <x-heroicon-o-exclamation-triangle class="w-5 h-5" />
                     <div>
                         <div class="font-bold">Filter Wajib Dipilih</div>
@@ -247,14 +230,15 @@
                                             <span class="text-[10px] font-medium text-base-content/80 truncate flex-1">
                                                 {{ $s->studentGroup?->name ?? '-' }}
                                             </span>
-                                            <div class="flex gap-0.5 shrink-0">
-                                                <button wire:click="openEdit({{ $s->id }})" class="btn btn-circle btn-xs btn-ghost hover:btn-info" title="Edit">
-                                                    <x-heroicon-o-pencil class="w-3 h-3" />
-                                                </button>
-                                                <button wire:click="openDelete({{ $s->id }})" class="btn btn-circle btn-xs btn-ghost hover:btn-error" title="Hapus">
-                                                    <x-heroicon-o-trash class="w-3 h-3" />
-                                                </button>
-                                            </div>
+                                            <x-partials.dropdown-action
+                                                :id="$s->id"
+                                                :showView="false"
+                                                :showEdit="true"
+                                                :showDelete="true"
+                                                editMethod="openEdit"
+                                                deleteMethod="openDelete"
+                                                triggerButtonClass="btn btn-ghost btn-xs btn-square min-h-6 h-6 w-6"
+                                                triggerIconClass="w-3.5 h-3.5" />
                                         </div>
                                     @endforeach
                                 </div>
@@ -281,8 +265,19 @@
                                         </div>
                                         <div class="text-center">
                                             @foreach ($cashierSchedules as $s)
-                                                <div class="text-xs font-medium text-base-content/70 truncate">
-                                                    {{ $s->student?->name ?? '-' }}
+                                                <div class="text-xs font-medium text-base-content/70 flex items-center gap-1 w-full">
+                                                    <span class="truncate flex-1 text-left">{{ $s->student?->name ?? '-' }}</span>
+                                                    @if($s->absence_type === 'sick')
+                                                        <span class="badge badge-xs badge-error shrink-0">Sakit</span>
+                                                    @elseif($s->absence_type === 'permit')
+                                                        <span class="badge badge-xs badge-warning shrink-0">Izin</span>
+                                                    @elseif($s->absence_type === 'leave')
+                                                        <span class="badge badge-xs badge-info shrink-0">Cuti</span>
+                                                    @elseif($s->absence_type === 'other')
+                                                        <span class="badge badge-xs badge-neutral shrink-0">Lainnya</span>
+                                                    @elseif($s->absence_type === 'rescheduled')
+                                                        <span class="badge badge-xs badge-accent shrink-0">Dipindah</span>
+                                                    @endif
                                                 </div>
                                             @endforeach
                                         </div>
@@ -296,14 +291,18 @@
                                             <span class="text-[10px] font-medium text-base-content/80 truncate flex-1">
                                                 {{ $s->student?->name ?? '-' }}
                                             </span>
-                                            <div class="flex gap-0.5 shrink-0">
-                                                <button wire:click="openEdit({{ $s->id }})" class="btn btn-circle btn-xs btn-ghost hover:btn-warning" title="Edit">
-                                                    <x-heroicon-o-pencil class="w-3 h-3" />
-                                                </button>
-                                                <button wire:click="openDelete({{ $s->id }})" class="btn btn-circle btn-xs btn-ghost hover:btn-error" title="Hapus">
-                                                    <x-heroicon-o-trash class="w-3 h-3" />
-                                                </button>
-                                            </div>
+                                            <x-partials.dropdown-action
+                                                :id="$s->id"
+                                                :showView="false"
+                                                :showEdit="true"
+                                                :showDelete="true"
+                                                editMethod="openEdit"
+                                                deleteMethod="openDelete"
+                                                triggerButtonClass="btn btn-ghost btn-xs btn-square min-h-6 h-6 w-6"
+                                                triggerIconClass="w-3.5 h-3.5"
+                                                :customActions="(($s->absence_type ?? 'none') === 'none')
+                                                    ? [['label' => 'Berhalangan', 'method' => 'openMarkUnavailable', 'icon' => 'heroicon-o-user-minus', 'class' => 'text-error']]
+                                                    : []" />
                                         </div>
                                     @endforeach
                                 </div>
@@ -346,4 +345,7 @@
             </div>
         </div>
     </div>
+    <livewire:admin.schedules.modals.edit />
+    <livewire:admin.schedules.modals.delete />
+    <livewire:admin.schedules.modals.mark-unavailable />
 </div>

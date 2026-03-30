@@ -2,6 +2,9 @@
     <x-form.modal
         modalId="delete-schedule-modal"
         title="Konfirmasi Hapus Jadwal"
+        buttonText="Hapus Jadwal"
+        buttonIcon="heroicon-o-trash"
+        buttonClass="btn btn-sm btn-ghost border border-error/30 text-error gap-1.5"
         saveAction="delete"
         saveButtonText="Hapus Jadwal"
         saveButtonIcon="heroicon-o-trash"

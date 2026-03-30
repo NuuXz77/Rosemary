@@ -1,5 +1,5 @@
 <div>
-    <div class="card bg-base-100 shadow-sm border border-base-200">
+    <div class="card bg-base-100 border border-base-300">
         <div class="card-body p-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                 <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
@@ -82,9 +82,9 @@
                         <td>
                             <div class="flex items-center gap-2">
                                 <div class="w-6 h-6 rounded-full bg-base-300 flex items-center justify-center text-[10px]">
-                                    {{ substr($log->creator->name ?? '?', 0, 1) }}
+                                    {{ substr($log->creator->username ?? '?', 0, 1) }}
                                 </div>
-                                <span class="text-xs">{{ $log->creator->name ?? '-' }}</span>
+                                <span class="text-xs">{{ $log->creator->username ?? '-' }}</span>
                             </div>
                         </td>
                     </tr>

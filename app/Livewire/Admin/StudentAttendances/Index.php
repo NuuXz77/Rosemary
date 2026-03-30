@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\StudentAttendances;
 
 use App\Models\Classes;
 use App\Models\StudentAttendance;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -21,6 +22,14 @@ class Index extends Component
     public string $filterStatus = '';
     public ?int $filterClass = null;
     public string $filterDate = '';
+
+    #[On('attendance-created')]
+    #[On('attendance-updated')]
+    #[On('attendance-deleted')]
+    public function refreshData(): void
+    {
+        $this->resetPage();
+    }
 
     public function mount(): void
     {
@@ -47,10 +56,32 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function edit(int $id): void
+    {
+        if (!auth()->user()->can('schedules.edit') && !auth()->user()->can('schedules.manage')) {
+            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk mengubah data kehadiran.');
+            return;
+        }
+
+        $this->dispatch('open-edit-attendance', id: $id);
+        $this->dispatch('open-modal', id: 'modal_edit_student_attendance');
+    }
+
+    public function confirmDelete(int $id): void
+    {
+        if (!auth()->user()->can('schedules.delete') && !auth()->user()->can('schedules.manage')) {
+            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk menghapus data kehadiran.');
+            return;
+        }
+
+        $this->dispatch('open-delete-attendance', id: $id);
+        $this->dispatch('open-modal', id: 'modal_delete_student_attendance');
+    }
+
     public function render()
     {
         $attendances = StudentAttendance::query()
-            ->with(['student.class', 'shift', 'schedule'])
+            ->with(['student.schoolClass', 'shift', 'schedule'])
             ->when($this->search, function ($query) {
                 $query->whereHas('student', function ($q) {
                     $q->where('name', 'like', '%' . $this->search . '%')

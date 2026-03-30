@@ -17,6 +17,7 @@
     },
     "dependencies": {
         "apexcharts": "^5.10.3",
+        "readme-md-generator": "^1.0.0",
         "tailwind-scrollbar-hide": "^4.0.0"
     }
 }

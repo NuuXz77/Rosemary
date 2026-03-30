@@ -12,6 +12,8 @@
     'customActions' => [],
     'viewRoute' => null,
     'editRoute' => null,
+    'triggerButtonClass' => 'btn btn-ghost btn-sm btn-square',
+    'triggerIconClass' => 'w-5 h-5',
 ])
 
 <div
@@ -21,7 +23,7 @@
 >
     <button
         type="button"
-        class="btn btn-ghost btn-sm btn-square"
+        class="{{ $triggerButtonClass }}"
         x-ref="trigger"
         @click="
             open = !open;
@@ -36,7 +38,7 @@
             }
         "
     >
-        <x-heroicon-o-ellipsis-vertical class="w-5 h-5" />
+        <x-heroicon-o-ellipsis-vertical class="{{ $triggerIconClass }}" />
     </button>
 
     @teleport('body')
@@ -45,7 +47,7 @@
             x-show="open"
             x-transition
             @click.outside="open = false"
-            class="menu p-2 shadow-lg bg-base-100 rounded-box w-52 border border-base-300 fixed z-[9999]"
+            class="menu p-2 shadow-lg bg-base-100 rounded-box w-52 border border-base-300 fixed z-9999"
             :style="`top: ${coords.top}px; left: ${coords.left}px;`"
         >
         @if($showView)

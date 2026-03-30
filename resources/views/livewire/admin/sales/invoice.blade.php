@@ -50,6 +50,10 @@
                         <span class="text-right">{{ $sale->cashier?->name ?? '-' }}</span>
                     </div>
                     <div class="flex justify-between gap-3">
+                        <span>Status Order:</span>
+                        <span class="text-right">{{ $sale->status_order ?? 'Take away' }}</span>
+                    </div>
+                    <div class="flex justify-between gap-3">
                         <span>Shift:</span>
                         <span class="text-right">{{ $sale->shift?->name ?? '-' }}</span>
                     </div>
@@ -57,7 +61,7 @@
                         <span>Pelanggan:</span>
                         <span class="text-right">{{ $sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)') }}</span>
                     </div>
-                    @if($sale->table_number)
+                    @if(($sale->status_order ?? 'Take away') === 'Dine in' && $sale->table_number)
                         <div class="flex justify-between gap-3">
                             <span>Meja:</span>
                             <span class="text-right">{{ $sale->table_number }}</span>

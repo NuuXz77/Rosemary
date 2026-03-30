@@ -1,4 +1,4 @@
-# 🌹 RoseMarry — Sistem Manajemen F&B Terintegrasi
+# 🌹 Rosemary — Sistem Manajemen F&B Terintegrasi
 
 > Sistem manajemen F&B modern dengan **Laravel + Livewire** untuk mengelola produksi, stok, kasir, dan akuntansi dengan integrasi real-time.
 

@@ -12,6 +12,14 @@
 
 @plugin "daisyui" {
     themes: light --default, dark --prefersdark;
+    themes: all;
+}
+
+.input,
+.select,
+.textarea {
+    @apply outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-base-100;
+    /* Tambahkan CSS murni jika utility Tailwind tidak cukup */
 }
 
 @plugin "daisyui/theme" {
@@ -83,4 +91,25 @@
   --border: 1px;
   --depth: 1;
   --noise: 0;
+}
+
+/* Livewire navigate progress bar (NProgress) */
+#nprogress {
+    pointer-events: none;
+}
+
+#nprogress .bar {
+    background: var(--color-primary) !important;
+    height: 4px !important;
+    border-radius: 0 0 0.75rem 0.75rem;
+}
+
+#nprogress .peg {
+    box-shadow:
+        0 0 12px var(--color-primary),
+        0 0 6px var(--color-primary) !important;
+}
+
+#nprogress .spinner {
+    display: none !important;
 }

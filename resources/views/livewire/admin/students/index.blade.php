@@ -1,5 +1,5 @@
 <div>
-    <div class="card bg-base-100 shadow-sm border border-base-200">
+    <div class="card bg-base-100 border border-base-300">
         <div class="card-body p-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
@@ -19,7 +19,7 @@
                 </div>
                 <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
                     <livewire:admin.students.modals.create />
-                    <a wire:navigate href="{{ route('students.import') }}" class="btn btn-outline btn-sm gap-2">
+                    <a wire:navigate href="{{ route('students.import') }}" class="btn btn-success btn-soft btn-sm gap-2">
                         <x-heroicon-o-arrow-up-tray class="w-4 h-4" />
                         Import Excel
                     </a>

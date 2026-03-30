@@ -6,28 +6,52 @@ use App\Models\Sales;
 use App\Models\MaterialStocks;
 use App\Models\ProductStocks;
 use App\Models\Productions;
+use App\Models\StudentGroups;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
+// use Livewire\Attributes\Title;
 
 #[Layout('components.layouts.app')]
 class Index extends Component
 {
-    #[Title('Dashboard — RoseMarry')]
+    // #[Title('Dashboard')]
 
     public string $period = 'month';
     public int $chartDays = 7;
+    public string $salesChartScope = 'daily';
+    public string $dashboardRole = 'admin';
+    public ?int $productionGroupId = null;
+    public ?string $productionGroupName = null;
 
     public function mount()
     {
-        if (auth()->user()->hasRole('Production')) {
-            return $this->redirect('/productions', navigate: true);
-        } elseif (auth()->user()->hasRole('Inventory')) {
-            return $this->redirect('/material-stocks', navigate: true);
-        } elseif (auth()->user()->hasRole('Cashier')) {
-            return $this->redirect(route('kasir.pos'), navigate: true);
+        $user = auth()->user();
+
+        if ($user->hasAnyRole(['Cashier', 'cashier'])) {
+            $this->dashboardRole = 'cashier';
+            return;
         }
+
+        if ($user->hasRole('Production')) {
+            $this->dashboardRole = 'production';
+            $group = StudentGroups::query()
+                ->where('group_code', $user->username)
+                ->where('status', true)
+                ->first();
+
+            $this->productionGroupId = $group?->id;
+            $this->productionGroupName = $group?->name;
+            return;
+        }
+
+        if ($user->hasRole('Inventory')) {
+            $this->dashboardRole = 'inventory';
+            return;
+        }
+
+        $this->dashboardRole = 'admin';
     }
 
     private function getPeriodRange(): array
@@ -57,10 +81,157 @@ class Index extends Component
         return round((($current - $previous) / $previous) * 100, 1);
     }
 
+    public function updatedChartDays($value): void
+    {
+        $this->chartDays = (int) $value;
+    }
+
+    public function updatedSalesChartScope($value): void
+    {
+        $allowedScopes = ['daily', 'weekly', 'monthly', 'yearly'];
+        $this->salesChartScope = in_array($value, $allowedScopes, true) ? $value : 'daily';
+    }
+
+    private function buildDailySalesTrend(): array
+    {
+        $start = now()->subDays(6)->startOfDay();
+        $end = now()->endOfDay();
+
+        $raw = Sales::selectRaw('DATE(created_at) as bucket, SUM(total_amount) as total')
+            ->where('status', 'paid')
+            ->whereBetween('created_at', [$start, $end])
+            ->groupBy('bucket')
+            ->pluck('total', 'bucket');
+
+        $labels = [];
+        $series = [];
+
+        for ($i = 0; $i < 7; $i++) {
+            $date = $start->copy()->addDays($i);
+            $key = $date->toDateString();
+            $labels[] = $date->format('d/m');
+            $series[] = (float) ($raw[$key] ?? 0);
+        }
+
+        return ['labels' => $labels, 'series' => $series];
+    }
+
+    private function buildWeeklySalesTrend(): array
+    {
+        $start = now()->subMonth()->startOfDay();
+        $end = now()->endOfDay();
+
+        $dailyRows = Sales::selectRaw('DATE(created_at) as bucket, SUM(total_amount) as total')
+            ->where('status', 'paid')
+            ->whereBetween('created_at', [$start, $end])
+            ->groupBy('bucket')
+            ->get();
+
+        $bucketed = [];
+        foreach ($dailyRows as $row) {
+            $weekStart = Carbon::parse($row->bucket)->startOfWeek()->toDateString();
+            $bucketed[$weekStart] = ($bucketed[$weekStart] ?? 0) + (float) $row->total;
+        }
+
+        $labels = [];
+        $series = [];
+        $cursor = $start->copy()->startOfWeek();
+
+        while ($cursor->lte($end)) {
+            $weekStart = $cursor->copy();
+            $weekEnd = $cursor->copy()->endOfWeek();
+            $key = $weekStart->toDateString();
+
+            $labels[] = $weekStart->format('d/m') . ' - ' . $weekEnd->format('d/m');
+            $series[] = (float) ($bucketed[$key] ?? 0);
+
+            $cursor->addWeek();
+        }
+
+        return ['labels' => $labels, 'series' => $series];
+    }
+
+    private function buildMonthlySalesTrend(): array
+    {
+        $start = now()->startOfMonth()->subMonths(11);
+        $end = now()->endOfMonth();
+
+        $raw = Sales::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as bucket, SUM(total_amount) as total")
+            ->where('status', 'paid')
+            ->whereBetween('created_at', [$start, $end])
+            ->groupBy('bucket')
+            ->pluck('total', 'bucket');
+
+        $labels = [];
+        $series = [];
+
+        for ($i = 0; $i < 12; $i++) {
+            $month = $start->copy()->addMonths($i);
+            $key = $month->format('Y-m');
+
+            $labels[] = $month->format('M y');
+            $series[] = (float) ($raw[$key] ?? 0);
+        }
+
+        return ['labels' => $labels, 'series' => $series];
+    }
+
+    private function buildYearlySalesTrend(): array
+    {
+        $currentYear = now()->year;
+        $startYear = $currentYear - 4;
+
+        $raw = Sales::selectRaw('YEAR(created_at) as bucket, SUM(total_amount) as total')
+            ->where('status', 'paid')
+            ->whereYear('created_at', '>=', $startYear)
+            ->groupBy('bucket')
+            ->pluck('total', 'bucket');
+
+        $labels = [];
+        $series = [];
+
+        for ($year = $startYear; $year <= $currentYear; $year++) {
+            $labels[] = (string) $year;
+            $series[] = (float) ($raw[$year] ?? 0);
+        }
+
+        return ['labels' => $labels, 'series' => $series];
+    }
+
+    private function buildSalesTrendData(): array
+    {
+        return match ($this->salesChartScope) {
+            'weekly' => $this->buildWeeklySalesTrend(),
+            'monthly' => $this->buildMonthlySalesTrend(),
+            'yearly' => $this->buildYearlySalesTrend(),
+            default => $this->buildDailySalesTrend(),
+        };
+    }
+
     public function render()
     {
         [$start, $end] = $this->getPeriodRange();
         [$prevStart, $prevEnd] = $this->getPreviousPeriodRange();
+
+        if ($this->dashboardRole === 'production') {
+            return view('livewire.admin.dashboard.index', [
+                'dashboardRole' => $this->dashboardRole,
+                'productionGroupName' => $this->productionGroupName,
+                'productionGroupId' => $this->productionGroupId,
+            ]);
+        }
+
+        if ($this->dashboardRole === 'inventory') {
+            return view('livewire.admin.dashboard.index', [
+                'dashboardRole' => $this->dashboardRole,
+            ]);
+        }
+
+        if ($this->dashboardRole === 'cashier') {
+            return view('livewire.admin.dashboard.index', [
+                'dashboardRole' => $this->dashboardRole,
+            ]);
+        }
 
         // === SALES ===
         $periodSales = Sales::whereBetween('created_at', [$start, $end])
@@ -119,15 +290,7 @@ class Index extends Component
             ->orderByDesc('total_qty')->limit(5)->get();
 
         // === SALES TREND CHART ===
-        $salesTrend = Sales::select(
-            DB::raw('DATE(created_at) as date'),
-            DB::raw('SUM(total_amount) as total'),
-            DB::raw('COUNT(*) as count')
-        )
-            ->where('created_at', '>=', now()->subDays($this->chartDays))
-            ->where('status', 'paid')
-            ->groupBy(DB::raw('DATE(created_at)'))
-            ->orderBy('date')->get();
+        $salesTrend = $this->buildSalesTrendData();
 
         // === PAYMENT BREAKDOWN ===
         $paymentBreakdown = Sales::select('payment_method', DB::raw('COUNT(*) as count'), DB::raw('SUM(total_amount) as total'))
@@ -136,6 +299,10 @@ class Index extends Component
             ->groupBy('payment_method')->get()->keyBy('payment_method');
 
         return view('livewire.admin.dashboard.index', [
+            'dashboardRole' => $this->dashboardRole,
+            'period' => $this->period,
+            'chartDays' => $this->chartDays,
+            'salesChartScope' => $this->salesChartScope,
             'periodSales' => $periodSales,
             'salesChange' => $this->percentChange($periodSales, $prevSales),
             'periodTx' => $periodTx,
@@ -149,7 +316,8 @@ class Index extends Component
             'prodChange' => $this->percentChange($periodProd, $prevProd),
             'recentSales' => $recentSales,
             'topProducts' => $topProducts,
-            'salesTrend' => $salesTrend,
+            'salesTrendLabels' => $salesTrend['labels'],
+            'salesTrendSeries' => $salesTrend['series'],
             'paymentBreakdown' => $paymentBreakdown,
         ]);
     }

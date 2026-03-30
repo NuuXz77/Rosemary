@@ -1,5 +1,5 @@
 <div>
-    <div class="card bg-base-100 shadow-sm border border-base-200">
+    <div class="card bg-base-100 border border-base-300">
         <div class="card-body p-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full flex-wrap">
@@ -25,7 +25,26 @@
                         <option value="absent">Tidak Hadir</option>
                     </x-form.select>
                 </div>
+
+                @php
+                    $canCreateAttendance = auth()->user()->can('schedules.create') || auth()->user()->can('schedules.manage');
+                    $canEditAttendance = auth()->user()->can('schedules.edit') || auth()->user()->can('schedules.manage');
+                    $canDeleteAttendance = auth()->user()->can('schedules.delete') || auth()->user()->can('schedules.manage');
+                @endphp
+
+                @if($canCreateAttendance)
+                    <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                        <a wire:navigate href="{{ route('guides.index', ['role' => 'student', 'module' => 'kehadiran siswa']) }}" class="btn btn-ghost btn-sm gap-1">
+                            <x-heroicon-o-question-mark-circle class="w-4 h-4" />
+                            Bantuan
+                        </a>
+                        <livewire:admin.student-attendances.modals.create />
+                    </div>
+                @endif
             </div>
+
+            <livewire:admin.student-attendances.modals.edit />
+            <livewire:admin.student-attendances.modals.delete />
 
             @php
                 $columns = [
@@ -37,6 +56,7 @@
                     ['label' => 'Jam Login'],
                     ['label' => 'Keterlambatan'],
                     ['label' => 'Status'],
+                    ['label' => 'Aksi', 'class' => 'text-center w-28'],
                 ];
             @endphp
 
@@ -52,7 +72,7 @@
                             </div>
                         </td>
                         <td>
-                            <span class="badge badge-primary badge-outline badge-sm">{{ $attendance->student->class->name ?? '-' }}</span>
+                            <span class="badge badge-primary badge-outline badge-sm">{{ $attendance->student->schoolClass->name ?? '-' }}</span>
                         </td>
                         <td>
                             <span class="text-sm">{{ $attendance->shift->name ?? '-' }}</span>
@@ -84,6 +104,19 @@
                                 <span class="badge badge-soft badge-warning badge-sm">Terlambat</span>
                             @else
                                 <span class="badge badge-soft badge-error badge-sm">Tidak Hadir</span>
+                            @endif
+                        </td>
+                        <td class="text-center">
+                            @if($canEditAttendance || $canDeleteAttendance)
+                                <div class="flex justify-center">
+                                    <x-partials.dropdown-action
+                                        :id="$attendance->id"
+                                        :showEdit="$canEditAttendance"
+                                        :showDelete="$canDeleteAttendance"
+                                    />
+                                </div>
+                            @else
+                                <span class="text-base-content/40 text-sm">-</span>
                             @endif
                         </td>
                     </tr>

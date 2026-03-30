@@ -1,5 +1,5 @@
 <div>
-    <div class="card bg-base-100 shadow-sm border border-base-200">
+    <div class="card bg-base-100 border border-base-300">
         <div class="card-body p-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                 <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
@@ -73,11 +73,15 @@
                             <div class="text-[10px] opacity-40">{{ $stock->updated_at->format('H:i') }}</div>
                         </td>
                         <td class="text-center">
-                            <button wire:click="openAdjustment({{ $stock->id }})"
-                                class="btn btn-sm btn-ghost text-primary gap-1 hover:bg-primary/10">
-                                <x-heroicon-o-adjustments-horizontal class="w-4 h-4" />
-                                Sesuaikan
-                            </button>
+                            @if($canAdjustProductStock)
+                                <button wire:click="openAdjustment({{ $stock->id }})"
+                                    class="btn btn-sm btn-ghost text-primary gap-1 hover:bg-primary/10">
+                                    <x-heroicon-o-adjustments-horizontal class="w-4 h-4" />
+                                    Sesuaikan
+                                </button>
+                            @else
+                                <span class="text-xs opacity-40 italic">No Access</span>
+                            @endif
                         </td>
                     </tr>
                 @endforeach

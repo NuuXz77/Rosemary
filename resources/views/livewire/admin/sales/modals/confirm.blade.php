@@ -109,14 +109,28 @@
                 :hint="$guest_name ? 'Akan dicatat sebagai: ' . $guest_name : 'Akan dicatat sebagai: Guest'" />
             @endif
 
+            <x-form.select
+                name="status_order"
+                label="Status Order"
+                wire:model.live="status_order">
+                <option value="Take away">Take away</option>
+                <option value="Dine in">Dine in</option>
+            </x-form.select>
+
             {{-- Table number input --}}
-            <x-form.input
-                name="table_number"
-                wireModel="table_number"
-                wireModelModifier="live"
-                label="Nomor Meja"
-                placeholder="Contoh: A1, Meja 3, Take Away..."
-                :hint="$table_number ? 'Meja: ' . $table_number : 'Kosongkan jika Take Away / tidak ada meja'" />
+            @if($status_order === 'Dine in')
+                <x-form.input
+                    name="table_number"
+                    wireModel="table_number"
+                    wireModelModifier="live"
+                    label="Nomor Meja"
+                    placeholder="Contoh: A1, Meja 3"
+                    :hint="$table_number ? 'Meja: ' . $table_number : 'Wajib diisi untuk order dine in'" />
+            @else
+                <div class="rounded-2xl border border-base-200 bg-base-200/40 px-4 py-3 text-xs text-base-content/60">
+                    Pesanan ini akan dicatat sebagai take away dan tidak memakai nomor meja.
+                </div>
+            @endif
 
             <div class="divider my-0"></div>
 
@@ -130,6 +144,16 @@
                     <span>Total Qty</span>
                     <span class="font-semibold">{{ collect($cart)->sum('qty') }} pcs</span>
                 </div>
+                <div class="flex justify-between text-base-content/60">
+                    <span>Status Order</span>
+                    <span class="font-semibold">{{ $status_order }}</span>
+                </div>
+                @if($status_order === 'Dine in' && $table_number)
+                    <div class="flex justify-between text-base-content/60">
+                        <span>Nomor Meja</span>
+                        <span class="font-semibold">{{ $table_number }}</span>
+                    </div>
+                @endif
                 <div class="flex justify-between text-base-content/60">
                     <span>Subtotal</span>
                     <span class="font-semibold">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>

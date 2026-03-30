@@ -1,14 +1,14 @@
 @use('Illuminate\Support\Facades\Storage')
 <div class="flex flex-col gap-4" wire:key="pos-root-container">
     <!-- Top Bar -->
-    <div class="card bg-base-100 shadow-sm border border-base-200">
+    <div class="card bg-base-100 border border-base-300">
         <div class="card-body p-4">
             <div class="flex flex-col lg:flex-row justify-between items-center gap-4">
                 <div class="flex flex-col md:flex-row items-center gap-4 grow w-full lg:w-auto">
                     {{-- <div
                         class="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-lg border border-primary/20 shrink-0 self-start md:self-auto">
                         <x-heroicon-o-building-storefront class="w-5 h-5 text-primary" />
-                        <span class="font-bold text-primary">RoseMarry POS</span>
+                        <span class="font-bold text-primary">Rosemary POS</span>
                     </div> --}}
                     <div class="flex flex-col md:flex-row items-center gap-2 grow w-full">
                         {{-- <div class="join w-full md:w-64">
@@ -57,7 +57,7 @@
     </div>
 
     <!-- Product Grid -->
-    <div class="w-full flex flex-col gap-4 overflow-x-clip px-1">
+    <div class="w-full flex flex-col gap-4 overflow-x-clip px-1" wire:poll.5s="$refresh">
 
         {{-- Category Filter Tabs --}}
         <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
@@ -65,7 +65,7 @@
                 @class(['btn btn-sm rounded-full shrink-0 transition-all duration-200',
                     'btn-primary shadow-sm shadow-primary/30' => $filterCategory == '',
                     'btn-ghost border border-base-300 hover:border-primary/40' => $filterCategory != ''])>
-                Semua Produk
+                Semua Kategori
             </button>
             @foreach($categories as $cat)
                 <button wire:click="$set('filterCategory', {{ $cat->id }})"
@@ -103,9 +103,9 @@
                 <div
                     @if($isAvail && !$inCart) wire:click="addToCart({{ $product->id }})" @endif
                     wire:key="product-{{ $product->id }}"
-                    class="group cursor-pointer flex flex-col rounded-lg border border-base-200 bg-base-100 shadow-sm overflow-hidden
+                    class="group cursor-pointer flex flex-col rounded-lg border bg-base-100 shadow-sm overflow-hidden border-base-200
                            {{ $isAvail && !$inCart ? 'hover:shadow-md hover:border-primary/30' : 'cursor-not-allowed opacity-70' }}
-                           transition-shadow duration-200">
+                           transition-all duration-200">
 
                     {{-- ── Image Section ── --}}
                     <div class="relative aspect-square overflow-hidden bg-base-200">

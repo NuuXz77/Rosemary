@@ -60,7 +60,7 @@
         <!-- Left Column: Identity & Access -->
         <div class="space-y-6">
             <!-- Account Summary Card -->
-            <div class="card bg-base-100 shadow-sm border border-base-200">
+            <div class="card bg-base-100 border border-base-300">
                 <div class="card-body p-5">
                     <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
                         <x-heroicon-o-identification class="w-5 h-5 text-primary" />
@@ -105,7 +105,7 @@
             </div>
 
             <!-- Security Card -->
-            <div class="card bg-base-100 shadow-sm border border-base-200">
+            <div class="card bg-base-100 border border-base-300">
                 <div class="card-body p-5">
                     <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
                         <x-heroicon-o-shield-check class="w-5 h-5 text-secondary" />
@@ -154,7 +154,7 @@
         <!-- Right Column: Detailed Personal Info & Activity -->
         <div class="col-span-1 lg:col-span-2 space-y-6">
             <!-- Personal Data Card -->
-            <div class="card bg-base-100 shadow-sm border border-base-200 h-full">
+            <div class="card bg-base-100 border border-base-300 h-full">
                 <div class="card-body">
                     <div class="flex justify-between items-start mb-4">
                         <div>
@@ -221,7 +221,7 @@
             </div>
 
             <!-- Recent Activity (Placeholder) -->
-            <div class="card bg-base-100 shadow-sm border border-base-200">
+            <div class="card bg-base-100 border border-base-300">
                 <div class="card-body">
                     <h3 class="font-bold text-lg mb-4">Aktivitas Terakhir</h3>
                     <ul class="steps steps-vertical">

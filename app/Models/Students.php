@@ -35,8 +35,8 @@ class Students extends Model
     }
 
     /**
-     * Relasi Many-to-Many ke StudentGroups (via student_group_members)
-     * Satu siswa bisa masuk satu atau lebih kelompok
+     * Relasi ke StudentGroups via student_group_members.
+     * Secara bisnis: 1 siswa hanya boleh masuk 1 kelompok.
      */
     public function studentGroups(): BelongsToMany
     {

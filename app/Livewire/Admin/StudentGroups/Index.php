@@ -2,9 +2,8 @@
 
 namespace App\Livewire\Admin\StudentGroups;
 
-use App\Models\StudentGroups;
 use App\Models\Classes;
-use App\Models\Students;
+use App\Models\StudentGroups;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -21,24 +20,16 @@ class Index extends Component
     // Search & Pagination
     public string $search = '';
     public int $perPage = 10;
+    public string $filterClass = '';
+    public string $filterStatus = '';
+    public string $sortField = 'created_at';
+    public string $sortDirection = 'desc';
 
-    // Form Properties
-    public $groupId;
-    public $name;
-    public $class_id;
-    public $status = true;
-    public $isEdit = false;
-
-    // Member Management Properties
-    public $manageGroupId;
-    public $manageGroupTitle = '';
-    public $availableStudents = [];
-    public $selectedStudents = [];
-
-    protected $rules = [
-        'name' => 'required|string|max:255',
-        'class_id' => 'required|exists:classes,id',
-        'status' => 'required|boolean',
+    protected $listeners = [
+        'group-created' => '$refresh',
+        'group-updated' => '$refresh',
+        'group-deleted' => '$refresh',
+        'group-members-updated' => '$refresh',
     ];
 
     public function updatingSearch(): void
@@ -46,12 +37,9 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function resetFields()
+    public function updatingFilterClass(): void
     {
-        $this->reset(['name', 'class_id', 'status', 'groupId', 'isEdit']);
-        $this->status = true;
-        $this->resetValidation();
-        $this->resetMembers();
+        $this->resetPage();
     }
 
     #[On('groups-updated')]
@@ -62,18 +50,19 @@ class Index extends Component
 
     public function resetMembers()
     {
-        $this->reset(['manageGroupId', 'manageGroupTitle', 'availableStudents', 'selectedStudents']);
+        $this->resetPage();
     }
 
-    public function create()
+    public function resetFilters(): void
     {
-        $this->resetFields();
-        $this->dispatch('open-modal', id: 'group-modal');
+        $this->filterClass = '';
+        $this->filterStatus = '';
+        $this->resetPage();
     }
 
-    public function store()
+    public function sortBy(string $field): void
     {
-        $this->validate();
+        $allowedSortFields = ['created_at', 'name', 'students_count', 'status'];
 
         // Validasi Unique Nama
         $existsName = StudentGroups::where('class_id', $this->class_id)
@@ -91,25 +80,17 @@ class Index extends Component
             'status' => $this->status,
         ]);
 
-        $this->dispatch('close-modal', id: 'group-modal');
-        $this->dispatch('show-toast', type: 'success', message: 'Kelompok berhasil ditambahkan.');
-        $this->resetFields();
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+
+        $this->resetPage();
     }
 
     public function edit($id)
-    {
-        $this->resetFields();
-        $group = StudentGroups::findOrFail($id);
-        $this->groupId = $group->id;
-        $this->name = $group->name;
-        $this->class_id = $group->class_id;
-        $this->status = (bool) $group->status;
-        $this->isEdit = true;
-
-        $this->dispatch('open-modal', id: 'group-modal');
-    }
-
-    public function update()
     {
         $this->validate();
 
@@ -218,16 +199,23 @@ class Index extends Component
     {
         $groups = StudentGroups::query()
             ->with(['schoolClass'])
+            ->withCount('students')
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
                     ->orWhereHas('schoolClass', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'));
             })
-            ->orderBy('created_at', 'desc')
+            ->when($this->filterClass, function ($query) {
+                $query->where('class_id', $this->filterClass);
+            })
+            ->when($this->filterStatus !== '', function ($query) {
+                $query->where('status', $this->filterStatus === 'active');
+            })
+            ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
 
         return view('livewire.admin.student-groups.index', [
             'groups' => $groups,
-            'classes' => Classes::where('status', true)->whereHas('students')->get(),
+            'classes' => Classes::where('status', true)->orderBy('name')->get(),
         ]);
     }
 }

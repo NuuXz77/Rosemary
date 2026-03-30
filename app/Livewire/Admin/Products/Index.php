@@ -63,7 +63,7 @@ class Index extends Component
 
     public function edit(int $id): void
     {
-        if (!auth()->user()->can('users.manage')) {
+        if (!auth()->user()->can('products.edit')) {
             $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk mengedit produk.');
             return;
         }
@@ -72,7 +72,7 @@ class Index extends Component
 
     public function confirmDelete(int $id): void
     {
-        if (!auth()->user()->can('users.manage')) {
+        if (!auth()->user()->can('products.delete')) {
             $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk menghapus produk.');
             return;
         }
