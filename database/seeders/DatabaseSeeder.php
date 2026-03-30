@@ -27,8 +27,8 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,    // independent
             DivisionSeeder::class,    // independent - untuk production/cashier divisions
             ShiftSeeder::class,       // master shift untuk jadwal/produksi/sales
-            ProductSeeder::class,     // butuh categories + divisions (auto-created di dalam)
-            StockSeeder::class,       // butuh products
+            // ProductSeeder::class,     // butuh categories + divisions (auto-created di dalam)
+            // StockSeeder::class,       // butuh products
 
                 // Class & Student data
             ClassSeeder::class,       // independent
@@ -37,8 +37,8 @@ class DatabaseSeeder extends Seeder
             // StudentGroupMemberSeeder::class, // butuh student_groups + students
 
                 // Material data
-            MaterialSeeder::class,    // butuh categories
-            MaterialStockSeeder::class, // butuh materials
+            // MaterialSeeder::class,    // butuh categories
+            // MaterialStockSeeder::class, // butuh materials
         ]);
     }
 }
