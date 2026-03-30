@@ -41,7 +41,7 @@
                     </label>
                     <select wire:model.live="filterType" class="select select-bordered select-sm min-w-[130px] {{ !$filterType ? 'select-error' : '' }}">
                         <option value="">-- Pilih Tipe --</option>
-                        <option value="cashier">Kasir</option>
+                        <option value="cashier">Kasir (Café & Resto)</option>
                         <option value="production">Produksi</option>
                     </select>
                 </div>
@@ -61,16 +61,21 @@
                     </div>
                 @endif
 
-                {{-- Filter Divisi (Opsional untuk Production) --}}
-                @if ($filterType === 'production')
+                {{-- Filter Divisi (untuk Production & Cashier) --}}
+                @if ($filterType)
                     <div class="form-control">
                         <label class="label py-0 pb-1">
                             <span class="label-text text-xs font-medium">Divisi</span>
                         </label>
                         <select wire:model.live="filterDivision" class="select select-bordered select-sm min-w-[150px]">
                             <option value="">Semua Divisi</option>
-                            @foreach ($divisionsProduction as $division)
-                                <option value="{{ $division->id }}">{{ $division->name }}</option>
+                            @foreach ($divisions as $division)
+                                {{-- Show cashier divisions for cashier type, production divisions for production type --}}
+                                @if ($filterType === 'cashier' && $division->type === 'cashier')
+                                    <option value="{{ $division->id }}">{{ $division->name }}</option>
+                                @elseif ($filterType === 'production' && $division->type === 'production')
+                                    <option value="{{ $division->id }}">{{ $division->name }}</option>
+                                @endif
                             @endforeach
                         </select>
                     </div>

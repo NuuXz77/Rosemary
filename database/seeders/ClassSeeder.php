@@ -10,20 +10,30 @@ class ClassSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     * 
+     * Dinamis: Bisa dikonfigurasi jumlah dan nama kelas lewat env atau hardcoded.
+     * Config: SEEDER_CLASSES_COUNT untuk jumlah kelas (default: 6)
      */
     public function run(): void
     {
-        $classes = [
-            ['name' => '10 KULINER 1', 'status' => true],
-            ['name' => '10 KULINER 2', 'status' => true],
-            ['name' => '11 KULINER 1', 'status' => true],
-            ['name' => '11 KULINER 2', 'status' => true],
-            ['name' => '12 KULINER 1', 'status' => true],
-            ['name' => '12 KULINER 2', 'status' => true],
-        ];
+        Classes::query()->delete();
 
-        foreach ($classes as $class) {
-            Classes::create($class);
+        $classesCount = (int)env('SEEDER_CLASSES_COUNT', 6);
+        $levels = ['11']; // Tingkat/tahun
+        $groups = ['1', '2']; // Kelompok per tingkat
+
+        $classNumber = 1;
+        foreach ($levels as $level) {
+            foreach ($groups as $group) {
+                if ($classNumber > $classesCount) {
+                    break 2;
+                }
+                Classes::create([
+                    'name' => "{$level} KULINER {$group}",
+                    'status' => true,
+                ]);
+                $classNumber++;
+            }
         }
     }
 }
