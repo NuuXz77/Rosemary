@@ -1,10 +1,8 @@
 <div>
-    <livewire:admin.student-groups.helper-form />
-
     <div class="card bg-base-100 shadow-sm border border-base-200">
         <div class="card-body p-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                <div class="w-full md:w-auto">
                     <div class="join w-full md:w-64">
                         <label class="input input-sm input-bordered join-item flex items-center gap-2 w-full">
                             <x-heroicon-o-magnifying-glass class="w-4 h-4 text-base-content/50" />
@@ -12,20 +10,13 @@
                                 placeholder="Cari kelompok..." />
                         </label>
                     </div>
-                    <button type="button" wire:click="$dispatch('toggle-helper-form')" class="btn btn-sm btn-secondary">
-                        <x-heroicon-o-sparkles class="w-4 h-4" />
-                        Generate / Helper Form
-                    </button>
-                    <button wire:click="create" class="btn btn-sm btn-primary">
-                        <x-heroicon-o-plus class="w-4 h-4" />
-                        Tambah Kelompok
-                    </button>
+                </div>
+
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <livewire:admin.student-groups.helper-form />
+                    <livewire:admin.student-groups.modals.create />
                 </div>
             </div>
-
-            <livewire:admin.student-groups.modals.edit />
-            <livewire:admin.student-groups.modals.detail />
-            <livewire:admin.student-groups.modals.delete />
 
             <x-partials.table :columns="[
         ['label' => 'No', 'class' => 'w-16'],
@@ -65,15 +56,10 @@
                         </td>
                         <td>
                             <div @class([
-                                'badge badge-sm gap-1.5',
-                                'badge-success text-white' => $group->status,
+                                'badge badge-soft badge-sm gap-1.5',
+                                'badge-success' => $group->status,
                                 'badge-ghost' => !$group->status,
                             ])>
-                                <div @class([
-                                    'w-1.5 h-1.5 rounded-full',
-                                    'bg-white' => $group->status,
-                                    'bg-base-content/30' => !$group->status,
-                                ])></div>
                                 {{ $group->status ? 'Aktif' : 'Nonaktif' }}
                             </div>
                         </td>
@@ -91,4 +77,8 @@
             </div>
         </div>
     </div>
+
+    <livewire:admin.student-groups.modals.edit />
+    <livewire:admin.student-groups.modals.detail />
+    <livewire:admin.student-groups.modals.delete />
 </div>

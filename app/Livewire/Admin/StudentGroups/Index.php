@@ -17,7 +17,6 @@ class Index extends Component
 
     #[Title('Kelompok Siswa')]
 
-    // Search & Pagination
     public string $search = '';
     public int $perPage = 10;
     public string $filterClass = '';
@@ -64,21 +63,9 @@ class Index extends Component
     {
         $allowedSortFields = ['created_at', 'name', 'students_count', 'status'];
 
-        // Validasi Unique Nama
-        $existsName = StudentGroups::where('class_id', $this->class_id)
-            ->where('name', $this->name)
-            ->exists();
-            
-        if ($existsName) {
-            $this->addError('name', 'Nama kelompok sudah digunakan di kelas ini.');
+        if (!in_array($field, $allowedSortFields, true)) {
             return;
         }
-
-        StudentGroups::create([
-            'name' => $this->name,
-            'class_id' => $this->class_id,
-            'status' => $this->status,
-        ]);
 
         if ($this->sortField === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
@@ -90,109 +77,22 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function edit($id)
+    public function edit(int $id): void
     {
-        $this->validate();
-
-        $group = StudentGroups::findOrFail($this->groupId);
-
-        // Mencegah perubahan kelas jika kelompok sudah memiliki anggota (Bisa merusak data integrity)
-        if ($group->class_id != $this->class_id && $group->members()->count() > 0) {
-            $this->addError('class_id', 'Gagal: Tidak bisa mengubah kelas karena kelompok ini masih berisi siswa dari kelas sebelumnya.');
-            return;
-        }
-
-        // Validasi Unique Nama saat edit
-        $existsName = StudentGroups::where('class_id', $this->class_id)
-            ->where('name', $this->name)
-            ->where('id', '!=', $group->id)
-            ->exists();
-            
-        if ($existsName) {
-            $this->addError('name', 'Nama kelompok sudah digunakan di kelas ini.');
-            return;
-        }
-
-        $group->update([
-            'name' => $this->name,
-            'class_id' => $this->class_id,
-            'status' => $this->status,
-        ]);
-
-        $this->dispatch('close-modal', id: 'group-modal');
-        $this->dispatch('show-toast', type: 'success', message: 'Kelompok berhasil diperbarui.');
-        $this->resetFields();
+        $this->dispatch('open-edit-modal', id: $id);
+        $this->dispatch('open-modal', id: 'modal_edit_group');
     }
 
-    public function manageMembers($id)
+    public function manageMembers(int $id): void
     {
-        $this->resetMembers();
-        $group = StudentGroups::findOrFail($id);
-        $this->manageGroupId = $group->id;
-        $this->manageGroupTitle = $group->name;
-        
-        $this->availableStudents = Students::where('class_id', $group->class_id)
-            ->where('status', true)
-            ->where(function ($query) use ($group) {
-                // Tampilkan siswa yang belum punya kelompok ATAU yang memang sudah di kelompok ini
-                $query->whereDoesntHave('groupMembers')
-                      ->orWhereHas('groupMembers', function ($q) use ($group) {
-                          $q->where('student_group_id', $group->id);
-                      });
-            })
-            ->get()
-            ->toArray();
-            
-        $this->selectedStudents = $group->students()->pluck('students.id')->map(fn($id) => (string) $id)->toArray();
-        
-        $this->dispatch('open-modal', id: 'manage-members-modal');
+        $this->dispatch('open-detail-modal', id: $id);
+        $this->dispatch('open-modal', id: 'modal_detail_group');
     }
 
-    public function saveMembers()
+    public function confirmDelete(int $id): void
     {
-        $group = StudentGroups::findOrFail($this->manageGroupId);
-
-        // Validasi Strict: Pastikan siswa yang dipilih tidak ada di kelompok lain (kecuali kelompok ini sendiri)
-        $alreadyInOtherGroup = \Illuminate\Support\Facades\DB::table('student_group_members')
-            ->whereIn('student_id', $this->selectedStudents)
-            ->where('student_group_id', '!=', $group->id)
-            ->exists();
-
-        if ($alreadyInOtherGroup) {
-            $this->dispatch('show-toast', type: 'error', message: 'Gagal! Beberapa siswa yang dicentang sudah berada di kelompok lain.');
-            return;
-        }
-        
-        // Prepare pivot data to include timestamps since we are using sync
-        $pivotData = array_fill_keys($this->selectedStudents, ['created_at' => now(), 'updated_at' => now()]);
-        
-        $group->students()->sync($pivotData);
-
-        $this->dispatch('close-modal', id: 'manage-members-modal');
-        $this->dispatch('show-toast', type: 'success', message: 'Anggota kelompok berhasil diperbarui.');
-        $this->resetMembers();
-    }
-
-    public function confirmDelete($id)
-    {
-        $this->groupId = $id;
-        $this->dispatch('open-modal', id: 'delete-modal');
-    }
-
-    public function delete()
-    {
-        $group = StudentGroups::findOrFail($this->groupId);
-
-        // Cek relasi (Jadwal dan Produksi, tidak perlu blokir bila sekedar punya anggota karena otomatis cascade)
-        if ($group->schedules()->count() > 0 || $group->productions()->count() > 0) {
-            $this->dispatch('show-toast', type: 'error', message: 'Kelompok tidak bisa dihapus karena masih digunakan dalam aktifitas jadwal atau produksi.');
-            $this->dispatch('close-modal', id: 'delete-modal');
-            return;
-        }
-
-        $group->delete();
-        $this->dispatch('close-modal', id: 'delete-modal');
-        $this->dispatch('show-toast', type: 'success', message: 'Kelompok berhasil dihapus.');
+        $this->dispatch('confirm-delete', id: $id);
+        $this->dispatch('open-modal', id: 'modal_delete_group');
     }
 
     public function render()
