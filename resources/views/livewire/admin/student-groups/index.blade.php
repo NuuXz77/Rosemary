@@ -1,5 +1,7 @@
 <div>
-    <div class="card bg-base-100 border border-base-300">
+    <livewire:admin.student-groups.helper-form />
+
+    <div class="card bg-base-100 shadow-sm border border-base-200">
         <div class="card-body p-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                 <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
@@ -10,48 +12,14 @@
                                 placeholder="Cari kelompok..." />
                         </label>
                     </div>
-                    <div class="dropdown dropdown-end">
-                        <label tabindex="0" class="btn btn-ghost btn-sm gap-2">
-                            <x-heroicon-o-funnel class="w-5 h-5" />
-                            Filter
-                            @php
-                                $activeFilters = ($filterClass ? 1 : 0) + ($filterStatus !== '' ? 1 : 0);
-                            @endphp
-                            @if ($activeFilters > 0)
-                                <span class="badge badge-primary badge-sm">{{ $activeFilters }}</span>
-                            @endif
-                        </label>
-                        <div tabindex="0" class="dropdown-content z-10 card card-compact w-72 p-4 bg-base-100 border border-base-300 mt-2">
-                            <div class="space-y-3">
-                                <x-form.select
-                                    label="Kelas"
-                                    name="filterClass"
-                                    placeholder="Semua Kelas"
-                                    wire:model.live="filterClass"
-                                    class="select-sm">
-                                    @foreach($classes as $class)
-                                        <option value="{{ $class->id }}">{{ $class->name }}</option>
-                                    @endforeach
-                                </x-form.select>
-
-                                <x-form.select
-                                    label="Status"
-                                    name="filterStatus"
-                                    placeholder="Semua Status"
-                                    wire:model.live="filterStatus"
-                                    class="select-sm">
-                                    <option value="active">Aktif</option>
-                                    <option value="inactive">Nonaktif</option>
-                                </x-form.select>
-
-                                <button wire:click="resetFilters" class="btn btn-ghost btn-sm w-full">Reset Filter</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="w-full md:w-auto flex justify-end">
-                    <livewire:admin.student-groups.modals.create />
+                    <button type="button" wire:click="$dispatch('toggle-helper-form')" class="btn btn-sm btn-secondary">
+                        <x-heroicon-o-sparkles class="w-4 h-4" />
+                        Generate / Helper Form
+                    </button>
+                    <button wire:click="create" class="btn btn-sm btn-primary">
+                        <x-heroicon-o-plus class="w-4 h-4" />
+                        Tambah Kelompok
+                    </button>
                 </div>
             </div>
 
@@ -62,6 +30,7 @@
             <x-partials.table :columns="[
         ['label' => 'No', 'class' => 'w-16'],
         ['label' => 'Nama Kelompok'],
+        ['label' => 'Periode Aktif'],
         ['label' => 'Kelas'],
         ['label' => 'Anggota', 'field' => 'students_count', 'sortable' => true],
         ['label' => 'Status'],
@@ -74,6 +43,16 @@
                             <div class="font-bold">{{ $group->name }}</div>
                             <div class="text-xs text-base-content/40 italic">Dibuat
                                 {{ $group->created_at->diffForHumans() }}</div>
+                        </td>
+                        <td>
+                            @if($group->start_date && $group->end_date)
+                                <div class="text-xs whitespace-nowrap">
+                                    <div class="font-medium">{{ \Carbon\Carbon::parse($group->start_date)->format('d M Y') }}</div>
+                                    <div class="text-base-content/50">s/d {{ \Carbon\Carbon::parse($group->end_date)->format('d M Y') }}</div>
+                                </div>
+                            @else
+                                <span class="text-xs text-base-content/40 italic">Tidak ada batas</span>
+                            @endif
                         </td>
                         <td>
                             <span class="badge badge-sm badge-ghost">{{ $group->schoolClass->name ?? '-' }}</span>
