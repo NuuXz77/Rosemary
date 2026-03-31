@@ -9,7 +9,9 @@
         @if($sale)
         <div class="flex flex-col items-center">
             <div id="thermal-receipt" class="bg-white text-black p-4 w-full font-mono text-[12px] border shadow-inner">
-                <div class="text-center font-bold text-lg uppercase mb-1">Rosemary POS</div>
+                <div class="flex justify-center mb-2">
+                    <img src="{{ asset('img/logo-rosemary.png') }}" class="h-14 w-auto object-contain" alt="Logo">
+                </div>
                 <div class="text-center text-[10px] mb-2 border-b border-dashed border-black pb-2">
                     Jl. Kebangkitan Maju No. 88<br>
                     Telp: 0812-3456-7890

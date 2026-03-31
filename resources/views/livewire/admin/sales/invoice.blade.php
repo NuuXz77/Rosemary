@@ -31,7 +31,9 @@
 
                 {{-- Header --}}
                 <div class="text-center border-b border-dashed border-black pb-2 mb-3">
-                    <h2 class="text-base font-bold uppercase tracking-wide">{{ $appName }}</h2>
+                    <div class="flex justify-center mb-1">
+                        <img src="{{ asset('img/logo-rosemary.png') }}" class="h-16 w-auto object-contain" alt="Logo">
+                    </div>
                     <p class="text-[10px] mt-1">Terima kasih atas pembelian Anda</p>
                 </div>
 
