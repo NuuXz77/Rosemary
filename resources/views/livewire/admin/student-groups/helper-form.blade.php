@@ -126,15 +126,25 @@
                             :required="true"
                             hint="Jumlah field anggota akan menyesuaikan otomatis." />
 
+                        @php
+                            $groupedStudentsCount = collect($availableStudents)->where('is_grouped', true)->count();
+                            $eligibleStudentsCount = collect($availableStudents)->where('is_grouped', false)->count();
+                        @endphp
+
                         <div class="flex flex-col gap-2">
                             <span class="badge badge-accent badge-sm justify-start gap-1 w-fit">
-                                {{ count($availableStudents) }} siswa tersedia
+                                {{ $eligibleStudentsCount }} siswa siap dipilih
                             </span>
+                            @if($groupedStudentsCount > 0)
+                                <span class="badge badge-warning badge-sm justify-start gap-1 w-fit">
+                                    {{ $groupedStudentsCount }} siswa sudah berkelompok
+                                </span>
+                            @endif
                             <button
                                 type="button"
                                 wire:click="randomizeMembers"
                                 class="btn btn-secondary btn-sm gap-2"
-                                {{ empty($availableStudents) ? 'disabled' : '' }}>
+                                {{ $eligibleStudentsCount === 0 ? 'disabled' : '' }}>
                                 <x-heroicon-o-arrows-right-left class="w-4 h-4" />
                                 Acak Otomatis
                             </button>
@@ -160,10 +170,18 @@
                                             name="selectedMembers.{{ $i }}"
                                             wire:model.live="selectedMembers.{{ $i }}"
                                             class="select select-bordered select-sm w-full @error('selectedMembers.'.$i) select-error @enderror"
-                                            {{ empty($availableStudents) ? 'disabled' : '' }}>
+                                            {{ $eligibleStudentsCount === 0 ? 'disabled' : '' }}>
                                             <option value="">-- Pilih siswa / biarkan kosong untuk acak --</option>
                                             @foreach($availableStudents as $student)
-                                                <option value="{{ $student['id'] }}">{{ $student['name'] }}</option>
+                                                <option
+                                                    value="{{ $student['id'] }}"
+                                                    @if(!empty($student['is_grouped'])) disabled @endif
+                                                >
+                                                    {{ $student['name'] }}
+                                                    @if(!empty($student['is_grouped']))
+                                                        (Sudah di Kelompok: {{ $student['group_name'] ?? '-' }})
+                                                    @endif
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>

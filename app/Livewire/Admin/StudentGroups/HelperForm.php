@@ -95,11 +95,11 @@ class HelperForm extends Component
             return;
         }
 
-        // Ambil siswa di kelas ini yang statusnya aktif dan belum ada di kelompok mana pun
-        $query = Students::where('class_id', $this->class_id)
+        // Ambil semua siswa aktif di kelas ini, termasuk yang sudah punya kelompok
+        // agar user bisa melihat mana yang sudah terpakai.
+        $query = Students::with(['groupMembers.studentGroup:id,name'])
+            ->where('class_id', $this->class_id)
             ->where('status', true)
-            // Hanya ambil yang belum punya kelompok
-            ->whereDoesntHave('groupMembers')
             ->orderBy('name', 'asc'); // Urut alfabet sbg simulasi absen
 
         $students = $query->get();
@@ -127,12 +127,30 @@ class HelperForm extends Component
             }
         }
 
-        $this->availableStudents = $students->toArray();
+        $this->availableStudents = $students
+            ->map(function ($student) {
+                $member = $student->groupMembers->first();
+                $groupName = $member?->studentGroup?->name;
+
+                return [
+                    'id' => $student->id,
+                    'name' => $student->name,
+                    'is_grouped' => $member !== null,
+                    'group_name' => $groupName,
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     public function randomizeMembers()
     {
-        if (empty($this->availableStudents)) {
+        $eligibleStudents = array_values(array_filter(
+            $this->availableStudents,
+            fn($student) => empty($student['is_grouped'])
+        ));
+
+        if (empty($eligibleStudents)) {
             $this->dispatch('show-toast', type: 'error', message: 'Tidak ada data siswa untuk diacak.');
             return;
         }
@@ -140,7 +158,7 @@ class HelperForm extends Component
         // Coba acak siswa yang tersedia
         // Dan pastikan tidak duplicate terpilih dalam percobaan random ini
 
-        $pool = $this->availableStudents;
+        $pool = $eligibleStudents;
         shuffle($pool);
 
         // Assign to available slots
@@ -200,10 +218,19 @@ class HelperForm extends Component
 
         // Cek kembali ketersediaan mereka di DB sebelum di insert
         // Untuk pastikan 1 siswa = 1 kelompok Strictness
-        $alreadyInGroup = DB::table('student_group_members')->whereIn('student_id', $selectedIds)->exists();
+        $alreadyInGroupRows = DB::table('student_group_members as sgm')
+            ->join('students as s', 's.id', '=', 'sgm.student_id')
+            ->join('student_groups as sg', 'sg.id', '=', 'sgm.student_group_id')
+            ->whereIn('sgm.student_id', $selectedIds)
+            ->select('s.name as student_name', 'sg.name as group_name')
+            ->get();
 
-        if ($alreadyInGroup) {
-            $this->dispatch('show-toast', type: 'error', message: 'Beberapa siswa terpilih sudah berada di dalam kelompok lain.');
+        if ($alreadyInGroupRows->isNotEmpty()) {
+            $detail = $alreadyInGroupRows
+                ->map(fn($row) => $row->student_name . ' (Kelompok: ' . $row->group_name . ')')
+                ->implode(', ');
+
+            $this->dispatch('show-toast', type: 'error', message: 'Siswa berikut sudah punya kelompok: ' . $detail);
             return;
         }
 
