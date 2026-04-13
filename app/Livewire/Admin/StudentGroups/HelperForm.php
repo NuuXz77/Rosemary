@@ -73,6 +73,17 @@ class HelperForm extends Component
         $this->loadAvailableStudents();
     }
 
+    #[On('groups-updated')]
+    #[On('group-members-updated')]
+    public function refreshAvailableStudents(): void
+    {
+        if (!$this->class_id) {
+            return;
+        }
+
+        $this->loadAvailableStudents();
+    }
+
     public function syncMemberArray()
     {
         $currentSize = count($this->selectedMembers);
@@ -141,6 +152,28 @@ class HelperForm extends Component
             })
             ->values()
             ->all();
+
+        $this->syncSelectedMembersWithAvailability();
+    }
+
+    private function syncSelectedMembersWithAvailability(): void
+    {
+        $eligibleIds = collect($this->availableStudents)
+            ->filter(fn($student) => empty($student['is_grouped']))
+            ->pluck('id')
+            ->map(fn($id) => (string) $id)
+            ->values()
+            ->all();
+
+        foreach ($this->selectedMembers as $index => $studentId) {
+            if ($studentId === '') {
+                continue;
+            }
+
+            if (!in_array((string) $studentId, $eligibleIds, true)) {
+                $this->selectedMembers[$index] = '';
+            }
+        }
     }
 
     public function randomizeMembers()
@@ -261,6 +294,11 @@ class HelperForm extends Component
             DB::table('student_group_members')->insert($pivotData);
 
             DB::commit();
+
+            // Refresh list agar siswa yang baru dipakai langsung berstatus "sudah berkelompok"
+            $this->loadAvailableStudents();
+            $this->name = '';
+            $this->selectedMembers = array_fill(0, $this->numOfMembers, '');
 
             $this->dispatch('show-toast', type: 'success', message: 'Kelompok dan anggota berhasil dibuat.');
             $this->dispatch('close-create-modal');
