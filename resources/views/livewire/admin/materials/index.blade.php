@@ -34,7 +34,13 @@
                         </div>
                     </div>
                 </div>
-                <livewire:admin.materials.modals.create />
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <livewire:admin.materials.modals.create />
+                    <a wire:navigate href="{{ route('materials.import') }}" class="btn btn-success btn-soft btn-sm gap-2">
+                        <x-heroicon-o-arrow-up-tray class="w-4 h-4" />
+                        Import Excel
+                    </a>
+                </div>
             </div>
 
             @php

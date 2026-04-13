@@ -48,9 +48,15 @@
                         </div>
                     </div>
                 </div>
-                @if ($canCreateProduct)
-                    <livewire:admin.products.modals.create />
-                @endif
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    @if ($canCreateProduct)
+                        <livewire:admin.products.modals.create />
+                    @endif
+                    <a wire:navigate href="{{ route('products.import') }}" class="btn btn-success btn-soft btn-sm gap-2">
+                        <x-heroicon-o-arrow-up-tray class="w-4 h-4" />
+                        Import Excel
+                    </a>
+                </div>
             </div>
 
             @php

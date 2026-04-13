@@ -5,6 +5,7 @@
     'icon' => null,
     'required' => false,
     'wireModel' => '',
+    'wireModelModifier' => '',
     'value' => '',
     'disabled' => false,
     'options' => [],
@@ -29,7 +30,9 @@
 
         <select
             name="{{ $name }}"
-            @if($wireModel)
+            @if($wireModel && $wireModelModifier)
+                wire:model.{{ $wireModelModifier }}="{{ $wireModel }}"
+            @elseif($wireModel)
                 wire:model="{{ $wireModel }}"
             @endif
             @if($required)

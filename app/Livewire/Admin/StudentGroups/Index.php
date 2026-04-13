@@ -41,6 +41,11 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function updatingFilterStatus(): void
+    {
+        $this->resetPage();
+    }
+
     #[On('groups-updated')]
     public function groupsUpdated()
     {
@@ -108,7 +113,7 @@ class Index extends Component
                 $query->where('class_id', $this->filterClass);
             })
             ->when($this->filterStatus !== '', function ($query) {
-                $query->where('status', $this->filterStatus === 'active');
+                $query->where('status', $this->filterStatus === '1');
             })
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);

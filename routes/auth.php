@@ -124,6 +124,7 @@ Route::middleware('auth')->group(function () {
     // --------------------------------------------
     Route::middleware('can:materials.view')->group(function () {
         Route::get('/materials', App\Livewire\Admin\Materials\Index::class)->name('materials.index');
+        Route::get('/materials/import', App\Livewire\Admin\Materials\ImportMaterials::class)->name('materials.import');
     });
 
     Route::middleware('can:material-stocks.view')->group(function () {
@@ -140,6 +141,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('can:products.view')->group(function () {
         Route::get('/products', App\Livewire\Admin\Products\Index::class)->name('products.index');
+        Route::get('/products/import', App\Livewire\Admin\Products\ImportProducts::class)->name('products.import');
     });
 
     Route::middleware('can:product-stocks.view')->group(function () {
@@ -208,14 +210,17 @@ Route::middleware('auth')->group(function () {
     // --------------------------------------------
     Route::middleware('can:master.categories.view')->group(function () {
         Route::get('/master/categories', App\Livewire\Admin\Master\Categories\Index::class)->name('master.categories.index');
+        Route::get('/master/categories/import', App\Livewire\Admin\Master\Categories\ImportCategories::class)->name('master.categories.import');
     });
 
     Route::middleware('can:master.units.view')->group(function () {
         Route::get('/master/units', App\Livewire\Admin\Master\Units\Index::class)->name('master.units.index');
+        Route::get('/master/units/import', App\Livewire\Admin\Master\Units\ImportUnits::class)->name('master.units.import');
     });
 
     Route::middleware('can:master.suppliers.view')->group(function () {
         Route::get('/master/suppliers', App\Livewire\Admin\Master\Suppliers\Index::class)->name('master.suppliers.index');
+        Route::get('/master/suppliers/import', App\Livewire\Admin\Master\Suppliers\ImportSupliers::class)->name('master.suppliers.import');
     });
 
     Route::middleware('can:master.customers.view')->group(function () {

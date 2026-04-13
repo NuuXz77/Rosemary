@@ -16,7 +16,13 @@
                         <option value="material">Material</option>
                     </x-form.select>
                 </div>
-                <livewire:admin.master.categories.modals.create />
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <livewire:admin.master.categories.modals.create />
+                    <a wire:navigate href="{{ route('master.categories.import') }}" class="btn btn-success btn-soft btn-sm gap-2">
+                        <x-heroicon-o-arrow-up-tray class="w-4 h-4" />
+                        Import Excel
+                    </a>
+                </div>
             </div>
 
             @php

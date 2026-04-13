@@ -293,6 +293,77 @@ class ImportStudents extends Component
         $this->dispatch('show-toast', type: 'info', message: count($this->previewData) . ' data ditampilkan dari sheet terpilih');
     }
 
+    public function updatedPreviewData($value, $key): void
+    {
+        [$index, $field] = array_pad(explode('.', (string) $key, 2), 2, null);
+        if ($field === null || !isset($this->previewData[(int) $index])) {
+            return;
+        }
+
+        $rowIndex = (int) $index;
+
+        if (in_array($field, ['pin', 'nama_lengkap', 'nama_kelas', 'status'], true)) {
+            $this->previewData[$rowIndex][$field] = trim((string) $this->previewData[$rowIndex][$field]);
+        }
+
+        if ($field === 'status') {
+            $status = strtolower((string) $this->previewData[$rowIndex]['status']);
+            $this->previewData[$rowIndex]['status'] = in_array($status, ['active', 'inactive'], true) ? $status : 'active';
+        }
+
+        $this->revalidatePreviewRow($rowIndex);
+        $this->recalculatePreviewCounts();
+    }
+
+    private function revalidatePreviewRow(int $index): void
+    {
+        if (!isset($this->previewData[$index])) {
+            return;
+        }
+
+        $classList = Classes::pluck('id', 'name')->toArray();
+        $existingPins = Students::pluck('pin')->toArray();
+
+        $row = $this->previewData[$index];
+        $errors = [];
+        $kelasId = null;
+
+        $pin = trim((string) ($row['pin'] ?? ''));
+        $nama = trim((string) ($row['nama_lengkap'] ?? ''));
+        $namaKelas = trim((string) ($row['nama_kelas'] ?? ''));
+
+        if ($pin === '') {
+            $errors[] = 'PIN wajib diisi';
+        } elseif (in_array($pin, $existingPins, true)) {
+            $errors[] = 'PIN "' . $pin . '" sudah terdaftar';
+        }
+
+        if ($nama === '') {
+            $errors[] = 'Nama wajib diisi';
+        }
+
+        if ($namaKelas === '') {
+            $errors[] = 'Nama Kelas wajib diisi';
+        } elseif (!isset($classList[$namaKelas])) {
+            $errors[] = 'Kelas "' . $namaKelas . '" tidak ditemukan';
+        } else {
+            $kelasId = $classList[$namaKelas];
+        }
+
+        $this->previewData[$index]['pin'] = $pin;
+        $this->previewData[$index]['nama_lengkap'] = $nama;
+        $this->previewData[$index]['nama_kelas'] = $namaKelas;
+        $this->previewData[$index]['kelas_id'] = $kelasId;
+        $this->previewData[$index]['errors'] = $errors;
+        $this->previewData[$index]['has_error'] = !empty($errors);
+    }
+
+    private function recalculatePreviewCounts(): void
+    {
+        $this->errorCount = collect($this->previewData)->where('has_error', true)->count();
+        $this->validCount = collect($this->previewData)->where('has_error', false)->count();
+    }
+
     // ─────────────────────────────────────────
     // IMPORT
     // ─────────────────────────────────────────
@@ -390,6 +461,10 @@ class ImportStudents extends Component
     public function getFilteredPreviewDataProperty(): array
     {
         return collect($this->previewData)
+            ->map(function ($row, $index) {
+                $row['_index'] = $index;
+                return $row;
+            })
             ->when($this->filterSheet !== 'all', fn ($c) => $c->where('sheet_name', $this->filterSheet))
             ->when($this->filterKelas !== 'all', fn ($c) => $c->where('nama_kelas', $this->filterKelas))
             ->values()

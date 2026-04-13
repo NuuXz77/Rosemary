@@ -2,13 +2,56 @@
     <div class="card bg-base-100 shadow-sm border border-base-200">
         <div class="card-body p-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                <div class="w-full md:w-auto">
+                <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                     <div class="join w-full md:w-64">
                         <label class="input input-sm input-bordered join-item flex items-center gap-2 w-full">
                             <x-heroicon-o-magnifying-glass class="w-4 h-4 text-base-content/50" />
                             <input type="text" wire:model.live.debounce.300ms="search" class="grow"
                                 placeholder="Cari kelompok..." />
                         </label>
+                    </div>
+
+                    <div class="dropdown dropdown-end">
+                        <label tabindex="0" class="btn btn-ghost btn-sm gap-2">
+                            <x-heroicon-o-funnel class="w-5 h-5" />
+                            Filter
+                            @if($filterClass || $filterStatus !== '')
+                                <span class="badge badge-primary badge-sm">{{ (!!$filterClass) + ($filterStatus !== '') }}</span>
+                            @endif
+                        </label>
+                        <div tabindex="0" class="dropdown-content z-10 card card-compact w-64 p-4 bg-base-100 border border-base-300 mt-2 shadow-md">
+                            <div class="space-y-3">
+                                <x-form.select
+                                    label="Kelas"
+                                    name="filterClass"
+                                    wireModel="filterClass"
+                                    wireModelModifier="live"
+                                    placeholder="Semua Kelas"
+                                    class="select-sm">
+                                    @foreach($classes as $class)
+                                        <option value="{{ $class->id }}">{{ $class->name }}</option>
+                                    @endforeach
+                                </x-form.select>
+
+                                <x-form.select
+                                    label="Status"
+                                    name="filterStatus"
+                                    wireModel="filterStatus"
+                                    wireModelModifier="live"
+                                    placeholder="Semua Status"
+                                    class="select-sm">
+                                    <option value="1">Aktif</option>
+                                    <option value="0">Nonaktif</option>
+                                </x-form.select>
+
+                                <button
+                                    type="button"
+                                    wire:click="$set('filterClass', ''); $set('filterStatus', '')"
+                                    class="btn btn-ghost btn-sm w-full">
+                                    Reset Filter
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
