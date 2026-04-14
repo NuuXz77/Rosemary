@@ -21,6 +21,11 @@ class Delete extends Component
 
     public function delete()
     {
+        if (!auth()->user()->can('settings.app.manage')) {
+            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk menghapus pengaturan aplikasi.');
+            return;
+        }
+
         try {
             $setting = AppSetting::findOrFail($this->settingId);
             $label = $setting->label ?: $setting->key;

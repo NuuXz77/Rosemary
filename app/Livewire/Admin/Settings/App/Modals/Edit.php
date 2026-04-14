@@ -44,6 +44,11 @@ class Edit extends Component
 
     public function update()
     {
+        if (!auth()->user()->can('settings.app.manage')) {
+            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk mengubah pengaturan aplikasi.');
+            return;
+        }
+
         $this->validate();
 
         try {

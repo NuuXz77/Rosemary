@@ -1,5 +1,6 @@
 <div class="space-y-6">
     @php($isEmbedded = $embedded ?? false)
+    @php($hideProductionGroupWarning = true)
 
     @if($isEmbedded)
         <div class="card bg-base-100 border border-base-300">
@@ -116,7 +117,7 @@
         </div>
     </div>
 
-    @if(!$productionGroupId && !($overallProductionScope ?? false))
+    @if(!$hideProductionGroupWarning && !$productionGroupId && !($overallProductionScope ?? false))
         <div class="alert alert-warning">
             <x-heroicon-o-exclamation-triangle class="w-5 h-5" />
             <span>Akun production ini belum terhubung ke kelompok (group_code). Hubungi admin untuk sinkronisasi akun dengan data kelompok.</span>

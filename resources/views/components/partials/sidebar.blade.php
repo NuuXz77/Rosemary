@@ -10,7 +10,10 @@
             </div> --}}
             <img src="{{ asset('img/logo.png') }}" alt="App Logo" class="w-8" />
             <div class="flex-1 min-w-0">
-                <h2 class="text-xl font-bold truncate">{{ config('app.name', 'Rosemary POS') }}</h2>
+                @php
+                    $appName = \App\Models\AppSetting::get('app_name', config('app.name', 'Rosemary POS'));
+                @endphp
+                <h2 class="text-xl font-bold truncate">{{ $appName }}</h2>
                 <p class="text-xs text-gray-500">v1.0.0</p>
             </div>
         </div>
@@ -47,75 +50,185 @@
                 @php
                     $user = auth()->user();
 
-                    $canUsers = $user?->can('users.manage');
-                    $canCategoryPermissions = $user?->can('permissions.manage');
-                    $canRoles = $user?->can('roles.view') || $user?->can('roles.manage');
-                    $canPermissions = $user?->can('permissions.view') || $user?->can('permissions.manage');
-                    $userManagementItems =
-                        ($canUsers ? 1 : 0) + ($canCategoryPermissions || $canRoles || $canPermissions ? 1 : 0);
+                    // Safe defaults so Blade never hits undefined-variable notices.
+                    $hideSchedulingMenu = false;
+                    $canUsers = false;
+                    $canCategoryPermissions = false;
+                    $canRoles = false;
+                    $canPermissions = false;
+                    $userManagementItems = 0;
 
-                    $canStudents = $user?->can('students.view');
-                    $canStudentGroups = $user?->can('student-groups.view');
-                    $canStudentMembers = $user?->can('student-group-members.view');
-                    $studentItems = ($canStudents ? 1 : 0) + ($canStudentGroups ? 1 : 0) + ($canStudentMembers ? 1 : 0);
+                    $canStudents = false;
+                    $canStudentGroups = false;
+                    $canStudentMembers = false;
+                    $studentItems = 0;
 
-                    $canSchedules = $user?->can('schedules.view');
-                    $canGroupAttendances = $user?->can('student-group-attendances.view');
-                    $canGuides = $user?->can('guides.view');
-                    $canGuideManage = $user?->can('guides.manage');
+                    $canSchedules = false;
+                    $canGroupAttendances = false;
+                    $canGuides = false;
+                    $canGuideManage = false;
 
-                    $canMaterialGroup =
-                        $user?->can('materials.view') ||
-                        $user?->can('material-stocks.view') ||
-                        $user?->can('material-stock-logs.view') ||
-                        $user?->can('material-wastes.view');
-                    $canProductGroup =
-                        $user?->can('products.view') ||
-                        $user?->can('product-stocks.view') ||
-                        $user?->can('product-stock-logs.view') ||
-                        $user?->can('product-wastes.view');
-                    $canRecipe = $user?->can('product-materials.view');
-                    $inventoryItems = ($canMaterialGroup ? 1 : 0) + ($canProductGroup ? 1 : 0) + ($canRecipe ? 1 : 0);
+                    $canMaterialGroup = false;
+                    $canProductGroup = false;
+                    $canRecipe = false;
+                    $inventoryItems = 0;
 
-                    $isCashierRole = $user?->hasRole('Cashier');
-                    $canPurchases = !$isCashierRole && $user?->can('purchases.view');
-                    $canProductions = !$isCashierRole && $user?->can('productions.view');
-                    $canSales = !$isCashierRole && $user?->can('sales.view');
-                    $transactionItems = ($canPurchases ? 1 : 0) + ($canProductions ? 1 : 0) + ($canSales ? 1 : 0);
+                    $isCashierRole = false;
+                    $canPurchases = false;
+                    $canProductions = false;
+                    $canSales = false;
+                    $transactionItems = 0;
 
-                    $canReportSales = $user?->can('reports.sales.view');
-                    $canReportPurchases = $user?->can('reports.purchases.view');
-                    $canReportProductions = $user?->can('reports.productions.view');
-                    $canReportStocks = $user?->can('reports.stocks.view');
-                    $canReportSchedules = $user?->can('reports.schedules.view');
-                    $reportItems =
-                        ($canReportSales ? 1 : 0) +
-                        ($canReportPurchases ? 1 : 0) +
-                        ($canReportProductions ? 1 : 0) +
-                        ($canReportStocks ? 1 : 0) +
-                        ($canReportSchedules ? 1 : 0);
+                    $canReportSales = false;
+                    $canReportPurchases = false;
+                    $canReportProductions = false;
+                    $canReportStocks = false;
+                    $canReportSchedules = false;
+                    $reportItems = 0;
 
-                    $canMasterClasses = $user?->can('master.classes.view');
-                    $canMasterCategories = $user?->can('master.categories.view');
-                    $canMasterUnits = $user?->can('master.units.view');
-                    $canMasterSuppliers = $user?->can('master.suppliers.view');
-                    $canMasterCustomers = $user?->can('master.customers.view');
-                    $canMasterShifts = $user?->can('master.shifts.view');
-                    $canMasterDivisions = $user?->can('master.divisions.view');
-                    $hasMasterMenu =
-                        $canMasterClasses ||
-                        $canMasterCategories ||
-                        $canMasterUnits ||
-                        $canMasterSuppliers ||
-                        $canMasterCustomers ||
-                        $canMasterShifts ||
-                        $canMasterDivisions;
+                    $canMasterClasses = false;
+                    $canMasterCategories = false;
+                    $canMasterUnits = false;
+                    $canMasterSuppliers = false;
+                    $canMasterCustomers = false;
+                    $canMasterShifts = false;
+                    $canMasterDivisions = false;
+                    $hasMasterMenu = false;
 
-                    $canAppSettings = $user->can('settings.app.view');
-                    $canDiscountSettings = $user->can('discounts.manage');
-                    $canLogs = $user->hasRole('Admin');
-                    $settingsItems =
-                        ($hasMasterMenu ? 1 : 0) + ($canAppSettings ? 1 : 0) + ($canDiscountSettings ? 1 : 0) + ($canLogs ? 1 : 0) + ($canGuides ? 1 : 0);
+                    $canAppSettings = false;
+                    $canDiscountSettings = false;
+                    $canActivityLogs = false;
+                    $canSystemLogs = false;
+                    $settingsItems = 0;
+
+                    if ($user) {
+                        $hideSchedulingMenu = (bool) $user->hasAnyRole(['Production', 'production']);
+
+                        $canUsers = $user->can('users.manage');
+                        $canCategoryPermissions = $user->can('permissions.manage');
+                        $canRoles = $user->can('roles.view') || $user->can('roles.manage');
+                        $canPermissions = $user->can('permissions.view') || $user->can('permissions.manage');
+                        $userManagementItems =
+                            ($canUsers ? 1 : 0) + ($canCategoryPermissions || $canRoles || $canPermissions ? 1 : 0);
+
+                        $canStudents = $user->can('students.view');
+                        $canStudentGroups = $user->can('student-groups.view');
+                        $canStudentMembers = $user->can('student-group-members.view');
+                        $studentItems = ($canStudents ? 1 : 0) + ($canStudentGroups ? 1 : 0) + ($canStudentMembers ? 1 : 0);
+
+                        $canSchedules = !$hideSchedulingMenu && $user->can('schedules.view');
+                        $canGroupAttendances = !$hideSchedulingMenu && $user->can('student-group-attendances.view');
+                        $canGuides = $user->can('guides.view');
+                        $canGuideManage = $user->can('guides.manage');
+
+                        $canMaterialGroup =
+                            $user->can('materials.view') ||
+                            $user->can('material-stocks.view') ||
+                            $user->can('material-stock-logs.view') ||
+                            $user->can('material-wastes.view');
+                        $canProductGroup =
+                            $user->can('products.view') ||
+                            $user->can('product-stocks.view') ||
+                            $user->can('product-stock-logs.view') ||
+                            $user->can('product-wastes.view');
+                        $canRecipe = $user->can('product-materials.view');
+                        $inventoryItems = ($canMaterialGroup ? 1 : 0) + ($canProductGroup ? 1 : 0) + ($canRecipe ? 1 : 0);
+
+                        $isCashierRole = $user->hasRole('Cashier');
+                        $canPurchases = !$isCashierRole && $user->can('purchases.view');
+                        $canProductions = !$isCashierRole && $user->can('productions.view');
+                        $canSales = !$isCashierRole && $user->can('sales.view');
+                        $transactionItems = ($canPurchases ? 1 : 0) + ($canProductions ? 1 : 0) + ($canSales ? 1 : 0);
+
+                        $canReportSales = $user->can('reports.sales.view');
+                        $canReportPurchases = $user->can('reports.purchases.view');
+                        $canReportProductions = $user->can('reports.productions.view');
+                        $canReportStocks = $user->can('reports.stocks.view');
+                        $canReportSchedules = !$hideSchedulingMenu && $user->can('reports.schedules.view');
+                        $reportItems =
+                            ($canReportSales ? 1 : 0) +
+                            ($canReportPurchases ? 1 : 0) +
+                            ($canReportProductions ? 1 : 0) +
+                            ($canReportStocks ? 1 : 0) +
+                            ($canReportSchedules ? 1 : 0);
+
+                        $canMasterClasses = $user->can('master.classes.view');
+                        $canMasterCategories = $user->can('master.categories.view');
+                        $canMasterUnits = $user->can('master.units.view');
+                        $canMasterSuppliers = $user->can('master.suppliers.view');
+                        $canMasterCustomers = $user->can('master.customers.view');
+                        $canMasterShifts = $user->can('master.shifts.view');
+                        $canMasterDivisions = $user->can('master.divisions.view');
+                        $hasMasterMenu =
+                            $canMasterClasses ||
+                            $canMasterCategories ||
+                            $canMasterUnits ||
+                            $canMasterSuppliers ||
+                            $canMasterCustomers ||
+                            $canMasterShifts ||
+                            $canMasterDivisions;
+
+                        $canAppSettings = $user->can('settings.app.view');
+                        $canDiscountSettings = $user->can('discounts.manage');
+                        $canActivityLogs = $user->can('activity-logs.view');
+                        $canSystemLogs = $user->hasRole('Admin');
+                        $settingsItems =
+                            ($hasMasterMenu ? 1 : 0) +
+                            ($canAppSettings ? 1 : 0) +
+                            ($canDiscountSettings ? 1 : 0) +
+                            ($canActivityLogs ? 1 : 0) +
+                            ($canSystemLogs ? 1 : 0) +
+                            ($canGuides ? 1 : 0);
+                    }
+                @endphp
+
+                @php
+                    $sidebarDefaults = [
+                        'userManagementItems' => 0,
+                        'studentItems' => 0,
+                        'inventoryItems' => 0,
+                        'transactionItems' => 0,
+                        'reportItems' => 0,
+                        'settingsItems' => 0,
+                        'canUsers' => false,
+                        'canCategoryPermissions' => false,
+                        'canRoles' => false,
+                        'canPermissions' => false,
+                        'canStudents' => false,
+                        'canStudentGroups' => false,
+                        'canStudentMembers' => false,
+                        'canSchedules' => false,
+                        'canGroupAttendances' => false,
+                        'canGuides' => false,
+                        'canGuideManage' => false,
+                        'canMaterialGroup' => false,
+                        'canProductGroup' => false,
+                        'canRecipe' => false,
+                        'canPurchases' => false,
+                        'canProductions' => false,
+                        'canSales' => false,
+                        'canReportSales' => false,
+                        'canReportPurchases' => false,
+                        'canReportProductions' => false,
+                        'canReportStocks' => false,
+                        'canReportSchedules' => false,
+                        'hasMasterMenu' => false,
+                        'canMasterClasses' => false,
+                        'canMasterCategories' => false,
+                        'canMasterUnits' => false,
+                        'canMasterSuppliers' => false,
+                        'canMasterCustomers' => false,
+                        'canMasterShifts' => false,
+                        'canMasterDivisions' => false,
+                        'canAppSettings' => false,
+                        'canDiscountSettings' => false,
+                        'canActivityLogs' => false,
+                        'canSystemLogs' => false,
+                    ];
+
+                    foreach ($sidebarDefaults as $sidebarVar => $sidebarDefault) {
+                        $$sidebarVar = $$sidebarVar ?? $sidebarDefault;
+                    }
                 @endphp
 
                 <!-- ADMIN MENU -->
@@ -127,7 +240,7 @@
                     'reports.purchases.view', 'reports.productions.view', 'reports.stocks.view', 'reports.schedules.view',
                     'master.categories.view', 'master.units.view', 'master.suppliers.view', 'master.customers.view',
                     'master.shifts.view', 'master.divisions.view', 'master.classes.view', 'discounts.manage',
-                    'settings.app.view'])
+                    'settings.app.view', 'activity-logs.view'])
                     {{-- <li class="menu-title">
                         <span>Administrator</span>
                     </li> --}}
@@ -176,9 +289,9 @@
                 @endrole --}}
 
                 {{-- MANAJEMEN PENGGUNA --}}
-                @if ($userManagementItems > 0)
+                @if (($userManagementItems ?? 0) > 0)
                     <li>
-                        @if ($userManagementItems === 1)
+                        @if (($userManagementItems ?? 0) === 1)
                             @if ($canUsers)
                                 <a wire:navigate href="{{ route('users.index') }}"
                                     class="{{ request()->routeIs('users.*') ? 'bg-base-300' : '' }}">
@@ -259,9 +372,9 @@
                 @endif
 
                 {{-- MANAJEMEN SISWA --}}
-                @if ($studentItems > 0)
+                @if (($studentItems ?? 0) > 0)
                     <li>
-                        @if ($studentItems === 1)
+                        @if (($studentItems ?? 0) === 1)
                             @if ($canStudents)
                                 <a wire:navigate href="/students"
                                     class="{{ request()->is('students*') ? 'bg-base-300' : '' }}">
@@ -349,9 +462,9 @@
                 @endif
 
                 {{-- MANAJEMEN INVENTARIS --}}
-                @if ($inventoryItems > 0)
+                @if (($inventoryItems ?? 0) > 0)
                     <li>
-                        @if ($inventoryItems === 1)
+                        @if (($inventoryItems ?? 0) === 1)
                             @if ($canRecipe)
                                 <a wire:navigate href="/product-materials"
                                     class="{{ request()->is('product-materials*') ? 'bg-base-300' : '' }}">
@@ -495,9 +608,9 @@
                 @endif
 
                 {{-- MANAJEMEN TRANSAKSI (Non-Cashier) --}}
-                @if ($transactionItems > 0)
+                @if (($transactionItems ?? 0) > 0)
                     <li>
-                        @if ($transactionItems === 1)
+                        @if (($transactionItems ?? 0) === 1)
                             @if ($canPurchases)
                                 <a wire:navigate href="/purchases"
                                     class="{{ request()->is('purchases*') ? 'bg-base-300' : '' }}">
@@ -549,9 +662,9 @@
                 @endif
 
                 {{-- LAPORAN & ANALITIK --}}
-                @if ($reportItems > 0)
+                @if (($reportItems ?? 0) > 0)
                     <li>
-                        @if ($reportItems === 1)
+                        @if (($reportItems ?? 0) === 1)
                             @if ($canReportSales)
                                 <a wire:navigate href="/reports/sales"
                                     class="{{ request()->is('reports/sales*') ? 'bg-base-300' : '' }}">
@@ -638,9 +751,9 @@
 
 
                 {{-- PENGATURAN --}}
-                @if ($settingsItems > 0)
+                @if (($settingsItems ?? 0) > 0)
                     <li>
-                        @if ($settingsItems === 1)
+                        @if (($settingsItems ?? 0) === 1)
                             @if ($hasMasterMenu)
                                 @php
                                     $masterRoute = $canMasterClasses
@@ -674,7 +787,13 @@
                                     <x-heroicon-o-cog-6-tooth class="w-5" />
                                     Set Diskon
                                 </a>
-                            @elseif($canLogs)
+                            @elseif($canActivityLogs)
+                                <a wire:navigate href="{{ route('settings.activity-logs.index') }}"
+                                    class="{{ request()->routeIs('settings.activity-logs.*') ? 'bg-base-300' : '' }}">
+                                    <x-heroicon-o-cog-6-tooth class="w-5" />
+                                    Log Aktivitas
+                                </a>
+                            @elseif($canSystemLogs)
                                 <a wire:navigate href="{{ route('laravel-logs') }}"
                                     class="{{ request()->routeIs('laravel-logs') ? 'bg-base-300' : '' }}">
                                     <x-heroicon-o-cog-6-tooth class="w-5" />
@@ -760,7 +879,16 @@
                                             </a>
                                         </li>
                                     @endif
-                                    @if ($canLogs)
+                                    @if ($canActivityLogs)
+                                        <li>
+                                            <a wire:navigate href="{{ route('settings.activity-logs.index') }}"
+                                                class="{{ request()->routeIs('settings.activity-logs.*') ? 'bg-base-300' : '' }}">
+                                                <x-heroicon-o-clipboard-document-list class="w-4 h-4" />
+                                                Log Aktivitas
+                                            </a>
+                                        </li>
+                                    @endif
+                                    @if ($canSystemLogs)
                                         <li>
                                             <a wire:navigate href="{{ route('laravel-logs') }}"
                                                 class="{{ request()->routeIs('laravel-logs') ? 'bg-base-300' : '' }}">

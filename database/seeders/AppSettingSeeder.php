@@ -45,6 +45,14 @@ class AppSettingSeeder extends Seeder
                 'type' => 'boolean',
                 'description' => 'Mengontrol apakah pendaftaran user baru diizinkan.'
             ],
+            [
+                'key' => 'cashier_schedule_mode',
+                'label' => 'Mode Jadwal Kasir',
+                'value' => 'flexible',
+                'group' => 'system',
+                'type' => 'text',
+                'description' => 'Mode validasi login PIN kasir. Isi: strict (wajib jadwal) atau flexible (jadwal opsional).'
+            ],
         ];
 
         foreach ($settings as $setting) {

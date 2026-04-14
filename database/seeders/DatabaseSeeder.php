@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             GuideMenuSeeder::class,
             GuideContentSeeder::class,
+            AppSettingSeeder::class,
             UserSeeder::class,
 
                 // Master data — urutan penting (FK chain)

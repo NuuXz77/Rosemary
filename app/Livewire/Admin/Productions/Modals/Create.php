@@ -11,6 +11,9 @@ use Livewire\Component;
 
 class Create extends Component
 {
+    // Hide-only toggle: keep legacy schedule binding code for future re-enable.
+    private bool $disableScheduleBinding = true;
+
     public $product_id;
     public $student_group_id;
     public $shift_id;
@@ -29,14 +32,14 @@ class Create extends Component
     {
         $this->production_date = now()->format('Y-m-d');
 
-        if ($this->isProductionUser()) {
+        if ($this->useScheduleBinding()) {
             $this->syncScheduleFields();
         }
     }
 
     public function updatedProductionDate(): void
     {
-        if ($this->isProductionUser()) {
+        if ($this->useScheduleBinding()) {
             $this->syncScheduleFields();
         }
     }
@@ -49,6 +52,11 @@ class Create extends Component
     private function isProductionUser(): bool
     {
         return auth()->check() && auth()->user()->hasRole('Production') && !$this->isAdminUser();
+    }
+
+    private function useScheduleBinding(): bool
+    {
+        return !$this->disableScheduleBinding && $this->isProductionUser();
     }
 
     private function getProductionScheduleForDate(?string $date = null): ?Schedules
@@ -83,7 +91,7 @@ class Create extends Component
 
     public function save(): void
     {
-        if ($this->isProductionUser()) {
+        if ($this->useScheduleBinding()) {
             $schedule = $this->getProductionScheduleForDate();
 
             if (!$schedule || !$schedule->student_group_id || !$schedule->shift_id) {
@@ -125,7 +133,7 @@ class Create extends Component
 
     public function render()
     {
-        $isProductionLocked = $this->isProductionUser();
+        $isProductionLocked = $this->useScheduleBinding();
 
         return view('livewire.admin.productions.modals.create', [
             'products' => Products::where('status', true)->get(),

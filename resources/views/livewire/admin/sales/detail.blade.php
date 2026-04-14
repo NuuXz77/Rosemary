@@ -130,6 +130,16 @@
                             <p class="text-[10px] uppercase tracking-wider text-base-content/40 font-semibold mb-0.5">Metode Bayar</p>
                             <span class="badge badge-sm badge-outline font-semibold uppercase">{{ $sale->payment_method }}</span>
                         </div>
+                        <div>
+                            <p class="text-[10px] uppercase tracking-wider text-base-content/40 font-semibold mb-0.5">Identitas</p>
+                            <p class="font-medium text-sm">
+                                @if(($sale->status_order ?? 'Take away') === 'Take away')
+                                    {{ $sale->queue_number ?: ($sale->guest_name ?: 'Guest') }}
+                                @else
+                                    {{ $sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)') }}
+                                @endif
+                            </p>
+                        </div>
                         @if($sale->table_number)
                         <div>
                             <p class="text-[10px] uppercase tracking-wider text-base-content/40 font-semibold mb-0.5">Nomor Meja</p>
@@ -201,7 +211,9 @@
                     </div>
                     <div class="p-6">
                         @php
-                            $customerName = $sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)');
+                            $customerName = ($sale->status_order ?? 'Take away') === 'Take away'
+                                ? ($sale->queue_number ?: ($sale->guest_name ?: 'Guest'))
+                                : ($sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)'));
                             $isRegistered = (bool) $sale->customer_id;
                         @endphp
                         <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-base-200/60 border border-base-300">
@@ -211,7 +223,7 @@
                             <div class="grow min-w-0">
                                 <p class="font-bold text-sm truncate">{{ $customerName }}</p>
                                 <p class="text-[10px] text-base-content/40">
-                                    {{ $isRegistered ? 'Pelanggan terdaftar' : 'Tamu / tidak terdaftar' }}
+                                    {{ ($sale->status_order ?? 'Take away') === 'Take away' ? 'Nomor antrean take away' : ($isRegistered ? 'Pelanggan terdaftar' : 'Tamu / tidak terdaftar') }}
                                 </p>
                             </div>
                             <span class="badge badge-xs {{ $isRegistered ? 'badge-soft badge-success' : 'badge-soft badge-ghost' }} shrink-0">

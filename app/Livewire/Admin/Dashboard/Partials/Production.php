@@ -13,6 +13,9 @@ use Livewire\Component;
 
 class Production extends Component
 {
+    // Hide-only toggle: disable production account -> student group binding by username/group_code.
+    private bool $disableProductionGroupBinding = true;
+
     public string $period = 'month';
     public string $chartScope = 'daily';
     #[Reactive]
@@ -49,6 +52,13 @@ class Production extends Component
         }
 
         if (!$user->hasRole('Production')) {
+            return;
+        }
+
+        if ($this->disableProductionGroupBinding) {
+            $this->overallProductionScope = true;
+            $this->productionGroupName = 'Semua Tim';
+            $this->productionGroupId = null;
             return;
         }
 

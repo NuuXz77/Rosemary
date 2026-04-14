@@ -29,6 +29,11 @@ class Create extends Component
 
     public function save()
     {
+        if (!auth()->user()->can('settings.app.manage')) {
+            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki izin untuk membuat pengaturan aplikasi.');
+            return;
+        }
+
         $this->validate();
 
         try {

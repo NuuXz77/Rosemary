@@ -110,6 +110,21 @@
                                 <p class="text-[10px] text-base-content/40">Status Order</p>
                             </div>
                         </div>
+                        <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-base-200/60 border border-base-300 mt-2">
+                            <div class="w-8 h-8 rounded-full bg-info/15 flex items-center justify-center shrink-0">
+                                <x-heroicon-s-speaker-wave class="w-4 h-4 text-info" />
+                            </div>
+                            <div class="grow min-w-0">
+                                <p class="font-bold text-sm truncate">
+                                    @if($status_order === 'Dine in')
+                                        {{ $customerName }}
+                                    @else
+                                        Nomor antrean otomatis (saat submit)
+                                    @endif
+                                </p>
+                                <p class="text-[10px] text-base-content/40">Identitas Pemanggilan</p>
+                            </div>
+                        </div>
                         @if($status_order === 'Dine in' && $table_number)
                             <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-base-200/60 border border-base-300 mt-2">
                                 <div class="w-8 h-8 rounded-full bg-secondary/15 flex items-center justify-center shrink-0">

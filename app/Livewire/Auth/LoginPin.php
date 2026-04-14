@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Auth;
 
+use App\Models\AppSetting;
 use App\Models\Schedules;
+use App\Models\Shift;
 use App\Models\StudentAttendance;
 use App\Models\Students;
 use App\Models\User;
@@ -22,6 +24,9 @@ class LoginPin extends Component
     public array $digits = [];
 
     public ?string $studentName = null;
+
+    private const CASHIER_MODE_STRICT = 'strict';
+    private const CASHIER_MODE_FLEXIBLE = 'flexible';
 
     public function mount(): void
     {
@@ -72,7 +77,10 @@ class LoginPin extends Component
             return;
         }
 
-        // Check if student has cashier schedule for today
+        // Check cashier schedule mode: strict|flexible (default: flexible)
+        $cashierMode = $this->getCashierScheduleMode();
+
+        // Check today's cashier schedule (if any)
         $today = now()->toDateString();
         $schedule = Schedules::with('shift')
             ->where('type', 'cashier')
@@ -81,12 +89,17 @@ class LoginPin extends Component
             ->where('status', true)
             ->first();
 
-        if (!$schedule) {
+        if ($cashierMode === self::CASHIER_MODE_STRICT && !$schedule) {
             $this->dispatch('show-toast',
                 type: 'error',
                 message: 'Kamu tidak memiliki jadwal kasir hari ini. Silakan cek jadwal kamu!');
             $this->digits = [];
             $this->studentName = null;
+            return;
+        }
+
+        if ($cashierMode === self::CASHIER_MODE_FLEXIBLE && !$schedule) {
+            $this->loginSuccess($student, null);
             return;
         }
 
@@ -97,7 +110,7 @@ class LoginPin extends Component
 
         if ($existingAttendance && $existingAttendance->login_time) {
             // Already logged in, just let them through
-            $this->loginSuccess($student);
+            $this->loginSuccess($student, $schedule);
             return;
         }
 
@@ -153,18 +166,37 @@ class LoginPin extends Component
                 message: "Kamu terlambat {$lateMinutes} menit. Kehadiran tetap dicatat.");
         }
 
-        $this->loginSuccess($student);
+        $this->loginSuccess($student, $schedule);
     }
 
-    private function loginSuccess(Students $student): void
+    private function getCashierScheduleMode(): string
     {
-        // Get shift_id from today's cashier schedule
-        $schedule = Schedules::with('shift')
-            ->where('type', 'cashier')
-            ->where('student_id', $student->id)
-            ->whereDate('date', now()->toDateString())
-            ->where('status', true)
+        $mode = strtolower((string) AppSetting::get('cashier_schedule_mode', self::CASHIER_MODE_FLEXIBLE));
+
+        return in_array($mode, [self::CASHIER_MODE_STRICT, self::CASHIER_MODE_FLEXIBLE], true)
+            ? $mode
+            : self::CASHIER_MODE_FLEXIBLE;
+    }
+
+    private function resolveShiftIdForSession(?Schedules $schedule = null): ?int
+    {
+        if ($schedule?->shift_id) {
+            return (int) $schedule->shift_id;
+        }
+
+        $now = now()->toTimeString();
+        $currentShift = Shift::where('status', true)
+            ->whereTime('start_time', '<=', $now)
+            ->whereTime('end_time', '>=', $now)
             ->first();
+
+        return $currentShift?->id;
+    }
+
+    private function loginSuccess(Students $student, ?Schedules $schedule = null): void
+    {
+        // Resolve shift_id from schedule (if strict/found) or current active shift.
+        $resolvedShiftId = $this->resolveShiftIdForSession($schedule);
 
         // Login ke Laravel Auth menggunakan shared Cashier user
         // agar Spatie role/permission aktif untuk sidebar
@@ -213,7 +245,7 @@ class LoginPin extends Component
         session([
             'pos_student_id'   => $student->id,
             'pos_student_name' => $student->name,
-            'pos_shift_id'     => $schedule?->shift_id,
+            'pos_shift_id'     => $resolvedShiftId,
         ]);
 
         $this->studentName = $student->name;

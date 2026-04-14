@@ -25,8 +25,8 @@ Route::middleware('pin.auth')->group(function () {
     Route::get('/kasir/invoice/{sale}', App\Livewire\Admin\Sales\Invoice::class)->name('kasir.invoice');
 
     Route::get('/kasir/logout', function () {
-        session()->forget(['pos_student_id', 'pos_student_name', 'pos_shift_id']);
         Auth::logout();
+        session()->forget(['pos_student_id', 'pos_student_name', 'pos_shift_id']);
         request()->session()->invalidate();
         request()->session()->regenerateToken();
         return redirect()->route('pos.login');
@@ -244,6 +244,11 @@ Route::middleware('auth')->group(function () {
     // --------------------------------------------
     Route::middleware('can:settings.app.view')->group(function () {
         Route::get('/settings/app', App\Livewire\Admin\Settings\App\Index::class)->name('settings.app.index');
+    });
+
+    Route::middleware('can:activity-logs.view')->group(function () {
+        Route::get('/settings/activity-logs', App\Livewire\Admin\Settings\ActivityLogs\Index::class)
+            ->name('settings.activity-logs.index');
     });
 
     // Sistem Logs - Hanya Admin

@@ -25,6 +25,7 @@ class Sales extends Model
 
     protected $fillable = [
         'invoice_number',    // Nomor invoice unik
+        'queue_number',      // Nomor antrean take away (YYYYMMDD-XXX)
         'customer_id',       // FK ke customers (optional, untuk pelanggan umum)
         'guest_name',        // Nama pembeli jika Guest (tidak terdaftar)
         'table_number',      // Nomor meja (optional)
@@ -48,6 +49,15 @@ class Sales extends Model
     public function isDineIn(): bool
     {
         return $this->status_order === self::ORDER_STATUS_DINE_IN;
+    }
+
+    public function getServiceIdentityAttribute(): string
+    {
+        if ($this->status_order === self::ORDER_STATUS_TAKE_AWAY) {
+            return $this->queue_number ?: ($this->guest_name ?: 'Guest');
+        }
+
+        return $this->customer?->name ?: ($this->guest_name ?: 'Guest');
     }
 
     /**

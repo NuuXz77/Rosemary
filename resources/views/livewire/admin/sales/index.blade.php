@@ -20,7 +20,7 @@
 
             <x-partials.table :columns="[
                 ['label' => 'Invoice', 'field' => 'invoice_number', 'sortable' => true],
-                ['label' => 'Customer'],
+                ['label' => 'Identitas'],
                 ['label' => 'Order'],
                 ['label' => 'Meja'],
                 ['label' => 'Total', 'field' => 'total_amount', 'sortable' => true],
@@ -35,7 +35,13 @@
                     <tr wire:key="sale-{{ $sale->id }}" class="hover:bg-base-200 transition-colors duration-150">
                         {{-- <td>{{ $sales->firstItem() + $index }}</td> --}}
                         <td>{{ $sale->invoice_number }}</td>
-                        <td>{{ $sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)') }}</td>
+                        <td>
+                            @if(($sale->status_order ?? 'Take away') === 'Take away')
+                                {{ $sale->queue_number ?: ($sale->guest_name ?: 'Guest') }}
+                            @else
+                                {{ $sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)') }}
+                            @endif
+                        </td>
                         <td>
                             <span class="badge badge-soft badge-info badge-sm">{{ $sale->status_order ?? 'Take away' }}</span>
                         </td>

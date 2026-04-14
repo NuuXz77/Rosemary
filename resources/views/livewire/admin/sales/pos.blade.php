@@ -31,6 +31,14 @@
                                     class="grow border-none focus:outline-none text-sm" />
                             </label>
                         </div>
+                        <div class="w-full md:w-60">
+                            <select wire:model.live="sortBy" class="select select-bordered w-full text-sm">
+                                <option value="stock_desc">Paling Banyak (Tersedia)</option>
+                                <option value="stock_asc">Paling Sedikit (Tersedia)</option>
+                                <option value="price_desc">Paling Mahal</option>
+                                <option value="price_asc">Paling Murah</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 {{-- <div class="flex items-center gap-2 w-full lg:w-auto justify-end">

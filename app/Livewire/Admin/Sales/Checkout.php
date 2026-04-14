@@ -5,9 +5,11 @@ namespace App\Livewire\Admin\Sales;
 use App\Models\Sales;
 use App\Models\SaleItems;
 use App\Models\Customers;
+use App\Models\Shift;
 use App\Models\ProductStocks;
 use App\Models\ProductStockLogs;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -33,6 +35,57 @@ class Checkout extends Component
     public string $status_order     = Sales::ORDER_STATUS_TAKE_AWAY;
     public string $table_number     = '';
     public bool $isPinMode          = false;
+    private static ?bool $hasQueueNumberColumn = null;
+
+    private function salesHasQueueNumberColumn(): bool
+    {
+        if (self::$hasQueueNumberColumn === null) {
+            self::$hasQueueNumberColumn = Schema::hasColumn('sales', 'queue_number');
+        }
+
+        return self::$hasQueueNumberColumn;
+    }
+
+    private function resolveShiftId(): ?int
+    {
+        $now = now()->format('H:i:s');
+
+        $activeShift = Shift::query()
+            ->where('status', true)
+            ->where(function ($query) use ($now) {
+                // Shift normal (contoh 08:00-16:00)
+                $query->where(function ($subQuery) use ($now) {
+                    $subQuery->whereColumn('start_time', '<=', 'end_time')
+                        ->whereTime('start_time', '<=', $now)
+                        ->whereTime('end_time', '>=', $now);
+                })
+                    // Shift lintas hari (contoh 22:00-06:00)
+                    ->orWhere(function ($subQuery) use ($now) {
+                        $subQuery->whereColumn('start_time', '>', 'end_time')
+                            ->where(function ($timeQuery) use ($now) {
+                                $timeQuery->whereTime('start_time', '<=', $now)
+                                    ->orWhereTime('end_time', '>=', $now);
+                            });
+                    });
+            })
+            ->orderBy('id')
+            ->first();
+
+        if ($activeShift) {
+            return (int) $activeShift->id;
+        }
+
+        $fallbackShift = Shift::query()
+            ->where('status', true)
+            ->orderBy('id')
+            ->first();
+
+        if ($fallbackShift) {
+            return (int) $fallbackShift->id;
+        }
+
+        return Shift::query()->orderBy('id')->value('id');
+    }
 
     public function mount()
     {
@@ -56,6 +109,11 @@ class Checkout extends Component
         $this->guest_name       = session('pos_checkout_guest_name') ?? '';
         $this->status_order     = session('pos_checkout_status_order', Sales::ORDER_STATUS_TAKE_AWAY);
         $this->table_number     = session('pos_checkout_table_number') ?? '';
+
+        if (!$this->shift_id) {
+            $this->shift_id = $this->resolveShiftId();
+        }
+
         $this->paid_amount      = $this->total_amount;
         $this->calculateChange();
     }
@@ -124,16 +182,59 @@ class Checkout extends Component
             return;
         }
 
+        if (
+            $this->status_order === Sales::ORDER_STATUS_DINE_IN
+            && !$this->customer_id
+            && trim((string) $this->guest_name) === ''
+        ) {
+            $this->dispatch('show-toast', type: 'error', message: 'Untuk dine in tanpa member, nama pelanggan wajib diisi.');
+            return;
+        }
+
         if (!$this->shift_id) {
-            $this->dispatch('show-toast', type: 'error', message: 'Shift tidak terdeteksi! Silakan login ulang.');
+            $this->shift_id = $this->resolveShiftId();
+        }
+
+        if (!$this->shift_id) {
+            $this->dispatch('show-toast', type: 'error', message: 'Shift belum tersedia. Silakan buat data shift terlebih dahulu.');
             return;
         }
 
         DB::beginTransaction();
         try {
-            $invoiceNumber = 'INV-' . now()->format('Ymd') . '-' . str_pad(Sales::count() + 1, 4, '0', STR_PAD_LEFT);
+            $todayDate = now()->toDateString();
+            $hasQueueNumberColumn = $this->salesHasQueueNumberColumn();
 
-            $sale = Sales::create([
+            $lastSaleToday = Sales::whereDate('created_at', $todayDate)
+                ->lockForUpdate()
+                ->latest('id')
+                ->first();
+
+            $nextInvoice = 1;
+            if ($lastSaleToday && preg_match('/-(\d{4})$/', (string) $lastSaleToday->invoice_number, $matches)) {
+                $nextInvoice = (int) $matches[1] + 1;
+            }
+
+            $invoiceNumber = 'INV-' . now()->format('Ymd') . '-' . str_pad($nextInvoice, 4, '0', STR_PAD_LEFT);
+
+            $queueNumber = null;
+            if ($hasQueueNumberColumn && $this->status_order === Sales::ORDER_STATUS_TAKE_AWAY) {
+                $lastQueueToday = Sales::whereDate('created_at', $todayDate)
+                    ->where('status_order', Sales::ORDER_STATUS_TAKE_AWAY)
+                    ->whereNotNull('queue_number')
+                    ->lockForUpdate()
+                    ->orderByDesc('id')
+                    ->first();
+
+                $nextQueue = 1;
+                if ($lastQueueToday && preg_match('/-(\d{3})$/', (string) $lastQueueToday->queue_number, $matches)) {
+                    $nextQueue = (int) $matches[1] + 1;
+                }
+
+                $queueNumber = now()->format('Ymd') . '-' . str_pad($nextQueue, 3, '0', STR_PAD_LEFT);
+            }
+
+            $salePayload = [
                 'invoice_number'     => $invoiceNumber,
                 'customer_id'        => $this->customer_id ?: null,
                 'guest_name'         => $this->customer_id ? null : ($this->guest_name ?: null),
@@ -149,7 +250,13 @@ class Checkout extends Component
                 'change_amount'      => $this->change_amount,
                 'payment_method'     => $this->payment_method,
                 'status'             => $this->payment_status,
-            ]);
+            ];
+
+            if ($hasQueueNumberColumn) {
+                $salePayload['queue_number'] = $queueNumber;
+            }
+
+            $sale = Sales::create($salePayload);
 
             foreach ($this->cart as $item) {
                 SaleItems::create([

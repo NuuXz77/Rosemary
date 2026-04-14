@@ -27,6 +27,16 @@
                     <span>Order:</span>
                     <span>{{ $sale->status_order ?? 'Take away' }}</span>
                 </div>
+                <div class="flex justify-between mb-1 text-[10px]">
+                    <span>Identitas:</span>
+                    <span>
+                        @if(($sale->status_order ?? 'Take away') === 'Take away')
+                            {{ $sale->queue_number ?: ($sale->guest_name ?: 'Guest') }}
+                        @else
+                            {{ $sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)') }}
+                        @endif
+                    </span>
+                </div>
                 @if(($sale->status_order ?? 'Take away') === 'Dine in' && $sale->table_number)
                 <div class="flex justify-between mb-1 text-[10px]">
                     <span>Meja:</span>

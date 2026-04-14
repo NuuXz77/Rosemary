@@ -5,8 +5,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @php
+        $appName = \App\Models\AppSetting::get('app_name', config('app.name', 'Siska App'));
+    @endphp
 
-    <title>{{ config('app.name', 'Siska App') }} - {{ $title ?? 'Dashboard' }}</title>
+    <title>{{ $appName }} - {{ $title ?? 'Dashboard' }}</title>
 
     <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('img/favicon/apple-touch-icon.png') }}">
@@ -136,7 +139,7 @@
             <!-- Footer -->
             <footer class="footer footer-center p-4 text-base-content bg-base-100 border-t border-base-300">
                 <aside>
-                    <p>Copyright © {{ date('Y') }} - {{ config('app.name', 'Absensi App') }}. All rights
+                    <p>Copyright © {{ date('Y') }} - {{ $appName }}. All rights
                         reserved.</p>
                 </aside>
             </footer>
@@ -219,6 +222,20 @@
             }));
         }
 
+        function bootstrapAppLayoutScripts() {
+            if (window.Alpine) {
+                registerAlpineComponents();
+
+                if (typeof window.Alpine.initTree === 'function') {
+                    requestAnimationFrame(() => {
+                        window.Alpine.initTree(document.body);
+                    });
+                }
+            }
+
+            highlightActiveMenu();
+        }
+
         // Load pertama: alpine belum init
         document.addEventListener('alpine:init', registerAlpineComponents);
 
@@ -235,8 +252,11 @@
             });
         }
 
-        // Load pertama
-        document.addEventListener('DOMContentLoaded', highlightActiveMenu);
+        // Load pertama + fallback saat script dimuat setelah navigate
+        document.addEventListener('DOMContentLoaded', bootstrapAppLayoutScripts);
+
+        // Saat Livewire siap (termasuk transisi guest -> app)
+        document.addEventListener('livewire:initialized', bootstrapAppLayoutScripts);
 
         // Toggle sidebar on mobile
         function toggleSidebar() {
@@ -246,10 +266,7 @@
 
         // ── Livewire Navigate: re-init setelah setiap navigate ───────
         document.addEventListener('livewire:navigated', () => {
-            // Re-register Alpine components (navigate dari guest ke app layout)
-            if (window.Alpine) registerAlpineComponents();
-            // Re-run active menu highlight
-            highlightActiveMenu();
+            bootstrapAppLayoutScripts();
         });
 
         document.addEventListener('livewire:navigating', () => {
@@ -301,13 +318,10 @@
             }
         });
 
-        document.addEventListener('livewire:navigated', () => {
-            if (window.Alpine && typeof window.Alpine.initTree === 'function') {
-                requestAnimationFrame(() => {
-                    window.Alpine.initTree(document.body);
-                });
-            }
-        });
+        // Fallback ekstra jika halaman app dirender sesudah event navigated terpanggil
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            bootstrapAppLayoutScripts();
+        }
 
         // Pull to Refresh Functionality
         (function() {

@@ -16,6 +16,9 @@ use Livewire\Attributes\Layout;
 #[Layout('components.layouts.app')]
 class Index extends Component
 {
+    // Hide-only toggle: disable production account -> student group binding by username/group_code.
+    private bool $disableProductionGroupBinding = true;
+
     // #[Title('Dashboard')]
 
     public string $period = 'month';
@@ -36,6 +39,13 @@ class Index extends Component
 
         if ($user->hasRole('Production')) {
             $this->dashboardRole = 'production';
+
+            if ($this->disableProductionGroupBinding) {
+                $this->productionGroupId = null;
+                $this->productionGroupName = 'Semua Tim';
+                return;
+            }
+
             $group = StudentGroups::query()
                 ->where('group_code', $user->username)
                 ->where('status', true)

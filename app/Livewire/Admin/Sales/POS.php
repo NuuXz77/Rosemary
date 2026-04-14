@@ -12,6 +12,7 @@ use App\Models\Students;
 use App\Models\ProductStocks;
 use App\Models\ProductStockLogs;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -25,6 +26,7 @@ class POS extends Component
     public $search = '';
     public $barcode = '';
     public $filterCategory = '';
+    public string $sortBy = 'stock_desc';
 
     // PIN mode flag – overridden by Kasir\POS
     public bool $pinMode = false;
@@ -51,6 +53,7 @@ class POS extends Component
     // Receipt State
     public $lastSaleId = null;
     public $showReceipt = false;
+    private static ?bool $hasQueueNumberColumn = null;
 
     protected $rules = [
         'shift_id' => 'required|exists:shifts,id',
@@ -61,18 +64,55 @@ class POS extends Component
         'paid_amount' => 'required|numeric|min:0',
     ];
 
-    public function mount()
+    private function resolveShiftId(): ?int
     {
-        // Try to auto-select current shift based on time
-        $now = now()->toTimeString();
-        $currentShift = Shift::where('status', true)
-            ->whereTime('start_time', '<=', $now)
-            ->whereTime('end_time', '>=', $now)
+        $now = now()->format('H:i:s');
+
+        $activeShift = Shift::query()
+            ->where('status', true)
+            ->where(function ($query) use ($now) {
+                // Shift normal (contoh 08:00-16:00)
+                $query->where(function ($subQuery) use ($now) {
+                    $subQuery->whereColumn('start_time', '<=', 'end_time')
+                        ->whereTime('start_time', '<=', $now)
+                        ->whereTime('end_time', '>=', $now);
+                })
+                    // Shift lintas hari (contoh 22:00-06:00)
+                    ->orWhere(function ($subQuery) use ($now) {
+                        $subQuery->whereColumn('start_time', '>', 'end_time')
+                            ->where(function ($timeQuery) use ($now) {
+                                $timeQuery->whereTime('start_time', '<=', $now)
+                                    ->orWhereTime('end_time', '>=', $now);
+                            });
+                    });
+            })
+            ->orderBy('id')
             ->first();
 
-        if ($currentShift) {
-            $this->shift_id = $currentShift->id;
+        if ($activeShift) {
+            return (int) $activeShift->id;
         }
+
+        $fallbackShift = Shift::query()->where('status', true)->orderBy('id')->first();
+        if ($fallbackShift) {
+            return (int) $fallbackShift->id;
+        }
+
+        return Shift::query()->orderBy('id')->value('id');
+    }
+
+    private function salesHasQueueNumberColumn(): bool
+    {
+        if (self::$hasQueueNumberColumn === null) {
+            self::$hasQueueNumberColumn = Schema::hasColumn('sales', 'queue_number');
+        }
+
+        return self::$hasQueueNumberColumn;
+    }
+
+    public function mount()
+    {
+        $this->shift_id = $this->resolveShiftId();
     }
 
     public function updatedPaidAmount()
@@ -84,6 +124,14 @@ class POS extends Component
     {
         if ($value !== Sales::ORDER_STATUS_DINE_IN) {
             $this->table_number = '';
+        }
+    }
+
+    public function updatedSortBy(string $value): void
+    {
+        $allowed = ['stock_desc', 'stock_asc', 'price_desc', 'price_asc'];
+        if (!in_array($value, $allowed, true)) {
+            $this->sortBy = 'stock_desc';
         }
     }
 
@@ -179,6 +227,10 @@ class POS extends Component
             return;
         }
 
+        if (!$this->shift_id) {
+            $this->shift_id = $this->resolveShiftId();
+        }
+
         $this->validate([
             'status_order' => 'required|in:Take away,Dine in',
             'table_number' => 'nullable|string|max:255|required_if:status_order,Dine in',
@@ -209,8 +261,11 @@ class POS extends Component
             return;
         }
 
+        if (!$this->shift_id) {
+            $this->shift_id = $this->resolveShiftId();
+        }
+
         $this->validate([
-            'shift_id' => 'required',
             'cashier_student_id' => 'required',
         ]);
 
@@ -221,7 +276,20 @@ class POS extends Component
 
     public function submitOrder()
     {
+        if (!$this->shift_id) {
+            $this->shift_id = $this->resolveShiftId();
+        }
+
         $this->validate();
+
+        if (
+            $this->status_order === Sales::ORDER_STATUS_DINE_IN
+            && !$this->customer_id
+            && trim((string) $this->guest_name) === ''
+        ) {
+            $this->dispatch('show-toast', type: 'error', message: 'Untuk dine in tanpa member, nama pelanggan wajib diisi.');
+            return;
+        }
 
         if ($this->payment_method === 'cash' && $this->paid_amount < $this->total_amount) {
             $this->dispatch('show-toast', type: 'error', message: 'Uang yang dibayar kurang!');
@@ -230,11 +298,11 @@ class POS extends Component
 
         DB::beginTransaction();
         try {
-            $todayDate = now()->format('Ymd');
+            $todayDate = now()->toDateString();
+            $hasQueueNumberColumn = $this->salesHasQueueNumberColumn();
 
-            // Ambil transaksi terakhir di hari ini dan KUNCI datanya (lockForUpdate) 
-            // agar kalau ada 2 kasir ngeklik barengan, kasir ke-2 akan disuruh antri dulu (cegah kembar/race condition)
-            $lastSaleToday = Sales::whereDate('created_at', now()->toDateString())
+            // Lock transaksi hari ini untuk mencegah nomor invoice/antrean kembar saat klik bersamaan.
+            $lastSaleToday = Sales::whereDate('created_at', $todayDate)
                 ->lockForUpdate()
                 ->latest('id')
                 ->first();
@@ -244,10 +312,28 @@ class POS extends Component
                 $nextNumber = (int) $matches[1] + 1;
             }
 
-            // Generate Invoice Number: INV-YYYYMMDD-0001
-            $invoiceNumber = 'INV-' . $todayDate . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+            // Generate invoice: INV-YYYYMMDD-0001
+            $invoiceNumber = 'INV-' . now()->format('Ymd') . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
-            $sale = Sales::create([
+            $queueNumber = null;
+            if ($hasQueueNumberColumn && $this->status_order === Sales::ORDER_STATUS_TAKE_AWAY) {
+                $lastQueueToday = Sales::whereDate('created_at', $todayDate)
+                    ->where('status_order', Sales::ORDER_STATUS_TAKE_AWAY)
+                    ->whereNotNull('queue_number')
+                    ->lockForUpdate()
+                    ->orderByDesc('id')
+                    ->first();
+
+                $nextQueue = 1;
+                if ($lastQueueToday && preg_match('/-(\d{3})$/', (string) $lastQueueToday->queue_number, $matches)) {
+                    $nextQueue = (int) $matches[1] + 1;
+                }
+
+                // Format antrean: YYYYMMDD-XXX
+                $queueNumber = now()->format('Ymd') . '-' . str_pad($nextQueue, 3, '0', STR_PAD_LEFT);
+            }
+
+            $salePayload = [
                 'invoice_number' => $invoiceNumber,
                 'customer_id' => $this->customer_id ?: null,
                 'guest_name'  => $this->customer_id ? null : ($this->guest_name ?: null),
@@ -263,7 +349,13 @@ class POS extends Component
                 'change_amount' => $this->change_amount,
                 'payment_method' => $this->payment_method,
                 'status' => 'paid',
-            ]);
+            ];
+
+            if ($hasQueueNumberColumn) {
+                $salePayload['queue_number'] = $queueNumber;
+            }
+
+            $sale = Sales::create($salePayload);
 
             foreach ($this->cart as $item) {
                 SaleItems::create([
@@ -311,11 +403,26 @@ class POS extends Component
 
     public function render()
     {
-        $products = Products::query()
+        $stockSubquery = '(SELECT COALESCE(ps.qty_available, 0) FROM product_stocks ps WHERE ps.product_id = products.id LIMIT 1)';
+
+        $productsQuery = Products::query()
             ->with('stock', 'category')
             ->where('status', true)
             ->when($this->search, fn($q) => $q->where('name', 'like', '%' . $this->search . '%'))
-            ->when($this->filterCategory, fn($q) => $q->where('category_id', $this->filterCategory))
+            ->when($this->filterCategory, fn($q) => $q->where('category_id', $this->filterCategory));
+
+        // Produk tersedia selalu di atas, lalu baru diurutkan sesuai pilihan.
+        $productsQuery->orderByRaw('(CASE WHEN ' . $stockSubquery . ' > 0 THEN 0 ELSE 1 END) ASC');
+
+        match ($this->sortBy) {
+            'stock_asc' => $productsQuery->orderByRaw($stockSubquery . ' ASC'),
+            'price_desc' => $productsQuery->orderBy('price', 'desc'),
+            'price_asc' => $productsQuery->orderBy('price', 'asc'),
+            default => $productsQuery->orderByRaw($stockSubquery . ' DESC'),
+        };
+
+        $products = $productsQuery
+            ->orderBy('name', 'asc')
             ->get();
 
         return view('livewire.admin.sales.pos', [

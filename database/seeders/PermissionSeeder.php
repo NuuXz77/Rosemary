@@ -194,6 +194,7 @@ class PermissionSeeder extends Seeder
 
             ['name' => 'settings.app.view', 'category_id' => optional($settingCategory)->id],
             ['name' => 'settings.app.manage', 'category_id' => optional($settingCategory)->id],
+            ['name' => 'activity-logs.view', 'category_id' => optional($settingCategory)->id],
             ['name' => 'discounts.manage', 'category_id' => optional($settingCategory)->id],
             ['name' => 'guides.view', 'category_id' => optional($settingCategory)->id],
             ['name' => 'guides.manage', 'category_id' => optional($settingCategory)->id],
@@ -247,6 +248,7 @@ class PermissionSeeder extends Seeder
             'master.divisions' => 'Master Divisi',
             'master.classes' => 'Master Kelas',
             'settings.app' => 'Pengaturan Aplikasi',
+            'activity-logs' => 'Log Aktivitas',
             'discounts' => 'Pengaturan Diskon',
             'guides' => 'Pusat Panduan',
         ];
