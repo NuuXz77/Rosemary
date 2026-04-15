@@ -17,6 +17,9 @@ class Sales extends Model
 {
     public const ORDER_STATUS_TAKE_AWAY = 'Take away';
     public const ORDER_STATUS_DINE_IN = 'Dine in';
+    public const PRODUCTION_STATUS_PENDING = 'pending';
+    public const PRODUCTION_STATUS_COOKING = 'cooking';
+    public const PRODUCTION_STATUS_DONE = 'done';
 
     public const ORDER_STATUSES = [
         self::ORDER_STATUS_TAKE_AWAY,
@@ -30,6 +33,8 @@ class Sales extends Model
         'guest_name',        // Nama pembeli jika Guest (tidak terdaftar)
         'table_number',      // Nomor meja (optional)
         'status_order',      // Enum: 'Take away', 'Dine in'
+        'production_status', // Enum: 'pending', 'cooking', 'done'
+        'called_at',         // Waktu pelanggan dipanggil
         'shift_id',          // FK ke shifts (shift saat transaksi)
         'cashier_student_id',// FK ke students (siswa kasir)
         'subtotal',          // Subtotal belanja
@@ -44,6 +49,7 @@ class Sales extends Model
 
     protected $casts = [
         'created_at' => 'datetime',
+        'called_at' => 'datetime',
     ];
 
     public function isDineIn(): bool
@@ -54,10 +60,19 @@ class Sales extends Model
     public function getServiceIdentityAttribute(): string
     {
         if ($this->status_order === self::ORDER_STATUS_TAKE_AWAY) {
-            return $this->queue_number ?: ($this->guest_name ?: 'Guest');
+            return $this->queue_number ?: ($this->guest_name ?: 'Tamu');
         }
 
-        return $this->customer?->name ?: ($this->guest_name ?: 'Guest');
+        return $this->customer?->name ?: ($this->guest_name ?: 'Tamu');
+    }
+
+    public function getProductionStatusLabelAttribute(): string
+    {
+        return match ($this->production_status) {
+            self::PRODUCTION_STATUS_COOKING => 'Sedang Diproses',
+            self::PRODUCTION_STATUS_DONE => 'Selesai',
+            default => 'Menunggu',
+        };
     }
 
     /**

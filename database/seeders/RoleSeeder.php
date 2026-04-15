@@ -29,12 +29,15 @@ class RoleSeeder extends Seeder
             'Production' => [
                 'dashboard.view',
                 'productions.view',
+                'production-orders.view',
+                'production-orders.manage',
                 'products.view',
                 'product-stocks.view',
                 'product-materials.view',
                 'product-wastes.view',
                 'student-group-attendances.view',
                 'reports.productions.view',
+                'sound-notifications.view',
                 'guides.view',
             ],
 
@@ -99,7 +102,9 @@ class RoleSeeder extends Seeder
             'Cashier' => [
                 'dashboard.view',
                 'sales.view',
+                'production-orders.view',
                 'reports.sales.view',
+                'sound-notifications.view',
                 'guides.view',
             ],
 

@@ -76,6 +76,7 @@
                     $isCashierRole = false;
                     $canPurchases = false;
                     $canProductions = false;
+                    $canProductionOrders = false;
                     $canSales = false;
                     $transactionItems = 0;
 
@@ -98,6 +99,7 @@
                     $canAppSettings = false;
                     $canDiscountSettings = false;
                     $canActivityLogs = false;
+                    $canSoundNotifications = false;
                     $canSystemLogs = false;
                     $settingsItems = 0;
 
@@ -137,8 +139,13 @@
                         $isCashierRole = $user->hasRole('Cashier');
                         $canPurchases = !$isCashierRole && $user->can('purchases.view');
                         $canProductions = !$isCashierRole && $user->can('productions.view');
+                        $canProductionOrders = !$isCashierRole && $user->can('production-orders.view');
                         $canSales = !$isCashierRole && $user->can('sales.view');
-                        $transactionItems = ($canPurchases ? 1 : 0) + ($canProductions ? 1 : 0) + ($canSales ? 1 : 0);
+                        $transactionItems =
+                            ($canPurchases ? 1 : 0) +
+                            ($canProductions ? 1 : 0) +
+                            ($canProductionOrders ? 1 : 0) +
+                            ($canSales ? 1 : 0);
 
                         $canReportSales = $user->can('reports.sales.view');
                         $canReportPurchases = $user->can('reports.purchases.view');
@@ -171,12 +178,14 @@
                         $canAppSettings = $user->can('settings.app.view');
                         $canDiscountSettings = $user->can('discounts.manage');
                         $canActivityLogs = $user->can('activity-logs.view');
+                        $canSoundNotifications = $user->can('sound-notifications.view');
                         $canSystemLogs = $user->hasRole('Admin');
                         $settingsItems =
                             ($hasMasterMenu ? 1 : 0) +
                             ($canAppSettings ? 1 : 0) +
                             ($canDiscountSettings ? 1 : 0) +
                             ($canActivityLogs ? 1 : 0) +
+                            ($canSoundNotifications ? 1 : 0) +
                             ($canSystemLogs ? 1 : 0) +
                             ($canGuides ? 1 : 0);
                     }
@@ -206,6 +215,7 @@
                         'canRecipe' => false,
                         'canPurchases' => false,
                         'canProductions' => false,
+                        'canProductionOrders' => false,
                         'canSales' => false,
                         'canReportSales' => false,
                         'canReportPurchases' => false,
@@ -223,6 +233,7 @@
                         'canAppSettings' => false,
                         'canDiscountSettings' => false,
                         'canActivityLogs' => false,
+                        'canSoundNotifications' => false,
                         'canSystemLogs' => false,
                     ];
 
@@ -237,10 +248,11 @@
                     'schedules.view', 'materials.view', 'material-stocks.view', 'material-stock-logs.view', 'products.view',
                     'product-stocks.view', 'product-stock-logs.view', 'product-materials.view', 'material-wastes.view',
                     'product-wastes.view', 'purchases.view', 'productions.view', 'sales.view', 'reports.sales.view',
+                    'production-orders.view',
                     'reports.purchases.view', 'reports.productions.view', 'reports.stocks.view', 'reports.schedules.view',
                     'master.categories.view', 'master.units.view', 'master.suppliers.view', 'master.customers.view',
                     'master.shifts.view', 'master.divisions.view', 'master.classes.view', 'discounts.manage',
-                    'settings.app.view', 'activity-logs.view'])
+                    'settings.app.view', 'activity-logs.view', 'sound-notifications.view'])
                     {{-- <li class="menu-title">
                         <span>Administrator</span>
                     </li> --}}
@@ -623,6 +635,12 @@
                                     <x-heroicon-o-banknotes class="w-5" />
                                     Produksi
                                 </a>
+                            @elseif($canProductionOrders)
+                                <a wire:navigate href="{{ route('production.orders.index') }}"
+                                    class="{{ request()->routeIs('production.orders.*') ? 'bg-base-300' : '' }}">
+                                    <x-heroicon-o-list-bullet class="w-5" />
+                                    Antrian Pesanan
+                                </a>
                             @elseif($canSales)
                                 <a wire:navigate href="/sales"
                                     class="{{ request()->is('sales*') ? 'bg-base-300' : '' }}">
@@ -631,7 +649,7 @@
                                 </a>
                             @endif
                         @else
-                            <details {{ request()->is('purchases*', 'productions*', 'sales*') ? 'open' : '' }}>
+                            <details {{ request()->is('purchases*', 'productions*', 'sales*') || request()->routeIs('production.orders.*') ? 'open' : '' }}>
                                 <summary>
                                     <x-heroicon-o-banknotes class="w-5" />
                                     Manajemen Transaksi
@@ -647,6 +665,12 @@
                                         <li>
                                             <a wire:navigate href="/productions"
                                                 class="{{ request()->is('productions*') ? 'bg-base-300' : '' }}">Produksi</a>
+                                        </li>
+                                    @endif
+                                    @if ($canProductionOrders)
+                                        <li>
+                                            <a wire:navigate href="{{ route('production.orders.index') }}"
+                                                class="{{ request()->routeIs('production.orders.*') ? 'bg-base-300' : '' }}">Antrian Pesanan</a>
                                         </li>
                                     @endif
                                     @if ($canSales)
@@ -793,6 +817,12 @@
                                     <x-heroicon-o-cog-6-tooth class="w-5" />
                                     Log Aktivitas
                                 </a>
+                            @elseif($canSoundNotifications)
+                                <a wire:navigate href="{{ route('settings.sound-notifications.index') }}"
+                                    class="{{ request()->routeIs('settings.sound-notifications.*') ? 'bg-base-300' : '' }}">
+                                    <x-heroicon-o-speaker-wave class="w-5" />
+                                    Notifikasi Suara
+                                </a>
                             @elseif($canSystemLogs)
                                 <a wire:navigate href="{{ route('laravel-logs') }}"
                                     class="{{ request()->routeIs('laravel-logs') ? 'bg-base-300' : '' }}">
@@ -885,6 +915,15 @@
                                                 class="{{ request()->routeIs('settings.activity-logs.*') ? 'bg-base-300' : '' }}">
                                                 <x-heroicon-o-clipboard-document-list class="w-4 h-4" />
                                                 Log Aktivitas
+                                            </a>
+                                        </li>
+                                    @endif
+                                    @if ($canSoundNotifications)
+                                        <li>
+                                            <a wire:navigate href="{{ route('settings.sound-notifications.index') }}"
+                                                class="{{ request()->routeIs('settings.sound-notifications.*') ? 'bg-base-300' : '' }}">
+                                                <x-heroicon-o-speaker-wave class="w-4 h-4" />
+                                                Notifikasi Suara
                                             </a>
                                         </li>
                                     @endif

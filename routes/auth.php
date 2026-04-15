@@ -176,6 +176,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/productions/{production}', App\Livewire\Admin\Productions\Detail::class)->whereNumber('production')->name('productions.detail');
     });
 
+    Route::middleware('can:production-orders.view')->group(function () {
+        Route::get('/production/orders', App\Livewire\Admin\ProductionOrders\Index::class)
+            ->name('production.orders.index');
+    });
+
     Route::middleware('can:sales.view')->group(function () {
         Route::get('/sales', App\Livewire\Admin\Sales\Index::class)->name('sales.index');
         Route::get('/sales/{sale}', App\Livewire\Admin\Sales\Detail::class)->name('sales.detail');
@@ -249,6 +254,11 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:activity-logs.view')->group(function () {
         Route::get('/settings/activity-logs', App\Livewire\Admin\Settings\ActivityLogs\Index::class)
             ->name('settings.activity-logs.index');
+    });
+
+    Route::middleware('can:sound-notifications.view')->group(function () {
+        Route::get('/settings/sound-notifications', App\Livewire\Admin\Settings\SoundNotifications\Index::class)
+            ->name('settings.sound-notifications.index');
     });
 
     // Sistem Logs - Hanya Admin

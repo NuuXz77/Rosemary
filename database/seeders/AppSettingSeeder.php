@@ -53,6 +53,46 @@ class AppSettingSeeder extends Seeder
                 'type' => 'text',
                 'description' => 'Mode validasi login PIN kasir. Isi: strict (wajib jadwal) atau flexible (jadwal opsional).'
             ],
+            [
+                'key' => 'sound_notifications_enabled',
+                'label' => 'Aktifkan Notifikasi Suara',
+                'value' => '1',
+                'group' => 'system',
+                'type' => 'boolean',
+                'description' => 'Mengaktifkan notifikasi suara secara global.'
+            ],
+            [
+                'key' => 'sound_notifications_cashier',
+                'label' => 'Notifikasi Suara Halaman Kasir',
+                'value' => '1',
+                'group' => 'system',
+                'type' => 'boolean',
+                'description' => 'Aktifkan notifikasi suara untuk role kasir.'
+            ],
+            [
+                'key' => 'sound_notifications_production',
+                'label' => 'Notifikasi Suara Halaman Production',
+                'value' => '1',
+                'group' => 'system',
+                'type' => 'boolean',
+                'description' => 'Aktifkan notifikasi suara untuk role production.'
+            ],
+            [
+                'key' => 'sound_notification_volume',
+                'label' => 'Volume Notifikasi Suara',
+                'value' => '80',
+                'group' => 'system',
+                'type' => 'number',
+                'description' => 'Volume notifikasi suara (0-100).'
+            ],
+            [
+                'key' => 'sound_notification_message_template',
+                'label' => 'Template Pesan Notifikasi Suara',
+                'value' => 'Pesanan baru masuk. Silakan cek antrian.',
+                'group' => 'system',
+                'type' => 'textarea',
+                'description' => 'Template teks untuk notifikasi suara otomatis.'
+            ],
         ];
 
         foreach ($settings as $setting) {
