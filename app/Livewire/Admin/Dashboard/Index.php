@@ -76,8 +76,8 @@ class Index extends Component
 
     private function percentChange($current, $previous): ?float
     {
-        if ($previous == 0)
-            return $current > 0 ? 100 : null;
+        if ($previous <= 0)
+            return $current > 0 ? 100 : 0;
         return round((($current - $previous) / $previous) * 100, 1);
     }
 
@@ -97,11 +97,10 @@ class Index extends Component
         $start = now()->subDays(6)->startOfDay();
         $end = now()->endOfDay();
 
-        $raw = Sales::selectRaw('DATE(created_at) as bucket, SUM(total_amount) as total')
-            ->where('status', 'paid')
+        $sales = Sales::where('status', 'paid')
             ->whereBetween('created_at', [$start, $end])
-            ->groupBy('bucket')
-            ->pluck('total', 'bucket');
+            ->get()
+            ->groupBy(fn($s) => $s->created_at->toDateString());
 
         $labels = [];
         $series = [];
@@ -110,7 +109,7 @@ class Index extends Component
             $date = $start->copy()->addDays($i);
             $key = $date->toDateString();
             $labels[] = $date->format('d/m');
-            $series[] = (float) ($raw[$key] ?? 0);
+            $series[] = (float) ($sales->get($key)?->sum(fn($s) => $s->total_amount - $s->tax_amount) ?? 0);
         }
 
         return ['labels' => $labels, 'series' => $series];
@@ -233,11 +232,17 @@ class Index extends Component
             ]);
         }
 
-        // === SALES ===
+        $sDate = $start->toDateString();
+        $eDate = $end->toDateString();
+        $pSDate = $prevStart->toDateString();
+        $pEDate = $prevEnd->toDateString();
+
+        // === SALES (NET) ===
+        // Net Sales = Total - Tax
         $periodSales = Sales::whereBetween('created_at', [$start, $end])
-            ->where('status', 'paid')->sum('total_amount');
+            ->where('status', 'paid')->get()->sum(fn($s) => $s->total_amount - $s->tax_amount);
         $prevSales = Sales::whereBetween('created_at', [$prevStart, $prevEnd])
-            ->where('status', 'paid')->sum('total_amount');
+            ->where('status', 'paid')->get()->sum(fn($s) => $s->total_amount - $s->tax_amount);
 
         $periodTx = Sales::whereBetween('created_at', [$start, $end])
             ->where('status', 'paid')->count();
@@ -263,11 +268,6 @@ class Index extends Component
             ->limit(5)->get();
 
         // === PRODUCTIONS ===
-        $sDate = $start->toDateString();
-        $eDate = $end->toDateString();
-        $pSDate = $prevStart->toDateString();
-        $pEDate = $prevEnd->toDateString();
-
         $periodProd = Productions::whereBetween('production_date', [$sDate, $eDate])
             ->where('status', 'completed')->count();
         $periodProdQty = Productions::whereBetween('production_date', [$sDate, $eDate])
@@ -275,11 +275,7 @@ class Index extends Component
         $prevProd = Productions::whereBetween('production_date', [$pSDate, $pEDate])
             ->where('status', 'completed')->count();
 
-        // === RECENT SALES ===
-        $recentSales = Sales::with(['customer', 'cashier'])
-            ->orderByDesc('created_at')->limit(5)->get();
-
-        // === TOP PRODUCTS (fixed: filter cancelled + period) ===
+        // === TOP PRODUCTS ===
         $topProducts = DB::table('sale_items')
             ->join('sales', 'sale_items.sale_id', '=', 'sales.id')
             ->join('products', 'sale_items.product_id', '=', 'products.id')
@@ -293,10 +289,16 @@ class Index extends Component
         $salesTrend = $this->buildSalesTrendData();
 
         // === PAYMENT BREAKDOWN ===
-        $paymentBreakdown = Sales::select('payment_method', DB::raw('COUNT(*) as count'), DB::raw('SUM(total_amount) as total'))
-            ->whereBetween('created_at', [$start, $end])
+        $paymentBreakdown = Sales::whereBetween('created_at', [$start, $end])
             ->where('status', 'paid')
-            ->groupBy('payment_method')->get()->keyBy('payment_method');
+            ->get()
+            ->groupBy('payment_method')
+            ->map(function ($items) {
+                return (object)[
+                    'count' => $items->count(),
+                    'total' => $items->sum(fn($s) => $s->total_amount - $s->tax_amount)
+                ];
+            });
 
         return view('livewire.admin.dashboard.index', [
             'dashboardRole' => $this->dashboardRole,
@@ -314,7 +316,6 @@ class Index extends Component
             'periodProd' => $periodProd,
             'periodProdQty' => $periodProdQty,
             'prodChange' => $this->percentChange($periodProd, $prevProd),
-            'recentSales' => $recentSales,
             'topProducts' => $topProducts,
             'salesTrendLabels' => $salesTrend['labels'],
             'salesTrendSeries' => $salesTrend['series'],

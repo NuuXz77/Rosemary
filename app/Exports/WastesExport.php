@@ -79,6 +79,7 @@ class ProductWastesSheet implements FromCollection, WithTitle, WithHeadings, Wit
             'Produk',
             'Alasan',
             'Qty (Pcs)',
+            'Estimasi Kerugian (IDR)',
             'Catatan'
         ];
     }
@@ -92,6 +93,7 @@ class ProductWastesSheet implements FromCollection, WithTitle, WithHeadings, Wit
             $row->product?->name ?? '-',
             $row->reason,
             $row->qty,
+            ($row->product?->cost_price ?? 0) * $row->qty,
             $row->notes ?? '-'
         ];
     }
@@ -145,6 +147,7 @@ class MaterialWastesSheet implements FromCollection, WithTitle, WithHeadings, Wi
             'Alasan',
             'Qty',
             'Satuan',
+            'Estimasi Kerugian (IDR)',
             'Catatan'
         ];
     }
@@ -159,6 +162,7 @@ class MaterialWastesSheet implements FromCollection, WithTitle, WithHeadings, Wi
             $row->reason,
             $row->qty,
             $row->material?->unit ?? '-',
+            ($row->material?->price ?? 0) * $row->qty,
             $row->notes ?? '-'
         ];
     }

@@ -54,9 +54,9 @@ class ProductionsExport implements FromCollection, WithHeadings, WithMapping, Sh
             $production->studentGroup?->name ?? '-',
             $production->shift?->name ?? '-',
             $production->qty_produced,
+            ($production->product?->cost_price ?? 0) * $production->qty_produced,
             $production->product?->unit ?? '-',
             ucfirst($production->status),
-            $production->creator?->name ?? '-',
         ];
     }
 
@@ -68,9 +68,9 @@ class ProductionsExport implements FromCollection, WithHeadings, WithMapping, Sh
             'Kelompok Siswa',
             'Shift',
             'Qty Diproduksi',
+            'Nilai Produksi (IDR)',
             'Satuan',
             'Status',
-            'Dibuat Oleh',
         ];
     }
 

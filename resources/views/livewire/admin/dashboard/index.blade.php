@@ -78,8 +78,7 @@
                     <div class="card-body p-5">
                         <div class="flex items-start justify-between gap-3">
                             <div class="min-w-0">
-                                <p class="text-xs font-bold text-base-content/50 uppercase tracking-widest">Total
-                                    Penjualan</p>
+                                <p class="text-xs font-bold text-base-content/50 uppercase tracking-widest">Omzet Netto</p>
                                 <h2 class="text-2xl font-black mt-1">Rp {{ number_format($periodSales, 0, ',', '.') }}
                                 </h2>
                             </div>
@@ -416,61 +415,7 @@
                         </div>
                     </div>
 
-                    {{-- Recent Transactions --}}
-                    <div class="card bg-base-100 border border-base-300">
-                        <div class="card-body p-6">
-                            <div class="flex items-center justify-between mb-4">
-                                <h3 class="font-bold text-lg flex items-center gap-2">
-                                    <x-heroicon-o-shopping-bag class="w-5 h-5 text-secondary" />
-                                    Transaksi Terakhir
-                                </h3>
-                                <a href="{{ route('sales.index') }}" wire:navigate
-                                    class="btn btn-xs btn-ghost text-primary capitalize">Lihat Semua</a>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr
-                                            class="text-base-content/40 uppercase text-[10px] tracking-widest border-b border-base-200">
-                                            <th>Invoice</th>
-                                            <th>Pelanggan</th>
-                                            <th>Total</th>
-                                            <th>Kasir</th>
-                                            <th class="text-right">Waktu</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse($recentSales as $sale)
-                                            <tr class="hover:bg-base-200/50 transition-colors">
-                                                <td><span
-                                                        class="font-bold text-primary">{{ $sale->invoice_number }}</span>
-                                                </td>
-                                                <td>
-                                                    <div class="text-xs">{{ $sale->customer->name ?? 'Guest' }}</div>
-                                                </td>
-                                                <td>
-                                                    <div class="font-bold">Rp
-                                                        {{ number_format($sale->total_amount, 0, ',', '.') }}
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="badge badge-outline badge-xs opacity-60">
-                                                        {{ $sale->cashier->name ?? '-' }}</div>
-                                                </td>
-                                                <td class="text-right text-[10px] opacity-40">
-                                                    {{ $sale->created_at->diffForHumans() }}</td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="5" class="text-center py-8 opacity-40 italic">Belum
-                                                    ada transaksi</td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+                    {{-- Removed Recent Transactions for cleaner analytics view --}}
                 </div>
 
                 {{-- Right Column --}}

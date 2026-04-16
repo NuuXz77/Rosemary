@@ -4,11 +4,11 @@
         <div class="card bg-info text-info-content shadow-lg">
             <div class="card-body p-5 flex flex-row items-center justify-between">
                 <div>
-                    <p class="text-xs font-bold uppercase tracking-widest opacity-70">Total Batch</p>
-                    <h2 class="text-2xl font-black">{{ $summary['total_batch'] }} <span
-                            class="text-sm font-medium">Kali</span></h2>
+                    <p class="text-xs font-bold uppercase tracking-widest opacity-70">Nilai Produksi</p>
+                    <h2 class="text-2xl font-black">Rp {{ number_format($summary['total_value'], 0, ',', '.') }}</h2>
+                    <p class="text-[10px] opacity-70">{{ $summary['total_batch'] }} Batch Selesai</p>
                 </div>
-                <x-heroicon-o-beaker class="w-10 h-10 opacity-20" />
+                <x-heroicon-o-presentation-chart-line class="w-10 h-10 opacity-20" />
             </div>
         </div>
         <div class="card bg-base-100 border border-base-200 shadow-sm">
@@ -45,6 +45,55 @@
                 <div class="p-3 bg-warning/10 text-warning rounded-2xl">
                     <x-heroicon-o-clock class="w-7 h-7" />
                 </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Product Reconciliation Table (Awal, Masuk, Keluar, Sisa) --}}
+    <div class="card bg-base-100 border border-base-200 shadow-sm overflow-hidden">
+        <div class="card-body p-6"> {{-- Changed from p-0 to p-6 to provide spacing --}}
+            <div class="flex items-center justify-between mb-4"> {{-- Changed from border-b header to simple row --}}
+                <h3 class="font-bold text-lg flex items-center gap-2">
+                    <x-heroicon-o-arrows-right-left class="w-5 h-5 text-primary" />
+                    Rekonsiliasi Stok Produk (Awal, Masuk, Keluar, Sisa)
+                </h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="table table-md">
+                    <thead>
+                        <tr class="bg-base-200/50 text-base-content/60 uppercase text-[10px] tracking-widest">
+                            <th class="py-4 rounded-l-lg">Nama Produk</th>
+                            <th class="text-center">Stok Awal</th>
+                            <th class="text-center text-info">Produksi (+)</th>
+                            <th class="text-center text-error">Terjual/Limbah (-)</th>
+                            <th class="text-center font-bold">Stok Akhir</th>
+                            <th class="text-center opacity-40 rounded-r-lg">Stok Saat Ini</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="h-2"></tr> {{-- Spacer row --}}
+                        @forelse($reconciliation as $item)
+                            <tr class="hover:bg-base-200/30 transition-colors border-b border-base-100">
+                                <td class="font-bold text-sm">{{ $item->name }}</td>
+                                <td class="text-center font-mono text-xs">{{ number_format($item->starting, 0) }}</td>
+                                <td class="text-center font-mono text-xs text-info font-bold">+{{ number_format($item->produced, 0) }}</td>
+                                <td class="text-center font-mono text-xs text-error font-bold">-{{ number_format($item->sold, 0) }}</td>
+                                <td class="text-center font-mono text-sm font-black bg-base-200/30">{{ number_format($item->ending, 0) }}</td>
+                                <td class="text-center font-mono text-xs opacity-40 italic">{{ number_format($item->current, 0) }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-10 opacity-40 italic text-sm">
+                                    Pilih periode untuk melihat rekonsiliasi stok produk
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4 p-3 bg-base-200/40 rounded-xl text-[10px] text-base-content/50 italic px-5">
+                * Estimasi stok awal dihitung mundur dari saldo saat ini menggunakan audit log. <br>
+                * Stok Akhir adalah stok terakhir/sisa pada penutupan periode tersebut ({{ date('d/m/Y', strtotime($endDate)) }}).
             </div>
         </div>
     </div>
@@ -106,7 +155,7 @@
                             this.chart = new window.ApexCharts(this.$refs.chart, options);
                             this.chart.render();
                             this.updateChart();
-
+ 
                             let observer = new MutationObserver(() => this.updateChart());
                             observer.observe(this.$refs.dataContainer, { childList: true, subtree: true, characterData: true });
                         },
@@ -167,13 +216,13 @@
                                 },
                                 grid: { show: false },
                                 tooltip: {
-                                    y: { formatter: (val) => val + ' pcs' }
+                                    y: { formatter: (val) => 'Rp ' + new Intl.NumberFormat('id-ID').format(val) }
                                 }
                             };
                             this.chart = new window.ApexCharts(this.$refs.chart, options);
                             this.chart.render();
                             this.updateChart();
-
+ 
                             let observer = new MutationObserver(() => this.updateChart());
                             observer.observe(this.$refs.dataContainer, { childList: true, subtree: true, characterData: true });
                         },
@@ -187,8 +236,8 @@
                     }"
                 >
                     <div x-ref="dataContainer" class="hidden">
-                        <span x-ref="dataLabels">{{ $topProduced->map(fn($p) => $p->name)->toJson() }}</span>
-                        <span x-ref="dataSeries">{{ $topProduced->map(fn($p) => (int)$p->total_qty)->toJson() }}</span>
+                        <span x-ref="dataLabels">{{ $topProduced->pluck('name')->toJson() }}</span>
+                        <span x-ref="dataSeries">{{ $topProduced->pluck('total_value')->toJson() }}</span>
                     </div>
                     <div wire:ignore x-ref="chart"></div>
                     @if($topProduced->isEmpty())
@@ -272,8 +321,7 @@
                                 <th>Kelompok</th>
                                 <th>Shift</th>
                                 <th>Jumlah</th>
-                                <th>Status</th>
-                                <th class="text-right">Admin</th>
+                                <th class="text-right">Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -306,9 +354,6 @@
                                                 <x-heroicon-s-clock class="w-3 h-3" /> Draft
                                             </div>
                                         @endif
-                                    </td>
-                                    <td class="text-right text-[10px] font-bold opacity-50">
-                                        {{ $prod->creator->username ?? '-' }}
                                     </td>
                                 </tr>
                             @empty

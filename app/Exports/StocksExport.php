@@ -12,17 +12,19 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class StocksExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
-    protected $search;
+    protected $startDate, $endDate, $search;
 
-    public function __construct($search)
+    public function __construct($startDate, $endDate, $search)
     {
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
         $this->search = $search;
     }
 
     public function collection()
     {
         $query = ProductStocks::query()
-            ->with('product')
+            ->with(['product'])
             ->when($this->search, fn($q) => $q->whereHas('product', fn($s) => $s->where('name', 'like', '%' . $this->search . '%')));
 
         return $query->orderBy('qty_available', 'desc')->get();
@@ -30,11 +32,33 @@ class StocksExport implements FromCollection, WithHeadings, WithMapping, ShouldA
 
     public function map($stock): array
     {
+        $start = \Carbon\Carbon::parse($this->startDate)->startOfDay();
+        $end = \Carbon\Carbon::parse($this->endDate)->endOfDay();
+        
+        $currentBalance = $stock->qty_available ?? 0;
+        
+        $futureMovements = \App\Models\ProductStockLogs::where('product_id', $stock->product_id)
+            ->where('created_at', '>', $end)
+            ->sum('qty');
+        
+        $endingBalance = $currentBalance - $futureMovements;
+        
+        $logsInPeriod = \App\Models\ProductStockLogs::where('product_id', $stock->product_id)
+            ->whereBetween('created_at', [$start, $end])
+            ->get();
+        
+        $produced = $logsInPeriod->where('type', 'in')->sum('qty');
+        $out = $logsInPeriod->where('type', 'out')->sum('qty');
+        
+        $startingBalance = $endingBalance - $produced - $out;
+
         return [
             $stock->product?->name ?? '-',
-            $stock->qty_available,
-            $stock->product?->unit ?? '-',
-            $stock->updated_at ? $stock->updated_at->format('d M Y H:i:s') : '-',
+            $startingBalance,
+            $produced,
+            abs($out),
+            $endingBalance,
+            ($stock->product->cost_price ?? 0) * $currentBalance,
         ];
     }
 
@@ -42,9 +66,11 @@ class StocksExport implements FromCollection, WithHeadings, WithMapping, ShouldA
     {
         return [
             'Produk',
-            'Stok Tersedia',
-            'Satuan',
-            'Terakhir Diperbarui',
+            'Stok Awal (Awal Periode)',
+            'Masuk (+)',
+            'Keluar (-)',
+            'Stok Akhir (Akhir Periode)',
+            'Nilai Aset (IDR)',
         ];
     }
 
