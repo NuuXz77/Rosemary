@@ -120,7 +120,7 @@ class Index extends Component
         $start = now()->subMonth()->startOfDay();
         $end = now()->endOfDay();
 
-        $dailyRows = Sales::selectRaw('DATE(created_at) as bucket, SUM(total_amount) as total')
+        $dailyRows = Sales::selectRaw('DATE(created_at) as bucket, SUM(total_amount - tax_amount) as total')
             ->where('status', 'paid')
             ->whereBetween('created_at', [$start, $end])
             ->groupBy('bucket')
@@ -155,7 +155,7 @@ class Index extends Component
         $start = now()->startOfMonth()->subMonths(11);
         $end = now()->endOfMonth();
 
-        $raw = Sales::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as bucket, SUM(total_amount) as total")
+        $raw = Sales::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as bucket, SUM(total_amount - tax_amount) as total")
             ->where('status', 'paid')
             ->whereBetween('created_at', [$start, $end])
             ->groupBy('bucket')
@@ -180,7 +180,7 @@ class Index extends Component
         $currentYear = now()->year;
         $startYear = $currentYear - 4;
 
-        $raw = Sales::selectRaw('YEAR(created_at) as bucket, SUM(total_amount) as total')
+        $raw = Sales::selectRaw('YEAR(created_at) as bucket, SUM(total_amount - tax_amount) as total')
             ->where('status', 'paid')
             ->whereYear('created_at', '>=', $startYear)
             ->groupBy('bucket')
@@ -237,12 +237,11 @@ class Index extends Component
         $pSDate = $prevStart->toDateString();
         $pEDate = $prevEnd->toDateString();
 
-        // === SALES (NET) ===
-        // Net Sales = Total - Tax
+        // === SALES ===
         $periodSales = Sales::whereBetween('created_at', [$start, $end])
-            ->where('status', 'paid')->get()->sum(fn($s) => $s->total_amount - $s->tax_amount);
+            ->where('status', 'paid')->sum(DB::raw('total_amount - tax_amount'));
         $prevSales = Sales::whereBetween('created_at', [$prevStart, $prevEnd])
-            ->where('status', 'paid')->get()->sum(fn($s) => $s->total_amount - $s->tax_amount);
+            ->where('status', 'paid')->sum(DB::raw('total_amount - tax_amount'));
 
         $periodTx = Sales::whereBetween('created_at', [$start, $end])
             ->where('status', 'paid')->count();

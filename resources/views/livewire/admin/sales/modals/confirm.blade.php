@@ -158,12 +158,7 @@
                     <span>Subtotal</span>
                     <span class="font-semibold">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                 </div>
-                @if($tax_amount > 0)
-                    <div class="flex justify-between text-base-content/60">
-                        <span>Pajak ({{ $tax_rate }}%)</span>
-                        <span>Rp {{ number_format($tax_amount, 0, ',', '.') }}</span>
-                    </div>
-                @endif
+
                 @if($discount_amount > 0)
                     <div class="flex justify-between text-success font-medium">
                         <span>Diskon</span>

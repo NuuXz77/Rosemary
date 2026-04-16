@@ -21,7 +21,6 @@ class Checkout extends Component
     public $shift_id            = null;
     public $cashier_student_id  = null;
     public float $subtotal          = 0;
-    public float $tax_amount        = 0;
     public float $discount_amount   = 0;
     public float $total_amount      = 0;
     public string $payment_method   = 'cash';
@@ -49,7 +48,6 @@ class Checkout extends Component
         $this->shift_id         = session('pos_checkout_shift_id');
         $this->cashier_student_id = session('pos_checkout_cashier_id');
         $this->subtotal         = (float) session('pos_checkout_subtotal', 0);
-        $this->tax_amount       = (float) session('pos_checkout_tax_amount', 0);
         $this->discount_amount  = (float) session('pos_checkout_discount_amount', 0);
         $this->total_amount     = (float) session('pos_checkout_total', 0);
         $this->isPinMode        = (bool) session('pos_checkout_pine_mode', false);
@@ -142,7 +140,7 @@ class Checkout extends Component
                 'shift_id'           => $this->shift_id,
                 'cashier_student_id' => $this->cashier_student_id, // Biarkan null jika admin, FK sudah dibuat nullable
                 'subtotal'           => $this->subtotal,
-                'tax_amount'         => $this->tax_amount,
+                'tax_amount'         => 0,
                 'discount_amount'    => $this->discount_amount,
                 'total_amount'       => $this->total_amount,
                 'paid_amount'        => $this->paid_amount,
@@ -182,7 +180,7 @@ class Checkout extends Component
                 'pos_checkout_cart', 'pos_checkout_customer_id', 'pos_checkout_guest_name',
                 'pos_checkout_status_order', 'pos_checkout_table_number', 'pos_checkout_shift_id',
                 'pos_checkout_cashier_id', 'pos_checkout_total', 'pos_checkout_subtotal',
-                'pos_checkout_tax_amount', 'pos_checkout_discount_amount', 'pos_checkout_pine_mode',
+                'pos_checkout_discount_amount', 'pos_checkout_pine_mode',
             ]);
 
             $this->dispatch('show-toast', type: 'success',

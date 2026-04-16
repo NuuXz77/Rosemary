@@ -80,14 +80,12 @@ class Index extends Component
         }
 
         // Summary dari base query (sebelum filter status)
-        $totalNetSales = $paidSales->sum(fn($s) => $s->total_amount - $s->tax_amount);
-        $totalTax = $paidSales->sum('tax_amount');
+        $totalSales = $paidSales->sum(fn($s) => $s->total_amount - $s->tax_amount);
 
         $summary = [
-            'total_sales' => $totalNetSales, // Net Sales
-            'total_tax' => $totalTax,
+            'total_sales' => $totalSales, // Gross Sales (now same as Net since no tax)
             'total_hpp' => $totalHpp,
-            'total_profit' => $totalNetSales - $totalHpp, // Laba Kotor (Net Sales - HPP)
+            'total_profit' => $totalSales - $totalHpp, // Laba Kotor (Total Sales - HPP)
             'total_count' => (clone $baseQuery)->count(),
             'paid_count' => $paidSales->count(),
             'cancelled_count' => (clone $baseQuery)->where('status', 'cancelled')->count(),
@@ -122,7 +120,7 @@ class Index extends Component
         // Daily sales chart
         $dailySales = Sales::select(
             DB::raw('DATE(created_at) as date'),
-            DB::raw('SUM(total_amount) as total'),
+            DB::raw('SUM(total_amount - tax_amount) as total'),
             DB::raw('COUNT(*) as count')
         )
             ->whereBetween(DB::raw('DATE(created_at)'), [$this->startDate, $this->endDate])

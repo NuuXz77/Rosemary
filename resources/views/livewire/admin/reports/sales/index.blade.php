@@ -1,24 +1,16 @@
 <div class="space-y-6">
     {{-- Summary Cards --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <div class="card bg-primary text-primary-content shadow-lg">
             <div class="card-body p-4 flex flex-row items-center justify-between">
                 <div>
-                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-70">Omzet Netto</p>
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-70">Omzet</p>
                     <h2 class="text-xl font-black">Rp {{ number_format($summary['total_sales'], 0, ',', '.') }}</h2>
                 </div>
                 <x-heroicon-o-presentation-chart-line class="w-8 h-8 opacity-20" />
             </div>
         </div>
-        <div class="card bg-base-100 border border-base-200 shadow-sm">
-            <div class="card-body p-4 flex flex-row items-center justify-between">
-                <div>
-                    <p class="text-[10px] font-bold text-base-content/50 uppercase tracking-widest">Pajak</p>
-                    <h2 class="text-xl font-black text-warning">Rp {{ number_format($summary['total_tax'], 0, ',', '.') }}</h2>
-                </div>
-                <x-heroicon-o-receipt-percent class="w-8 h-8 opacity-10" />
-            </div>
-        </div>
+
         <div class="card bg-base-100 border border-base-200 shadow-sm">
             <div class="card-body p-4 flex flex-row items-center justify-between">
                 <div>

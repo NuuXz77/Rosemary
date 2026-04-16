@@ -78,7 +78,7 @@
                     <div class="card-body p-5">
                         <div class="flex items-start justify-between gap-3">
                             <div class="min-w-0">
-                                <p class="text-xs font-bold text-base-content/50 uppercase tracking-widest">Omzet Netto</p>
+                                <p class="text-xs font-bold text-base-content/50 uppercase tracking-widest">Omzet</p>
                                 <h2 class="text-2xl font-black mt-1">Rp {{ number_format($periodSales, 0, ',', '.') }}
                                 </h2>
                             </div>
