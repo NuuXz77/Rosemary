@@ -4,12 +4,13 @@
         <div class="card bg-primary text-primary-content shadow-lg">
             <div class="card-body p-4 flex flex-row items-center justify-between">
                 <div>
-                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-70">Total Omzet</p>
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-70">Omzet</p>
                     <h2 class="text-xl font-black">Rp {{ number_format($summary['total_sales'], 0, ',', '.') }}</h2>
                 </div>
                 <x-heroicon-o-presentation-chart-line class="w-8 h-8 opacity-20" />
             </div>
         </div>
+
         <div class="card bg-base-100 border border-base-200 shadow-sm">
             <div class="card-body p-4 flex flex-row items-center justify-between">
                 <div>
@@ -22,7 +23,7 @@
         <div class="card bg-success text-success-content shadow-lg">
             <div class="card-body p-4 flex flex-row items-center justify-between">
                 <div>
-                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-70">Laba Kotor</p>
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-70" title="Net Sales - HPP">Laba Kotor</p>
                     <h2 class="text-xl font-black">Rp {{ number_format($summary['total_profit'], 0, ',', '.') }}</h2>
                 </div>
                 <x-heroicon-o-banknotes class="w-8 h-8 opacity-20" />

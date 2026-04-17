@@ -49,13 +49,18 @@ class Index extends Component
     public function render()
     {
         // 1. Data untuk Summary Cards
-        $totalProductWaste = ProductWastes::whereBetween('waste_date', [$this->startDate, $this->endDate])
+        $productWastesQuery = ProductWastes::whereBetween('waste_date', [$this->startDate, $this->endDate])
             ->when($this->filterGroup, function($q) {
                 $q->whereHas('production', fn($p) => $p->where('student_group_id', $this->filterGroup));
-            })
-            ->sum('qty');
+            });
+        
+        $totalProductWaste = (clone $productWastesQuery)->sum('qty');
+        $totalProductLoss = (clone $productWastesQuery)->with('product')->get()->sum(fn($w) => $w->qty * ($w->product->cost_price ?? 0));
 
-        $totalMaterialWaste = MaterialWastes::whereBetween('waste_date', [$this->startDate, $this->endDate])->sum('qty');
+        $materialWastesQuery = MaterialWastes::whereBetween('waste_date', [$this->startDate, $this->endDate]);
+        
+        $totalMaterialWaste = (clone $materialWastesQuery)->sum('qty');
+        $totalMaterialLoss = (clone $materialWastesQuery)->with('material')->get()->sum(fn($w) => $w->qty * ($w->material->price ?? 0));
 
         // 2. Data untuk Chart (Trend Waste Produk)
         $chartQuery = ProductWastes::select(
@@ -105,34 +110,44 @@ class Index extends Component
             ->orderByDesc('waste_date')
             ->paginate($this->perPage, pageName: 'mWastePage');
 
-        // 5. Analitik Per Kelompok (Kelakuan Kelompok)
-        // Menggabungkan waste produk + waste bahan yang terjadi saat produksi
-        $productGroupWastes = DB::table('product_wastes')
+        // 5. Analitik Per Kelompok (Kelakuan Kelompok) - Sekarang berdasar NILAI (IDR)
+        $productGroupWastes = ProductWastes::query()
             ->join('productions', 'product_wastes.production_id', '=', 'productions.id')
             ->join('student_groups', 'productions.student_group_id', '=', 'student_groups.id')
-            ->select('student_groups.name', DB::raw('SUM(product_wastes.qty) as total_waste'))
+            ->join('products', 'product_wastes.product_id', '=', 'products.id')
+            ->select('student_groups.name', 'product_wastes.qty', 'product_wastes.product_id')
             ->whereBetween('product_wastes.waste_date', [$this->startDate, $this->endDate])
-            ->groupBy('student_groups.id', 'student_groups.name')
             ->get();
-
-        $materialGroupWastes = DB::table('material_wastes')
+            
+        $materialGroupWastes = MaterialWastes::query()
             ->join('productions', 'material_wastes.production_id', '=', 'productions.id')
             ->join('student_groups', 'productions.student_group_id', '=', 'student_groups.id')
-            ->select('student_groups.name', DB::raw('SUM(material_wastes.qty) as total_waste'))
+            ->join('materials', 'material_wastes.material_id', '=', 'materials.id')
+            ->select('student_groups.name', 'material_wastes.qty', 'material_wastes.material_id')
             ->whereBetween('material_wastes.waste_date', [$this->startDate, $this->endDate])
-            ->groupBy('student_groups.id', 'student_groups.name')
             ->get();
 
-        // Gabungkan hasilnya (simple collection merge/sum)
-        $groupPerformance = $productGroupWastes->concat($materialGroupWastes)
+        // Map to Value
+        $pgwValue = $productGroupWastes->map(function($w) {
+            $w->value = $w->qty * ($w->product->cost_price ?? 0);
+            return $w;
+        });
+        
+        $mgwValue = $materialGroupWastes->map(function($w) {
+            $w->value = $w->qty * ($w->material->price ?? 0);
+            return $w;
+        });
+
+        // Gabungkan hasilnya berdasar NILAI KERUGIAN (IDR)
+        $groupPerformance = $pgwValue->concat($mgwValue)
             ->groupBy('name')
             ->map(function ($items) {
                 return (object)[
                     'name' => $items[0]->name,
-                    'total_waste' => $items->sum('total_waste')
+                    'total_loss' => $items->sum('value')
                 ];
             })
-            ->sortByDesc('total_waste')
+            ->sortByDesc('total_loss')
             ->values();
 
         return view('livewire.admin.reports.wastes.index', [
@@ -140,6 +155,8 @@ class Index extends Component
             'mWastes' => $mWastes,
             'totalProductWaste' => $totalProductWaste,
             'totalMaterialWaste' => $totalMaterialWaste,
+            'totalProductLoss' => $totalProductLoss,
+            'totalMaterialLoss' => $totalMaterialLoss,
             'chartData' => $chartData,
             'materialChartData' => $materialChartData,
             'groupPerformance' => $groupPerformance,
