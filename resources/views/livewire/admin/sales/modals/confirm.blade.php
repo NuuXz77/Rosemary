@@ -128,7 +128,7 @@
                     :hint="$table_number ? 'Meja: ' . $table_number : 'Wajib diisi untuk order dine in'" />
             @else
                 <div class="rounded-2xl border border-base-200 bg-base-200/40 px-4 py-3 text-xs text-base-content/60">
-                    Pesanan ini akan dicatat sebagai take away. Nomor antrean otomatis dibuat saat checkout (format: YYYYMMDD-XXX).
+                    Pesanan ini akan dicatat sebagai take away. Jika nama pembeli diisi maka nama dipakai untuk pemanggilan, jika kosong sistem pakai nomor antrean otomatis (format: YYYYMMDD-XXX).
                 </div>
             @endif
 
@@ -154,7 +154,9 @@
                         @if($status_order === 'Dine in')
                             {{ $customer_id ? ($customers->firstWhere('id', $customer_id)?->name ?? 'Pelanggan') : ($guest_name ?: 'Nama pelanggan') }}
                         @else
-                            Akan dibuat otomatis
+                            {{ $customer_id
+                                ? ($customers->firstWhere('id', $customer_id)?->name ?? 'Pelanggan')
+                                : (trim((string) $guest_name) !== '' ? $guest_name : 'Nomor antrean otomatis') }}
                         @endif
                     </span>
                 </div>

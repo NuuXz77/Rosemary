@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Sales;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\On;
 use Livewire\WithPagination;
 use App\Models\Sales;
 
@@ -22,6 +23,37 @@ class Index extends Component
     public function viewReceipt($id)
     {
         $this->dispatch('open-receipt-modal', id: $id);
+    }
+
+    public function openPayment(int $id): void
+    {
+        if (!auth()->user()?->can('sales.edit') && !auth()->user()?->can('sales.manage')) {
+            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki akses memproses pembayaran.');
+            return;
+        }
+
+        $sale = Sales::find($id);
+        if (!$sale) {
+            $this->dispatch('show-toast', type: 'error', message: 'Data penjualan tidak ditemukan.');
+            return;
+        }
+
+        if ($sale->status !== 'unpaid') {
+            $this->dispatch('show-toast', type: 'warning', message: 'Pembayaran hanya tersedia untuk transaksi hutang.');
+            return;
+        }
+
+        $this->dispatch('open-payment-sale', id: $sale->id);
+    }
+
+    public function confirmDelete(int $id): void
+    {
+        if (!auth()->user()?->can('sales.delete') && !auth()->user()?->can('sales.manage')) {
+            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak memiliki akses menghapus transaksi.');
+            return;
+        }
+
+        $this->dispatch('open-delete-sale', id: $id);
     }
 
     public function mount()
@@ -54,6 +86,12 @@ class Index extends Component
         }
 
         $this->dispatch('open-modal', id: 'modal_pos');
+    }
+
+    #[On('sales-changed')]
+    public function refreshSales(): void
+    {
+        $this->resetPage();
     }
 
     public function render()

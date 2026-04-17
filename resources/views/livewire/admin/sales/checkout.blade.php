@@ -86,6 +86,9 @@
                             $customerName = $customer_id
                                 ? ($customers->find($customer_id)?->name ?? 'Pelanggan')
                                 : ($guest_name ?: 'Guest (Umum)');
+                            $takeAwayIdentityPreview = $customer_id
+                                ? ($customers->find($customer_id)?->name ?? 'Pelanggan')
+                                : (trim((string) $guest_name) !== '' ? $guest_name : 'Nomor antrean otomatis (saat submit)');
                         @endphp
                         <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-base-200/60 border border-base-300">
                             <div class="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
@@ -119,7 +122,7 @@
                                     @if($status_order === 'Dine in')
                                         {{ $customerName }}
                                     @else
-                                        Nomor antrean otomatis (saat submit)
+                                        {{ $takeAwayIdentityPreview }}
                                     @endif
                                 </p>
                                 <p class="text-[10px] text-base-content/40">Identitas Pemanggilan</p>

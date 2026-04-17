@@ -138,6 +138,7 @@ class PermissionSeeder extends Seeder
             ['name' => 'productions.manage', 'category_id' => optional($transactionCategory)->id],
             ['name' => 'production-orders.view', 'category_id' => optional($transactionCategory)->id],
             ['name' => 'production-orders.manage', 'category_id' => optional($transactionCategory)->id],
+            ['name' => 'production-orders.call', 'category_id' => optional($transactionCategory)->id],
             ['name' => 'sales.view', 'category_id' => optional($transactionCategory)->id],
             ['name' => 'sales.create', 'category_id' => optional($transactionCategory)->id],
             ['name' => 'sales.edit', 'category_id' => optional($transactionCategory)->id],
@@ -266,6 +267,7 @@ class PermissionSeeder extends Seeder
             'edit' => 'Edit',
             'delete' => 'Hapus',
             'manage' => 'Kelola',
+            'call' => 'Panggil',
         ];
 
         $lastDotPosition = strrpos($slug, '.');

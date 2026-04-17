@@ -13,7 +13,7 @@ use Livewire\Component;
 class Index extends Component
 {
     public string $search = '';
-    public string $filterStatus = 'pending';
+    public string $filterStatus = '';
     public string $filterService = '';
     public int $perPage = 20;
 
@@ -86,7 +86,7 @@ class Index extends Component
 
     public function callCustomer(int $saleId): void
     {
-        if (!auth()->user()?->can('production-orders.manage')) {
+        if (!auth()->user()?->can('production-orders.call')) {
             $this->dispatch('show-toast', type: 'error', message: 'Tidak memiliki izin untuk memanggil pelanggan.');
             return;
         }
@@ -94,7 +94,10 @@ class Index extends Component
         $sale = Sales::findOrFail($saleId);
         $sale->update(['called_at' => now()]);
 
-        $message = ($sale->status_order === Sales::ORDER_STATUS_TAKE_AWAY)
+        $hasCustomIdentity = trim((string) ($sale->guest_name ?? '')) !== ''
+            || trim((string) ($sale->customer?->name ?? '')) !== '';
+
+        $message = ($sale->status_order === Sales::ORDER_STATUS_TAKE_AWAY && !$hasCustomIdentity)
             ? ('Nomor antrian ' . $sale->service_identity . ', pesanan Anda siap diambil.')
             : ('Atas nama ' . $sale->service_identity . ', pesanan Anda sudah siap.');
 
@@ -112,7 +115,7 @@ class Index extends Component
     {
         $baseQuery = Sales::query()
             ->with(['items.product', 'cashier', 'customer'])
-            ->where('status', 'paid');
+            ->whereIn('status', ['paid', 'unpaid']);
 
         $orders = (clone $baseQuery)
             ->when($this->filterStatus !== '', fn($query) => $query->where('production_status', $this->filterStatus))
@@ -157,6 +160,7 @@ class Index extends Component
             'countCooking' => $countCooking,
             'countDone' => $countDone,
             'canManage' => auth()->user()?->can('production-orders.manage') ?? false,
+            'canCall' => auth()->user()?->can('production-orders.call') ?? false,
             'soundEnabled' => $this->isSoundEnabled(),
             'soundVolume' => $this->soundVolume(),
         ]);

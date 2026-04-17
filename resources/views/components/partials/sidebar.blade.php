@@ -139,7 +139,7 @@
                         $isCashierRole = $user->hasRole('Cashier');
                         $canPurchases = !$isCashierRole && $user->can('purchases.view');
                         $canProductions = !$isCashierRole && $user->can('productions.view');
-                        $canProductionOrders = !$isCashierRole && $user->can('production-orders.view');
+                        $canProductionOrders = $user->can('production-orders.view');
                         $canSales = !$isCashierRole && $user->can('sales.view');
                         $transactionItems =
                             ($canPurchases ? 1 : 0) +

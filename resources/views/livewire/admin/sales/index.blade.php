@@ -32,15 +32,28 @@
                 :sortDirection="null" emptyMessage="Tidak ada transaksi" emptyIcon="heroicon-o-shopping-bag">
 
                 @foreach ($sales as $index => $sale)
+                    @php
+                        $canPaySale = auth()->user()?->can('sales.edit') || auth()->user()?->can('sales.manage');
+                        $canDeleteSale = auth()->user()?->can('sales.delete') || auth()->user()?->can('sales.manage');
+
+                        $customActions = [
+                            ['method' => 'viewReceipt', 'label' => 'Cetak Struk', 'icon' => 'heroicon-o-printer'],
+                        ];
+
+                        if ($canPaySale && $sale->status === 'unpaid') {
+                            $customActions[] = [
+                                'method' => 'openPayment',
+                                'label' => 'Pembayaran Hutang',
+                                'icon' => 'heroicon-o-banknotes',
+                                'class' => 'text-success',
+                            ];
+                        }
+                    @endphp
                     <tr wire:key="sale-{{ $sale->id }}" class="hover:bg-base-200 transition-colors duration-150">
                         {{-- <td>{{ $sales->firstItem() + $index }}</td> --}}
                         <td>{{ $sale->invoice_number }}</td>
                         <td>
-                            @if(($sale->status_order ?? 'Take away') === 'Take away')
-                                {{ $sale->queue_number ?: ($sale->guest_name ?: 'Guest') }}
-                            @else
-                                {{ $sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)') }}
-                            @endif
+                            {{ $sale->service_identity }}
                         </td>
                         <td>
                             <span class="badge badge-soft badge-info badge-sm">{{ $sale->status_order ?? 'Take away' }}</span>
@@ -64,10 +77,9 @@
                                 :showView="true"
                                 :viewRoute="route('sales.detail', $sale->id)"
                                 :showEdit="false"
-                                :showDelete="false"
-                                :customActions="[
-                                    ['method' => 'viewReceipt', 'label' => 'Cetak Struk', 'icon' => 'heroicon-o-printer'],
-                                ]"
+                                :showDelete="$canDeleteSale"
+                                deleteMethod="confirmDelete"
+                                :customActions="$customActions"
                             />
                         </td>
                     </tr>
@@ -90,4 +102,6 @@
     </div>
 
     <livewire:admin.sales.modals.receipt />
+    <livewire:admin.sales.modals.payment />
+    <livewire:admin.sales.modals.delete />
 </div>

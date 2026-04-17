@@ -132,13 +132,7 @@
                         </div>
                         <div>
                             <p class="text-[10px] uppercase tracking-wider text-base-content/40 font-semibold mb-0.5">Identitas</p>
-                            <p class="font-medium text-sm">
-                                @if(($sale->status_order ?? 'Take away') === 'Take away')
-                                    {{ $sale->queue_number ?: ($sale->guest_name ?: 'Guest') }}
-                                @else
-                                    {{ $sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)') }}
-                                @endif
-                            </p>
+                            <p class="font-medium text-sm">{{ $sale->service_identity }}</p>
                         </div>
                         @if($sale->table_number)
                         <div>
@@ -211,10 +205,10 @@
                     </div>
                     <div class="p-6">
                         @php
-                            $customerName = ($sale->status_order ?? 'Take away') === 'Take away'
-                                ? ($sale->queue_number ?: ($sale->guest_name ?: 'Guest'))
-                                : ($sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)'));
+                            $customerName = $sale->service_identity;
                             $isRegistered = (bool) $sale->customer_id;
+                            $hasCustomTakeAwayIdentity = trim((string) ($sale->guest_name ?? '')) !== ''
+                                || trim((string) ($sale->customer?->name ?? '')) !== '';
                         @endphp
                         <div class="flex items-center gap-3 px-4 py-3 rounded-xl bg-base-200/60 border border-base-300">
                             <div class="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
@@ -223,7 +217,9 @@
                             <div class="grow min-w-0">
                                 <p class="font-bold text-sm truncate">{{ $customerName }}</p>
                                 <p class="text-[10px] text-base-content/40">
-                                    {{ ($sale->status_order ?? 'Take away') === 'Take away' ? 'Nomor antrean take away' : ($isRegistered ? 'Pelanggan terdaftar' : 'Tamu / tidak terdaftar') }}
+                                    {{ ($sale->status_order ?? 'Take away') === 'Take away'
+                                        ? ($hasCustomTakeAwayIdentity ? 'Nama pemanggilan take away' : 'Nomor antrean take away')
+                                        : ($isRegistered ? 'Pelanggan terdaftar' : 'Tamu / tidak terdaftar') }}
                                 </p>
                             </div>
                             <span class="badge badge-xs {{ $isRegistered ? 'badge-soft badge-success' : 'badge-soft badge-ghost' }} shrink-0">

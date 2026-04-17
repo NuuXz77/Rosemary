@@ -59,11 +59,22 @@ class Sales extends Model
 
     public function getServiceIdentityAttribute(): string
     {
+        $guestName = trim((string) $this->guest_name);
+        $customerName = trim((string) ($this->customer?->name ?? ''));
+
         if ($this->status_order === self::ORDER_STATUS_TAKE_AWAY) {
-            return $this->queue_number ?: ($this->guest_name ?: 'Tamu');
+            if ($guestName !== '') {
+                return $guestName;
+            }
+
+            if ($customerName !== '') {
+                return $customerName;
+            }
+
+            return $this->queue_number ?: 'Tamu';
         }
 
-        return $this->customer?->name ?: ($this->guest_name ?: 'Tamu');
+        return $customerName !== '' ? $customerName : ($guestName !== '' ? $guestName : 'Tamu');
     }
 
     public function getProductionStatusLabelAttribute(): string

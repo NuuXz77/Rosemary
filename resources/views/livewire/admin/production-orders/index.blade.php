@@ -128,7 +128,7 @@
                                             </button>
                                         @endif
 
-                                        @if($canManage && $order->production_status === 'done')
+                                        @if($canCall && $order->production_status === 'done')
                                             <button class="btn btn-xs btn-primary" wire:click="callCustomer({{ $order->id }})">
                                                 Panggil
                                             </button>

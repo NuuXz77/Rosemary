@@ -103,6 +103,7 @@ class RoleSeeder extends Seeder
                 'dashboard.view',
                 'sales.view',
                 'production-orders.view',
+                'production-orders.call',
                 'reports.sales.view',
                 'sound-notifications.view',
                 'guides.view',

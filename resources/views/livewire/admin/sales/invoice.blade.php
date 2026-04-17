@@ -1,5 +1,5 @@
 @use('Illuminate\Support\Facades\Storage')
-<div class="min-h-screen pb-10 px-3 sm:px-4 lg:px-0">
+<div class="min-h-screen pb-10 px-3 sm:px-4 lg:px-0 invoice-page">
 
     {{-- Action Bar (hide on print) --}}
     <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
@@ -25,9 +25,9 @@
     </div>
 
     {{-- Invoice Card (Thermal style like receipt modal) --}}
-    <div class="max-w-md mx-auto">
-        <div class="card bg-white text-black shadow-sm border border-black/30 print:shadow-none print:border-0">
-            <div class="card-body p-4 sm:p-5 font-mono text-[12px]">
+    <div class="max-w-md mx-auto invoice-print-area">
+        <div class="invoice-paper card bg-white text-black rounded-none border-0 shadow-none">
+            <div class="invoice-body card-body p-4 sm:p-5 font-mono text-[12px]">
 
                 {{-- Header --}}
                 <div class="text-center border-b border-dashed border-black pb-2 mb-3">
@@ -53,20 +53,6 @@
                         <span>Status Order:</span>
                         <span class="text-right">{{ $sale->status_order ?? 'Take away' }}</span>
                     </div>
-                    <div class="flex justify-between gap-3">
-                        <span>Identitas:</span>
-                        <span class="text-right">
-                            @if(($sale->status_order ?? 'Take away') === 'Take away')
-                                {{ $sale->queue_number ?: ($sale->guest_name ?: 'Guest') }}
-                            @else
-                                {{ $sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)') }}
-                            @endif
-                        </span>
-                    </div>
-                    <div class="flex justify-between gap-3">
-                        <span>Shift:</span>
-                        <span class="text-right">{{ $sale->shift?->name ?? '-' }}</span>
-                    </div>
                     @if(($sale->status_order ?? 'Take away') !== 'Take away')
                         <div class="flex justify-between gap-3">
                             <span>Pelanggan:</span>
@@ -86,7 +72,7 @@
 
                 {{-- Item List --}}
                 <div class="overflow-x-auto -mx-1 sm:mx-0">
-                    <table class="w-full min-w-max text-[11px] mb-3">
+                    <table class="w-full text-[11px] mb-3">
                         <thead>
                             <tr class="text-[10px] uppercase tracking-wide border-b border-dashed border-black">
                                 <th class="text-left pb-1.5 font-bold">Produk</th>
@@ -98,7 +84,7 @@
                         <tbody>
                             @foreach($sale->items as $item)
                                 <tr>
-                                    <td class="py-1.5 pr-2 uppercase">{{ $item->product?->name ?? 'Produk dihapus' }}</td>
+                                    <td class="py-1.5 pr-2 uppercase wrap-break-word">{{ $item->product?->name ?? 'Produk dihapus' }}</td>
                                     <td class="py-1.5 text-center">{{ $item->qty }}</td>
                                     <td class="py-1.5 text-right whitespace-nowrap">
                                         Rp {{ number_format($item->price, 0, ',', '.') }}
@@ -190,19 +176,133 @@
     
     {{-- Print styles --}}
     <style>
+        .invoice-paper {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+
+        .invoice-body {
+            position: relative;
+        }
+
+        .invoice-body::before {
+            content: '';
+            position: absolute;
+            inset: 10% 8%;
+            background-image: url('{{ asset('img/label.jpeg') }}');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: min(82%, 330px);
+            opacity: 0.08;
+            filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.22));
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .invoice-body > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .invoice-print-area table {
+            table-layout: auto;
+        }
+
+        .invoice-print-area table td,
+        .invoice-print-area table th {
+            vertical-align: top;
+            word-break: break-word;
+        }
+
         @media print {
-            /* Hide everything except the invoice */
-            body * { visibility: hidden; }
-            .card, .card * { visibility: visible; }
-            .card { position: absolute; left: 0; top: 0; width: 100%; border: none !important; box-shadow: none !important; }
-    
-            /* Hide non-printable elements */
-            .print\:hidden { display: none !important; }
-    
-            /* Clean up for print */
-            body { background: white !important; }
-            main { padding: 0 !important; background: white !important; }
-            .drawer-content { padding: 0 !important; }
+            @page {
+                size: auto;
+                margin: 8mm;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            html,
+            body {
+                width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+            }
+
+            body * {
+                visibility: hidden !important;
+            }
+
+            .invoice-page,
+            .invoice-page * {
+                visibility: visible !important;
+            }
+
+            .invoice-page {
+                position: fixed !important;
+                inset: 0 !important;
+                min-height: auto !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff !important;
+                z-index: 9999 !important;
+            }
+
+            .invoice-print-area {
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .invoice-paper {
+                width: 100% !important;
+                max-width: none !important;
+                border: none !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                page-break-inside: avoid;
+                break-inside: avoid;
+                margin: 0 !important;
+            }
+
+            .invoice-body {
+                padding: 12px !important;
+                font-size: 11px !important;
+            }
+
+            .invoice-body::before {
+                inset: 10% 8%;
+                opacity: 0.06;
+                background-size: min(78%, 340px);
+                filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.18));
+            }
+
+            .print\:hidden {
+                display: none !important;
+            }
+
+            body,
+            main,
+            .drawer-content,
+            .drawer,
+            .drawer-content > main {
+                background: #fff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .overflow-x-auto {
+                overflow: visible !important;
+            }
         }
     </style>
 </div>

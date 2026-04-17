@@ -239,7 +239,9 @@ class POS extends Component
         session([
             'pos_checkout_cart'             => $this->cart,
             'pos_checkout_customer_id'      => $this->customer_id,
-            'pos_checkout_guest_name'       => $this->customer_id ? null : ($this->guest_name ?: 'Guest'),
+            'pos_checkout_guest_name'       => $this->customer_id
+                ? null
+                : (trim((string) $this->guest_name) !== '' ? trim((string) $this->guest_name) : null),
             'pos_checkout_status_order'     => $this->status_order,
             'pos_checkout_table_number'     => $this->table_number,
             'pos_checkout_shift_id'         => $this->shift_id,
