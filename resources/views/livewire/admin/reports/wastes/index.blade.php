@@ -4,8 +4,9 @@
         <div class="card bg-error text-error-content shadow-lg">
             <div class="card-body p-6 flex flex-row items-center justify-between">
                 <div>
-                    <p class="text-xs font-bold uppercase tracking-widest opacity-70">Total Limbah Produk</p>
+                    <p class="text-xs font-bold uppercase tracking-widest opacity-70">Limbah Produk</p>
                     <h2 class="text-3xl font-black">{{ number_format($totalProductWaste, 0, ',', '.') }} <span class="text-sm font-medium">Pcs</span></h2>
+                    <p class="text-xs opacity-80 mt-1">Est. Rp {{ number_format($totalProductLoss, 0, ',', '.') }}</p>
                 </div>
                 <x-heroicon-o-trash class="w-12 h-12 opacity-20" />
             </div>
@@ -13,8 +14,9 @@
         <div class="card bg-warning text-warning-content shadow-lg">
             <div class="card-body p-6 flex flex-row items-center justify-between">
                 <div>
-                    <p class="text-xs font-bold uppercase tracking-widest opacity-70">Total Limbah Bahan</p>
+                    <p class="text-xs font-bold uppercase tracking-widest opacity-70">Limbah Bahan</p>
                     <h2 class="text-3xl font-black">{{ number_format($totalMaterialWaste, 2, ',', '.') }} <span class="text-sm font-medium">Unit</span></h2>
+                    <p class="text-xs opacity-80 mt-1">Est. Rp {{ number_format($totalMaterialLoss, 0, ',', '.') }}</p>
                 </div>
                 <x-heroicon-o-beaker class="w-12 h-12 opacity-20" />
             </div>
@@ -22,13 +24,14 @@
         <div class="card bg-base-100 border border-base-200 shadow-sm">
             <div class="card-body p-6 flex flex-row items-center justify-between">
                 <div>
-                    <p class="text-xs font-bold text-base-content/50 uppercase tracking-widest">Estimasi Efisiensi</p>
-                    <h2 class="text-3xl font-black @if($totalProductWaste > 0) text-error @else text-success @endif">
-                        {{ $totalProductWaste > 0 ? '-' . number_format($totalProductWaste, 0) : '100' }}%
+                    <p class="text-xs font-bold text-base-content/50 uppercase tracking-widest">Total Kerugian</p>
+                    <h2 class="text-3xl font-black text-error">
+                        Rp {{ number_format($totalProductLoss + $totalMaterialLoss, 0, ',', '.') }}
                     </h2>
+                    <p class="text-[10px] opacity-40 mt-1 uppercase tracking-tighter">Produk + Bahan Baku</p>
                 </div>
                 <div class="p-3 bg-base-200 text-base-content rounded-2xl">
-                    <x-heroicon-o-chart-pie class="w-8 h-8" />
+                    <x-heroicon-o-currency-dollar class="w-8 h-8" />
                 </div>
             </div>
         </div>
@@ -145,11 +148,11 @@
                         <div>
                             <div class="flex justify-between text-xs mb-1">
                                 <span class="font-bold opacity-70">{{ $perf->name }}</span>
-                                <span class="font-black text-error">{{ number_format($perf->total_waste, 0) }} Pcs</span>
+                                <span class="font-black text-error">Rp {{ number_format($perf->total_loss, 0, ',', '.') }}</span>
                             </div>
                             <div class="w-full bg-base-200 rounded-full h-1.5 overflow-hidden">
                                 <div class="bg-error h-full rounded-full transition-all duration-500"
-                                     style="width: {{ $groupPerformance->max('total_waste') > 0 ? ($perf->total_waste / $groupPerformance->max('total_waste')) * 100 : 0 }}%">
+                                     style="width: {{ $groupPerformance->max('total_loss') > 0 ? ($perf->total_loss / $groupPerformance->max('total_loss')) * 100 : 0 }}%">
                                 </div>
                             </div>
                         </div>

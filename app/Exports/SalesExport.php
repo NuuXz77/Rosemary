@@ -48,14 +48,13 @@ class SalesExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
     public function map($sale): array
     {
         $saleHpp = 0;
-        if ($sale->status == 'paid') {
+        if($sale->status == 'paid') {
             foreach($sale->items as $item) {
-                $saleHpp += ($item->product?->cost_price ?? 0) * $item->qty;
+                $saleHpp += ($item->product->cost_price ?? 0) * $item->qty;
             }
-            $profit = $sale->total_amount - $saleHpp;
-        } else {
-            $profit = 0;
         }
+        $totalSales = $sale->status == 'paid' ? ($sale->total_amount - $sale->tax_amount) : 0;
+        $profit = $sale->status == 'paid' ? ($totalSales - $saleHpp) : 0;
 
         return [
             $sale->invoice_number,
@@ -65,7 +64,7 @@ class SalesExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
             $sale->shift?->name ?? '-',
             $sale->cashier?->name ?? '-',
             $saleHpp,
-            $sale->total_amount,
+            $totalSales,
             $profit,
             ucfirst($sale->status),
         ];
@@ -81,8 +80,8 @@ class SalesExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
             'Shift',
             'Kasir',
             'HPP',
-            'Total',
-            'Laba',
+            'Omzet',
+            'Laba Kotor',
             'Status',
         ];
     }

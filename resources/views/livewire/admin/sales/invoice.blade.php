@@ -121,12 +121,7 @@
                         <span>Subtotal</span>
                         <span>Rp {{ number_format($sale->subtotal, 0, ',', '.') }}</span>
                     </div>
-                    @if($sale->tax_amount > 0)
-                        <div class="flex justify-between">
-                            <span>Pajak</span>
-                            <span>Rp {{ number_format($sale->tax_amount, 0, ',', '.') }}</span>
-                        </div>
-                    @endif
+
                     @if($sale->discount_amount > 0)
                         <div class="flex justify-between">
                             <span>Diskon</span>

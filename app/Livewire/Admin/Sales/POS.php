@@ -34,8 +34,6 @@ class POS extends Component
     // Cart State
     public $cart = [];
     public $subtotal = 0;
-    public $tax_rate = 0; // 0% as default or 11%? Let's use 0 for now.
-    public $tax_amount = 0;
     public $discount_amount = 0;
     public $total_amount = 0;
 
@@ -215,8 +213,7 @@ class POS extends Component
     public function calculateTotals()
     {
         $this->subtotal = collect($this->cart)->sum('subtotal');
-        $this->tax_amount = ($this->subtotal * $this->tax_rate) / 100;
-        $this->total_amount = $this->subtotal + $this->tax_amount - $this->discount_amount;
+        $this->total_amount = $this->subtotal - $this->discount_amount;
         $this->change_amount = max(0, $this->paid_amount - $this->total_amount);
     }
 
@@ -245,7 +242,6 @@ class POS extends Component
             'pos_checkout_shift_id'         => $this->shift_id,
             'pos_checkout_cashier_id'       => $this->cashier_student_id,
             'pos_checkout_subtotal'         => $this->subtotal,
-            'pos_checkout_tax_amount'       => $this->tax_amount,
             'pos_checkout_discount_amount'  => $this->discount_amount,
             'pos_checkout_total'            => $this->total_amount,
             'pos_checkout_pine_mode'        => $this->pinMode,
@@ -342,7 +338,7 @@ class POS extends Component
                 'shift_id' => $this->shift_id,
                 'cashier_student_id' => $this->cashier_student_id,
                 'subtotal' => $this->subtotal,
-                'tax_amount' => $this->tax_amount,
+                'tax_amount' => 0,
                 'discount_amount' => $this->discount_amount,
                 'total_amount' => $this->total_amount,
                 'paid_amount' => $this->paid_amount,
@@ -392,7 +388,7 @@ class POS extends Component
             $this->dispatch('open-modal', id: 'receipt-modal');
             $this->dispatch('show-toast', type: 'success', message: 'Transaksi berhasil disimpan!');
 
-            $this->reset(['cart', 'subtotal', 'tax_amount', 'discount_amount', 'total_amount', 'paid_amount', 'change_amount', 'customer_id', 'guest_name', 'table_number']);
+            $this->reset(['cart', 'subtotal', 'discount_amount', 'total_amount', 'paid_amount', 'change_amount', 'customer_id', 'guest_name', 'table_number']);
             $this->status_order = Sales::ORDER_STATUS_TAKE_AWAY;
 
         } catch (\Exception $e) {

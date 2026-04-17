@@ -68,9 +68,12 @@ class Index extends Component
             });
 
         // Summary (selalu tampilkan overview lengkap)
+        $completedProductions = (clone $baseQuery)->where('status', 'completed')->get();
+        
         $summary = [
             'total_batch' => (clone $baseQuery)->count(),
-            'total_qty' => (clone $baseQuery)->where('status', 'completed')->sum('qty_produced'),
+            'total_qty' => $completedProductions->sum('qty_produced'),
+            'total_value' => $completedProductions->sum(fn($p) => ($p->product->cost_price ?? 0) * $p->qty_produced),
             'completed_count' => (clone $baseQuery)->where('status', 'completed')->count(),
             'draft_count' => (clone $baseQuery)->where('status', 'draft')->count(),
         ];
@@ -99,23 +102,78 @@ class Index extends Component
             })
             ->groupBy('production_date')->orderBy('production_date')->get();
 
-        // Top produced products
-        $topProduced = DB::table('productions')
-            ->join('products', 'productions.product_id', '=', 'products.id')
-            ->whereBetween('productions.production_date', [$this->startDate, $this->endDate])
-            ->where('productions.status', 'completed')
-            ->when($this->filterShift, fn($q) => $q->where('productions.shift_id', $this->filterShift))
-            ->when($this->filterGroup, fn($q) => $q->where('productions.student_group_id', $this->filterGroup))
-            ->when($this->filterDivision, fn($q) => $q->where('products.division_id', $this->filterDivision))
-            ->select('products.name', DB::raw('SUM(productions.qty_produced) as total_qty'), DB::raw('COUNT(*) as batch_count'))
-            ->groupBy('products.id', 'products.name')
-            ->orderByDesc('total_qty')->limit(5)->get();
+        // Top produced products (with value estimation)
+        $topProducedData = Productions::with('product')
+            ->whereBetween('production_date', [$this->startDate, $this->endDate])
+            ->where('status', 'completed')
+            ->when($this->filterShift, fn($q) => $q->where('shift_id', $this->filterShift))
+            ->when($this->filterGroup, fn($q) => $q->where('student_group_id', $this->filterGroup))
+            ->when($this->filterDivision, function ($q) {
+                $q->whereHas('product', fn($p) => $p->where('division_id', $this->filterDivision));
+            })
+            ->get()
+            ->groupBy('product_id');
+
+        $topProduced = $topProducedData->map(function ($items) {
+            $first = $items->first();
+            return (object)[
+                'name' => $first->product->name ?? '-',
+                'total_qty' => $items->sum('qty_produced'),
+                'total_value' => $items->sum(fn($p) => ($p->product->cost_price ?? 0) * $p->qty_produced),
+                'batch_count' => $items->count()
+            ];
+        })->sortByDesc('total_value')->take(5);
+
+        // === Product Reconciliation Logic ===
+        // Get all products that had production in this period
+        $productIds = $topProducedData->keys();
+        
+        $reconciliation = \App\Models\Products::whereIn('id', $productIds)
+            ->with(['stock'])
+            ->get()
+            ->map(function($product) {
+                $start = \Carbon\Carbon::parse($this->startDate)->startOfDay();
+                $end = \Carbon\Carbon::parse($this->endDate)->endOfDay();
+                
+                // 1. Current Balance
+                $currentBalance = $product->stock->qty_available ?? 0;
+                
+                // 2. Movements AFTER the selected period (to back-calculate)
+                $futureMovements = \App\Models\ProductStockLogs::where('product_id', $product->id)
+                    ->where('created_at', '>', $end)
+                    ->sum('qty');
+                
+                // 3. Balance at end of period
+                $endingBalance = $currentBalance - $futureMovements;
+                
+                // 4. Movements WITHIN period
+                $logsInPeriod = \App\Models\ProductStockLogs::where('product_id', $product->id)
+                    ->whereBetween('created_at', [$start, $end])
+                    ->get();
+                
+                $produced = $logsInPeriod->where('type', 'in')->sum('qty');
+                $out = $logsInPeriod->where('type', 'out')->sum('qty'); // This is already negative
+                
+                // 5. Balance at start of period
+                // start + produced + out = end  =>  start = end - produced - out
+                $startingBalance = $endingBalance - $produced - $out;
+
+                return (object)[
+                    'name' => $product->name,
+                    'starting' => $startingBalance,
+                    'produced' => $produced,
+                    'sold' => abs($out), // Show as positive for display
+                    'ending' => $endingBalance,
+                    'current' => $currentBalance
+                ];
+            });
 
         return view('livewire.admin.reports.productions.index', [
             'productions' => $productions,
             'summary' => $summary,
             'dailyProductions' => $dailyProductions,
             'topProduced' => $topProduced,
+            'reconciliation' => $reconciliation,
             'shifts' => Shift::where('status', true)->get(),
             'groups' => StudentGroups::where('status', true)->get(),
             'divisions' => Divisions::where('type', 'production')->where('status', true)->get(),
