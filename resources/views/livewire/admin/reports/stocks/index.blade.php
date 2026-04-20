@@ -1,9 +1,14 @@
 <div>
     <div class="card bg-base-100 border border-base-300">
         <div class="card-body">
+            @php
+                $activeFilterCount = collect([
+                    $filterStockLevel,
+                ])->filter(fn($value) => $value !== '')->count();
+            @endphp
             <div class="flex flex-col md:flex-row items-end justify-between gap-4 mb-6">
                 {{-- Filters --}}
-                <div class="flex flex-wrap items-center gap-3">
+                <div class="flex flex-wrap items-end gap-3">
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold text-xs uppercase">Mulai</span></label>
                         <input type="date" wire:model.live="startDate" class="input input-bordered input-sm" />
@@ -18,6 +23,28 @@
                             <x-bi-search class="w-3" />
                             <input type="text" wire:model.live.debounce.300ms="search" placeholder="Nama produk..." />
                         </label>
+                    </div>
+                    <div class="dropdown dropdown-end">
+                        <label tabindex="0" class="btn btn-ghost btn-sm gap-2">
+                            <x-heroicon-o-funnel class="w-5 h-5" />
+                            Filter
+                            @if ($activeFilterCount > 0)
+                                <span class="badge badge-primary badge-sm">{{ $activeFilterCount }}</span>
+                            @endif
+                        </label>
+                        <div tabindex="0" class="dropdown-content z-10 card card-compact w-72 p-4 bg-base-100 border border-base-300 mt-2">
+                            <div class="space-y-3">
+                                <div class="form-control">
+                                    <label class="label"><span class="label-text font-bold text-xs uppercase">Kondisi Stok</span></label>
+                                    <select wire:model.live="filterStockLevel" class="select select-bordered select-sm">
+                                        <option value="">Semua Kondisi</option>
+                                        <option value="low">Stok Rendah (<= 5)</option>
+                                        <option value="normal">Stok Normal (> 5)</option>
+                                    </select>
+                                </div>
+                                <button wire:click="resetFilters" class="btn btn-ghost btn-sm w-full">Reset Filter</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 

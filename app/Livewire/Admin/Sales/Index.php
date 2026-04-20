@@ -19,6 +19,9 @@ class Index extends Component
     public $perPage = 10;
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
+    public string $filterStatus = '';
+    public string $filterOrderType = '';
+    public string $filterPaymentMethod = '';
 
     public function viewReceipt($id)
     {
@@ -68,6 +71,29 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function updatingFilterStatus(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterOrderType(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterPaymentMethod(): void
+    {
+        $this->resetPage();
+    }
+
+    public function resetFilters(): void
+    {
+        $this->filterStatus = '';
+        $this->filterOrderType = '';
+        $this->filterPaymentMethod = '';
+        $this->resetPage();
+    }
+
     public function sortBy($field)
     {
         if ($this->sortField === $field) {
@@ -103,6 +129,9 @@ class Index extends Component
                         $q->where('name', 'like', '%' . $this->search . '%');
                     });
             })
+            ->when($this->filterStatus !== '', fn($query) => $query->where('status', $this->filterStatus))
+            ->when($this->filterOrderType !== '', fn($query) => $query->where('status_order', $this->filterOrderType))
+            ->when($this->filterPaymentMethod !== '', fn($query) => $query->where('payment_method', $this->filterPaymentMethod))
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
 

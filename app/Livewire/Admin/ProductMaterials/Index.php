@@ -18,6 +18,7 @@ class Index extends Component
     // Search & Pagination
     public string $search = '';
     public int $perPage = 10;
+    public string $filterSort = 'newest';
 
     protected $listeners = [
         'recipe-created' => '$refresh',
@@ -27,6 +28,17 @@ class Index extends Component
 
     public function updatingSearch(): void
     {
+        $this->resetPage();
+    }
+
+    public function updatingFilterSort(): void
+    {
+        $this->resetPage();
+    }
+
+    public function resetFilters(): void
+    {
+        $this->filterSort = 'newest';
         $this->resetPage();
     }
 
@@ -50,7 +62,7 @@ class Index extends Component
                 $query->whereHas('product', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'))
                       ->orWhereHas('material', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'));
             })
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', $this->filterSort === 'oldest' ? 'asc' : 'desc')
             ->paginate($this->perPage);
 
         return view('livewire.admin.product-materials.index', [

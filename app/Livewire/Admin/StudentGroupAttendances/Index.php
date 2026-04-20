@@ -56,6 +56,14 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function resetFilters(): void
+    {
+        $this->filterDate = now()->toDateString();
+        $this->filterClass = null;
+        $this->filterStatus = '';
+        $this->resetPage();
+    }
+
     public function edit(int $id): void
     {
         if (!auth()->user()->can('student-group-attendances.edit') && !auth()->user()->can('student-group-attendances.manage')) {

@@ -51,6 +51,22 @@ class Index extends Component
         // no-op hook to keep UI responsive on debounce updates
     }
 
+    public function updatingFilterStatus(): void
+    {
+        // no-op hook to keep UI responsive on filter updates
+    }
+
+    public function updatingFilterService(): void
+    {
+        // no-op hook to keep UI responsive on filter updates
+    }
+
+    public function resetFilters(): void
+    {
+        $this->filterStatus = '';
+        $this->filterService = '';
+    }
+
     public function setCooking(int $saleId): void
     {
         if (!auth()->user()?->can('production-orders.manage')) {

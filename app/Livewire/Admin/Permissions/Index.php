@@ -21,10 +21,22 @@ class Index extends Component
     public $perPage = 10;
     public $sortField = 'name';
     public $sortDirection = 'asc';
+    public string $filterRoleAssignment = '';
 
     // Reset pagination saat search berubah
     public function updatingSearch()
     {
+        $this->resetPage();
+    }
+
+    public function updatingFilterRoleAssignment(): void
+    {
+        $this->resetPage();
+    }
+
+    public function resetFilters(): void
+    {
+        $this->filterRoleAssignment = '';
         $this->resetPage();
     }
 
@@ -75,6 +87,8 @@ class Index extends Component
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%');
             })
+            ->when($this->filterRoleAssignment === 'assigned', fn($query) => $query->has('roles'))
+            ->when($this->filterRoleAssignment === 'unassigned', fn($query) => $query->doesntHave('roles'))
             ->withCount('roles') // Hitung jumlah roles yang punya permission ini
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);

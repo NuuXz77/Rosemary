@@ -37,6 +37,13 @@ class Index extends Component
         }
     }
 
+    public function resetFilters(): void
+    {
+        $this->filterSupplier = '';
+        $this->filterStatus = '';
+        $this->resetPage();
+    }
+
     public function export()
     {
         return \Maatwebsite\Excel\Facades\Excel::download(

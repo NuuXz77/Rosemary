@@ -1,6 +1,13 @@
 <div>
     <div class="card bg-base-100 border border-base-300" style="overflow: visible !important;">
         <div class="card-body" style="overflow: visible !important;">
+            @php
+                $activeFilterCount = collect([
+                    $filterStatus,
+                    $filterOrderType,
+                    $filterPaymentMethod,
+                ])->filter(fn($value) => $value !== '')->count();
+            @endphp
             <div class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mb-6">
                 <div class="flex items-center gap-2 w-full md:w-auto">
                     <label class="input input-sm">
@@ -8,6 +15,55 @@
                         <input type="text" wire:model.live.debounce.300ms="search"
                             placeholder="Cari invoice atau customer..." />
                     </label>
+
+                    <div class="dropdown dropdown-end">
+                        <label tabindex="0" class="btn btn-ghost btn-sm gap-2">
+                            <x-heroicon-o-funnel class="w-5 h-5" />
+                            Filter
+                            @if ($activeFilterCount > 0)
+                                <span class="badge badge-primary badge-sm">{{ $activeFilterCount }}</span>
+                            @endif
+                        </label>
+                        <div tabindex="0" class="dropdown-content z-10 card card-compact w-72 p-4 bg-base-100 border border-base-300 mt-2">
+                            <div class="space-y-3">
+                                <x-form.select
+                                    label="Status Pembayaran"
+                                    name="filterStatus"
+                                    placeholder="Semua Status"
+                                    wire:model.live="filterStatus"
+                                    class="select-sm"
+                                >
+                                    <option value="paid">Lunas</option>
+                                    <option value="unpaid">Hutang</option>
+                                    <option value="cancelled">Dibatalkan</option>
+                                </x-form.select>
+
+                                <x-form.select
+                                    label="Tipe Order"
+                                    name="filterOrderType"
+                                    placeholder="Semua Tipe"
+                                    wire:model.live="filterOrderType"
+                                    class="select-sm"
+                                >
+                                    <option value="Take away">Take away</option>
+                                    <option value="Dine in">Dine in</option>
+                                </x-form.select>
+
+                                <x-form.select
+                                    label="Metode Pembayaran"
+                                    name="filterPaymentMethod"
+                                    placeholder="Semua Metode"
+                                    wire:model.live="filterPaymentMethod"
+                                    class="select-sm"
+                                >
+                                    <option value="cash">Cash</option>
+                                    <option value="qris">QRIS</option>
+                                </x-form.select>
+
+                                <button wire:click="resetFilters" class="btn btn-ghost btn-sm w-full">Reset Filter</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div>

@@ -19,9 +19,21 @@ class Index extends Component
     public $perPage = 10;
     public $sortField = 'order';
     public $sortDirection = 'asc';
+    public string $filterUsage = '';
 
     public function updatingSearch()
     {
+        $this->resetPage();
+    }
+
+    public function updatingFilterUsage(): void
+    {
+        $this->resetPage();
+    }
+
+    public function resetFilters(): void
+    {
+        $this->filterUsage = '';
         $this->resetPage();
     }
 
@@ -65,6 +77,8 @@ class Index extends Component
                 $query->where('name', 'like', '%' . $this->search . '%')
                       ->orWhere('description', 'like', '%' . $this->search . '%');
             })
+            ->when($this->filterUsage === 'used', fn($query) => $query->has('permissions'))
+            ->when($this->filterUsage === 'unused', fn($query) => $query->doesntHave('permissions'))
             ->withCount('permissions')
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);

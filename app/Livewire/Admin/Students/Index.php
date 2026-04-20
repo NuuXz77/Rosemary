@@ -21,6 +21,7 @@ class Index extends Component
     public string $search = '';
     public int $perPage = 10;
     public ?int $filterClass = null;
+    public string $filterStatus = '';
 
     public function updatingSearch(): void
     {
@@ -29,6 +30,18 @@ class Index extends Component
 
     public function updatingFilterClass(): void
     {
+        $this->resetPage();
+    }
+
+    public function updatingFilterStatus(): void
+    {
+        $this->resetPage();
+    }
+
+    public function resetFilters(): void
+    {
+        $this->filterClass = null;
+        $this->filterStatus = '';
         $this->resetPage();
     }
 
@@ -59,6 +72,9 @@ class Index extends Component
             })
             ->when($this->filterClass, function ($query) {
                 $query->where('class_id', $this->filterClass);
+            })
+            ->when($this->filterStatus !== '', function ($query) {
+                $query->where('status', $this->filterStatus === 'active');
             })
             ->orderBy('created_at', 'desc')
             ->paginate($this->perPage);

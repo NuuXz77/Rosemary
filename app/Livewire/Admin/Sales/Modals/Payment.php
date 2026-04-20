@@ -88,7 +88,7 @@ class Payment extends Component
         }
 
         $this->validate([
-            'payment_method' => 'required|in:cash,qris,transfer',
+            'payment_method' => 'required|in:cash,qris',
             'pay_amount' => 'required|numeric|min:0',
         ]);
 

@@ -43,6 +43,14 @@ class Index extends Component
         }
     }
 
+    public function resetFilters(): void
+    {
+        $this->filterShift = '';
+        $this->filterGroup = '';
+        $this->filterDivision = '';
+        $this->resetPage();
+    }
+
     public function export()
     {
         return \Maatwebsite\Excel\Facades\Excel::download(

@@ -9,12 +9,40 @@
                     </p>
                 </div>
 
+                @php
+                    $activeFilterCount = collect([
+                        $testTargetFilter,
+                    ])->filter(fn($value) => $value !== '')->count();
+                @endphp
                 <div class="flex items-center gap-2">
                     @if($canManage)
                         <span class="badge badge-soft badge-success">Kelola Aktif</span>
                     @else
                         <span class="badge badge-soft badge-info">Mode Lihat</span>
                     @endif
+                    <div class="dropdown dropdown-end">
+                        <label tabindex="0" class="btn btn-ghost btn-sm gap-2">
+                            <x-heroicon-o-funnel class="w-5 h-5" />
+                            Filter
+                            @if ($activeFilterCount > 0)
+                                <span class="badge badge-primary badge-sm">{{ $activeFilterCount }}</span>
+                            @endif
+                        </label>
+                        <div tabindex="0" class="dropdown-content z-10 card card-compact w-72 p-4 bg-base-100 border border-base-300 mt-2">
+                            <div class="space-y-3">
+                                <div class="form-control">
+                                    <label class="label"><span class="label-text font-bold text-xs uppercase">Uji Target</span></label>
+                                    <select wire:model.live="testTargetFilter" class="select select-sm select-bordered">
+                                        <option value="">Semua Tombol Uji</option>
+                                        <option value="cashier">Cashier Saja</option>
+                                        <option value="production">Production Saja</option>
+                                        <option value="general">Umum Saja</option>
+                                    </select>
+                                </div>
+                                <button wire:click="resetFilters" class="btn btn-ghost btn-sm w-full">Reset Filter</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -72,15 +100,21 @@
                             </p>
 
                             <div class="flex flex-col sm:flex-row gap-2">
-                                <button class="btn btn-sm btn-primary" wire:click="testSound('cashier')">
-                                    Test Cashier
-                                </button>
-                                <button class="btn btn-sm btn-secondary" wire:click="testSound('production')">
-                                    Test Production
-                                </button>
-                                <button class="btn btn-sm btn-ghost border border-base-300" wire:click="testSound('general')">
-                                    Test Umum
-                                </button>
+                                @if($testTargetFilter === '' || $testTargetFilter === 'cashier')
+                                    <button class="btn btn-sm btn-primary" wire:click="testSound('cashier')">
+                                        Test Cashier
+                                    </button>
+                                @endif
+                                @if($testTargetFilter === '' || $testTargetFilter === 'production')
+                                    <button class="btn btn-sm btn-secondary" wire:click="testSound('production')">
+                                        Test Production
+                                    </button>
+                                @endif
+                                @if($testTargetFilter === '' || $testTargetFilter === 'general')
+                                    <button class="btn btn-sm btn-ghost border border-base-300" wire:click="testSound('general')">
+                                        Test Umum
+                                    </button>
+                                @endif
                             </div>
                         </div>
                     </div>

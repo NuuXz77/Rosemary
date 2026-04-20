@@ -17,6 +17,7 @@ class Index extends Component
 
     public string $search = '';
     public int $perPage = 10;
+    public string $filterPeriod = '';
 
     protected $listeners = [
         'material-waste-created' => '$refresh',
@@ -25,6 +26,17 @@ class Index extends Component
 
     public function updatingSearch()
     {
+        $this->resetPage();
+    }
+
+    public function updatingFilterPeriod(): void
+    {
+        $this->resetPage();
+    }
+
+    public function resetFilters(): void
+    {
+        $this->filterPeriod = '';
         $this->resetPage();
     }
 
@@ -45,6 +57,19 @@ class Index extends Component
                     })
                     ->orWhere('reason', 'like', '%' . $this->search . '%');
                 });
+            })
+            ->when($this->filterPeriod !== '', function ($query) {
+                if ($this->filterPeriod === 'today') {
+                    $query->whereDate('waste_date', today());
+                }
+
+                if ($this->filterPeriod === 'week') {
+                    $query->whereBetween('waste_date', [now()->startOfWeek()->toDateString(), now()->endOfWeek()->toDateString()]);
+                }
+
+                if ($this->filterPeriod === 'month') {
+                    $query->whereMonth('waste_date', now()->month)->whereYear('waste_date', now()->year);
+                }
             })
             ->orderBy('waste_date', 'desc')
             ->paginate($this->perPage);

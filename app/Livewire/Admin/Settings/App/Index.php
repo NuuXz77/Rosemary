@@ -41,6 +41,14 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function resetFilters(): void
+    {
+        $this->filterGroup = '';
+        $this->filterType = '';
+        $this->search = '';
+        $this->resetPage();
+    }
+
     public function edit(int $id): void
     {
         if (!auth()->user()->can('settings.app.manage')) {

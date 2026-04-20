@@ -8,6 +8,12 @@
                 </div>
             </div>
 
+            @php
+                $activeFilterCount = collect([
+                    $filterAction,
+                ])->filter(fn($value) => $value !== '')->count();
+            @endphp
+
             <div class="flex flex-col md:flex-row gap-3 mb-4">
                 <div class="join w-full md:w-96">
                     <label class="input input-sm input-bordered join-item flex items-center gap-2 w-full">
@@ -15,13 +21,29 @@
                         <input type="text" wire:model.live.debounce.300ms="search" class="grow" placeholder="Cari deskripsi, URL, IP, target..." />
                     </label>
                 </div>
-
-                <select wire:model.live="filterAction" class="select select-sm select-bordered w-full md:w-52">
-                    <option value="">Semua Aksi</option>
-                    @foreach($actions as $action)
-                        <option value="{{ $action }}">{{ ucfirst($action) }}</option>
-                    @endforeach
-                </select>
+                <div class="dropdown dropdown-end">
+                    <label tabindex="0" class="btn btn-ghost btn-sm gap-2 w-full md:w-auto">
+                        <x-heroicon-o-funnel class="w-5 h-5" />
+                        Filter
+                        @if ($activeFilterCount > 0)
+                            <span class="badge badge-primary badge-sm">{{ $activeFilterCount }}</span>
+                        @endif
+                    </label>
+                    <div tabindex="0" class="dropdown-content z-10 card card-compact w-72 p-4 bg-base-100 border border-base-300 mt-2">
+                        <div class="space-y-3">
+                            <div class="form-control">
+                                <label class="label"><span class="label-text font-bold text-xs uppercase">Aksi</span></label>
+                                <select wire:model.live="filterAction" class="select select-sm select-bordered">
+                                    <option value="">Semua Aksi</option>
+                                    @foreach($actions as $action)
+                                        <option value="{{ $action }}">{{ ucfirst($action) }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <button wire:click="resetFilters" class="btn btn-ghost btn-sm w-full">Reset Filter</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="overflow-x-auto">

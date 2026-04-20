@@ -13,6 +13,13 @@
                 </div>
             </div>
 
+            @php
+                $activeFilterCount = collect([
+                    $filterStatus,
+                    $filterService,
+                ])->filter(fn($value) => $value !== '')->count();
+            @endphp
+
             @if(!$soundEnabled)
                 <div class="alert alert-warning mb-4">
                     <x-heroicon-o-speaker-x-mark class="w-5 h-5" />
@@ -52,18 +59,43 @@
                     />
                 </label>
 
-                <select wire:model.live="filterStatus" class="select select-sm select-bordered w-full md:w-44">
-                    <option value="">Semua Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="cooking">Cooking</option>
-                    <option value="done">Done</option>
-                </select>
+                <div class="dropdown dropdown-end">
+                    <label tabindex="0" class="btn btn-ghost btn-sm gap-2">
+                        <x-heroicon-o-funnel class="w-5 h-5" />
+                        Filter
+                        @if ($activeFilterCount > 0)
+                            <span class="badge badge-primary badge-sm">{{ $activeFilterCount }}</span>
+                        @endif
+                    </label>
+                    <div tabindex="0" class="dropdown-content z-10 card card-compact w-72 p-4 bg-base-100 border border-base-300 mt-2">
+                        <div class="space-y-3">
+                            <x-form.select
+                                label="Status"
+                                name="filterStatus"
+                                wire:model.live="filterStatus"
+                                placeholder="Semua Status"
+                                class="select-sm"
+                            >
+                                <option value="pending">Pending</option>
+                                <option value="cooking">Cooking</option>
+                                <option value="done">Done</option>
+                            </x-form.select>
 
-                <select wire:model.live="filterService" class="select select-sm select-bordered w-full md:w-44">
-                    <option value="">Semua Layanan</option>
-                    <option value="Take away">Take away</option>
-                    <option value="Dine in">Dine in</option>
-                </select>
+                            <x-form.select
+                                label="Layanan"
+                                name="filterService"
+                                wire:model.live="filterService"
+                                placeholder="Semua Layanan"
+                                class="select-sm"
+                            >
+                                <option value="Take away">Take away</option>
+                                <option value="Dine in">Dine in</option>
+                            </x-form.select>
+
+                            <button wire:click="resetFilters" class="btn btn-ghost btn-sm w-full">Reset Filter</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="overflow-x-auto">

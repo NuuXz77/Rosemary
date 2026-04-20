@@ -201,8 +201,14 @@
     {{-- Filters + Table --}}
     <div class="card bg-base-100 border border-base-200 shadow-sm">
         <div class="card-body p-6 divide-y divide-base-200">
-            <div class="flex flex-col xl:flex-row gap-4 mb-4">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 flex-grow">
+            @php
+                $activeFilterCount = collect([
+                    $filterSupplier,
+                    $filterStatus,
+                ])->filter(fn($value) => $value !== '')->count();
+            @endphp
+            <div class="flex flex-col xl:flex-row xl:items-end gap-4 mb-4">
+                <div class="grid grid-cols-2 md:grid-cols-2 gap-3 grow">
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold text-xs uppercase">Sejak</span></label>
                         <input type="date" wire:model.live="startDate" class="input input-bordered input-sm" />
@@ -211,24 +217,37 @@
                         <label class="label"><span class="label-text font-bold text-xs uppercase">Sampai</span></label>
                         <input type="date" wire:model.live="endDate" class="input input-bordered input-sm" />
                     </div>
-                    <div class="form-control">
-                        <label class="label"><span
-                                class="label-text font-bold text-xs uppercase">Supplier</span></label>
-                        <select wire:model.live="filterSupplier" class="select select-bordered select-sm">
-                            <option value="">Semua Supplier</option>
-                            @foreach($suppliers as $supplier)
-                                <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-control">
-                        <label class="label"><span class="label-text font-bold text-xs uppercase">Status</span></label>
-                        <select wire:model.live="filterStatus" class="select select-bordered select-sm">
-                            <option value="">Semua</option>
-                            <option value="received">Diterima</option>
-                            <option value="pending">Pending</option>
-                            <option value="cancelled">Batal</option>
-                        </select>
+                </div>
+                <div class="dropdown dropdown-end">
+                    <label tabindex="0" class="btn btn-ghost btn-sm gap-2">
+                        <x-heroicon-o-funnel class="w-5 h-5" />
+                        Filter
+                        @if ($activeFilterCount > 0)
+                            <span class="badge badge-primary badge-sm">{{ $activeFilterCount }}</span>
+                        @endif
+                    </label>
+                    <div tabindex="0" class="dropdown-content z-10 card card-compact w-80 p-4 bg-base-100 border border-base-300 mt-2">
+                        <div class="space-y-3">
+                            <div class="form-control">
+                                <label class="label"><span class="label-text font-bold text-xs uppercase">Supplier</span></label>
+                                <select wire:model.live="filterSupplier" class="select select-bordered select-sm">
+                                    <option value="">Semua Supplier</option>
+                                    @foreach($suppliers as $supplier)
+                                        <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text font-bold text-xs uppercase">Status</span></label>
+                                <select wire:model.live="filterStatus" class="select select-bordered select-sm">
+                                    <option value="">Semua</option>
+                                    <option value="received">Diterima</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="cancelled">Batal</option>
+                                </select>
+                            </div>
+                            <button wire:click="resetFilters" class="btn btn-ghost btn-sm w-full">Reset Filter</button>
+                        </div>
                     </div>
                 </div>
             </div>

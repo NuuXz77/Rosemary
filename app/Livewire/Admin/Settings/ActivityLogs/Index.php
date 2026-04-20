@@ -29,6 +29,13 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function resetFilters(): void
+    {
+        $this->filterAction = '';
+        $this->search = '';
+        $this->resetPage();
+    }
+
     public function render()
     {
         $logs = ActivityLog::query()

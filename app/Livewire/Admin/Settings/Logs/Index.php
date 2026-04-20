@@ -139,6 +139,14 @@ class Index extends Component
         $this->selectedFile = basename($filename);
         $this->search = '';
         $this->filterLevel = '';
+        $this->linesPerPage = 100;
+    }
+
+    public function resetFilters(): void
+    {
+        $this->search = '';
+        $this->filterLevel = '';
+        $this->linesPerPage = 100;
     }
 
     /**

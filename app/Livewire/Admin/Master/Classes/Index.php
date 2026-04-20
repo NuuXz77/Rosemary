@@ -20,6 +20,7 @@ class Index extends Component
     public int $perPage = 10;
     public string $sortField = 'created_at';
     public string $sortDirection = 'desc';
+    public string $filterStatus = '';
 
     public function sortBy(string $field): void
     {
@@ -41,6 +42,17 @@ class Index extends Component
 
     public function updatingSearch(): void
     {
+        $this->resetPage();
+    }
+
+    public function updatingFilterStatus(): void
+    {
+        $this->resetPage();
+    }
+
+    public function resetFilters(): void
+    {
+        $this->filterStatus = '';
         $this->resetPage();
     }
 
@@ -82,6 +94,7 @@ class Index extends Component
         $classes = SchoolClass::query()
             ->withCount('students')
             ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))
+            ->when($this->filterStatus !== '', fn($q) => $q->where('status', $this->filterStatus === 'active'))
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
 

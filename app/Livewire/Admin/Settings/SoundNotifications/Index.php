@@ -16,6 +16,7 @@ class Index extends Component
     public bool $productionEnabled = true;
     public int $volume = 80;
     public string $messageTemplate = 'Pesanan baru masuk. Silakan cek antrian.';
+    public string $testTargetFilter = '';
 
     public function mount(): void
     {
@@ -111,6 +112,11 @@ class Index extends Component
         };
 
         $this->dispatch('play-sound-test', message: $message, volume: $this->volume);
+    }
+
+    public function resetFilters(): void
+    {
+        $this->testTargetFilter = '';
     }
 
     public function render()

@@ -19,6 +19,7 @@ class Index extends Component
     public string $search = '';
     public int $perPage = 10;
     public string $filterType = '';
+    public string $filterStatus = '';
 
     public function mount()
     {
@@ -34,6 +35,18 @@ class Index extends Component
 
     public function updatingFilterType()
     {
+        $this->resetPage();
+    }
+
+    public function updatingFilterStatus()
+    {
+        $this->resetPage();
+    }
+
+    public function resetFilters()
+    {
+        $this->filterType = '';
+        $this->filterStatus = '';
         $this->resetPage();
     }
 
@@ -83,6 +96,7 @@ class Index extends Component
                 });
             })
             ->when($this->filterType, fn($q) => $q->where('type', $this->filterType))
+            ->when($this->filterStatus !== '', fn($q) => $q->where('status', $this->filterStatus === 'active'))
             ->orderBy('created_at', 'desc')
             ->paginate($this->perPage);
 

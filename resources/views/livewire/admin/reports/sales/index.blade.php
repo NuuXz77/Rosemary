@@ -202,8 +202,16 @@
     {{-- Filters + Table --}}
     <div class="card bg-base-100 border border-base-200 shadow-sm">
         <div class="card-body p-6 divide-y divide-base-200">
-            <div class="flex flex-col xl:flex-row gap-4 mb-4">
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 flex-grow">
+            @php
+                $activeFilterCount = collect([
+                    $filterPayment,
+                    $filterShift,
+                    $filterCashier,
+                    $filterStatus,
+                ])->filter(fn($value) => $value !== '')->count();
+            @endphp
+            <div class="flex flex-col xl:flex-row xl:items-end gap-4 mb-4">
+                <div class="grid grid-cols-2 md:grid-cols-2 gap-3 grow">
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold text-xs uppercase">Sejak</span></label>
                         <input type="date" wire:model.live="startDate" class="input input-bordered input-sm" />
@@ -212,41 +220,54 @@
                         <label class="label"><span class="label-text font-bold text-xs uppercase">Sampai</span></label>
                         <input type="date" wire:model.live="endDate" class="input input-bordered input-sm" />
                     </div>
-                    <div class="form-control">
-                        <label class="label"><span class="label-text font-bold text-xs uppercase">Metode
-                                Bayar</span></label>
-                        <select wire:model.live="filterPayment" class="select select-bordered select-sm">
-                            <option value="">Semua</option>
-                            <option value="cash">Tunai</option>
-                            <option value="qris">QRIS</option>
-                            <option value="transfer">Transfer</option>
-                        </select>
-                    </div>
-                    <div class="form-control">
-                        <label class="label"><span class="label-text font-bold text-xs uppercase">Shift</span></label>
-                        <select wire:model.live="filterShift" class="select select-bordered select-sm">
-                            <option value="">Semua Shift</option>
-                            @foreach($shifts as $shift)
-                                <option value="{{ $shift->id }}">{{ $shift->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-control">
-                        <label class="label"><span class="label-text font-bold text-xs uppercase">Kasir</span></label>
-                        <select wire:model.live="filterCashier" class="select select-bordered select-sm">
-                            <option value="">Semua Kasir</option>
-                            @foreach($students as $student)
-                                <option value="{{ $student->id }}">{{ $student->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-control">
-                        <label class="label"><span class="label-text font-bold text-xs uppercase">Status</span></label>
-                        <select wire:model.live="filterStatus" class="select select-bordered select-sm">
-                            <option value="">Semua</option>
-                            <option value="paid">Lunas</option>
-                            <option value="cancelled">Batal</option>
-                        </select>
+                </div>
+                <div class="dropdown dropdown-end">
+                    <label tabindex="0" class="btn btn-ghost btn-sm gap-2">
+                        <x-heroicon-o-funnel class="w-5 h-5" />
+                        Filter
+                        @if ($activeFilterCount > 0)
+                            <span class="badge badge-primary badge-sm">{{ $activeFilterCount }}</span>
+                        @endif
+                    </label>
+                    <div tabindex="0" class="dropdown-content z-10 card card-compact w-80 p-4 bg-base-100 border border-base-300 mt-2">
+                        <div class="space-y-3">
+                            <div class="form-control">
+                                <label class="label"><span class="label-text font-bold text-xs uppercase">Metode Bayar</span></label>
+                                <select wire:model.live="filterPayment" class="select select-bordered select-sm">
+                                    <option value="">Semua</option>
+                                    <option value="cash">Tunai</option>
+                                    <option value="qris">QRIS</option>
+                                    <option value="transfer">Transfer</option>
+                                </select>
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text font-bold text-xs uppercase">Shift</span></label>
+                                <select wire:model.live="filterShift" class="select select-bordered select-sm">
+                                    <option value="">Semua Shift</option>
+                                    @foreach($shifts as $shift)
+                                        <option value="{{ $shift->id }}">{{ $shift->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text font-bold text-xs uppercase">Kasir</span></label>
+                                <select wire:model.live="filterCashier" class="select select-bordered select-sm">
+                                    <option value="">Semua Kasir</option>
+                                    @foreach($students as $student)
+                                        <option value="{{ $student->id }}">{{ $student->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text font-bold text-xs uppercase">Status</span></label>
+                                <select wire:model.live="filterStatus" class="select select-bordered select-sm">
+                                    <option value="">Semua</option>
+                                    <option value="paid">Lunas</option>
+                                    <option value="cancelled">Batal</option>
+                                </select>
+                            </div>
+                            <button wire:click="resetFilters" class="btn btn-ghost btn-sm w-full">Reset Filter</button>
+                        </div>
                     </div>
                 </div>
             </div>

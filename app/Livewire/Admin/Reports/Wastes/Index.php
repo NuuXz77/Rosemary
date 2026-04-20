@@ -38,6 +38,13 @@ class Index extends Component
         }
     }
 
+    public function resetFilters(): void
+    {
+        $this->filterGroup = '';
+        $this->resetPage('pWastePage');
+        $this->resetPage('mWastePage');
+    }
+
     public function export()
     {
         return \Maatwebsite\Excel\Facades\Excel::download(

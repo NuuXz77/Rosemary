@@ -19,6 +19,7 @@ class Index extends Component
     public $perPage = 10;
     public $sortField = 'name';
     public $sortDirection = 'asc';
+    public string $filterUserAssignment = '';
 
     /**
      * AUTHORIZATION CHECK
@@ -36,6 +37,17 @@ class Index extends Component
     // Reset pagination saat search berubah
     public function updatingSearch()
     {
+        $this->resetPage();
+    }
+
+    public function updatingFilterUserAssignment(): void
+    {
+        $this->resetPage();
+    }
+
+    public function resetFilters(): void
+    {
+        $this->filterUserAssignment = '';
         $this->resetPage();
     }
 
@@ -67,6 +79,8 @@ class Index extends Component
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%');
             })
+            ->when($this->filterUserAssignment === 'assigned', fn($query) => $query->has('users'))
+            ->when($this->filterUserAssignment === 'unassigned', fn($query) => $query->doesntHave('users'))
             ->withCount('users') // Hitung jumlah users per role
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);

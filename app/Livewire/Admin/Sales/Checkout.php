@@ -163,7 +163,7 @@ class Checkout extends Component
     public function submitOrder()
     {
         $this->validate([
-            'payment_method' => 'required|in:cash,qris,transfer',
+            'payment_method' => 'required|in:cash,qris',
             'payment_status' => 'required|in:paid,unpaid',
             'status_order'   => 'required|in:Take away,Dine in',
             'table_number'   => 'nullable|string|max:255|required_if:status_order,Dine in',

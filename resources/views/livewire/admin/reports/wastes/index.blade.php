@@ -167,8 +167,13 @@
     {{-- Filters & Table --}}
     <div class="card bg-base-100 border border-base-200 shadow-sm">
         <div class="card-body p-6 space-y-4">
+            @php
+                $activeFilterCount = collect([
+                    $filterGroup,
+                ])->filter(fn($value) => $value !== '')->count();
+            @endphp
             <div class="flex flex-col md:flex-row gap-4 justify-between items-end">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 flex-grow max-w-4xl">
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3 grow max-w-4xl">
                     <div class="form-control">
                         <label class="label"><span class="label-text font-black text-[10px] uppercase opacity-50">Dari</span></label>
                         <input type="date" wire:model.live="startDate" class="input input-bordered input-sm" />
@@ -178,22 +183,38 @@
                         <input type="date" wire:model.live="endDate" class="input input-bordered input-sm" />
                     </div>
                     <div class="form-control">
-                        <label class="label"><span class="label-text font-black text-[10px] uppercase opacity-50">Kelompok</span></label>
-                        <select wire:model.live="filterGroup" class="select select-bordered select-sm">
-                            <option value="">Semua</option>
-                            @foreach($groups as $group)
-                                <option value="{{ $group->id }}">{{ $group->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-control">
                         <label class="label"><span class="label-text font-black text-[10px] uppercase opacity-50">Cari</span></label>
                         <input type="text" wire:model.live.debounce.300ms="search" placeholder="Produk / Alasan..." class="input input-bordered input-sm" />
                     </div>
                 </div>
-                <button wire:click="export" class="btn btn-sm btn-success text-white">
-                    <x-heroicon-o-document-arrow-down class="w-4 h-4" /> Export Excel
-                </button>
+                <div class="flex items-center gap-2">
+                    <div class="dropdown dropdown-end">
+                        <label tabindex="0" class="btn btn-ghost btn-sm gap-2">
+                            <x-heroicon-o-funnel class="w-5 h-5" />
+                            Filter
+                            @if ($activeFilterCount > 0)
+                                <span class="badge badge-primary badge-sm">{{ $activeFilterCount }}</span>
+                            @endif
+                        </label>
+                        <div tabindex="0" class="dropdown-content z-10 card card-compact w-72 p-4 bg-base-100 border border-base-300 mt-2">
+                            <div class="space-y-3">
+                                <div class="form-control">
+                                    <label class="label"><span class="label-text font-bold text-xs uppercase">Kelompok</span></label>
+                                    <select wire:model.live="filterGroup" class="select select-bordered select-sm">
+                                        <option value="">Semua</option>
+                                        @foreach($groups as $group)
+                                            <option value="{{ $group->id }}">{{ $group->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <button wire:click="resetFilters" class="btn btn-ghost btn-sm w-full">Reset Filter</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button wire:click="export" class="btn btn-sm btn-success text-white">
+                        <x-heroicon-o-document-arrow-down class="w-4 h-4" /> Export Excel
+                    </button>
+                </div>
             </div>
 
             <div class="divider">Detail Limbah Produk</div>

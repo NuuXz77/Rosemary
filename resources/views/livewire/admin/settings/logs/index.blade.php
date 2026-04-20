@@ -79,6 +79,12 @@
                     </div>
 
                     {{-- Filters --}}
+                    @php
+                        $activeFilterCount = collect([
+                            $filterLevel,
+                            $linesPerPage !== 100 ? (string) $linesPerPage : '',
+                        ])->filter(fn($value) => $value !== '')->count();
+                    @endphp
                     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-4">
                         <div class="join flex-1">
                             <label class="input input-sm input-bordered join-item flex items-center gap-2 w-full">
@@ -87,25 +93,43 @@
                                     placeholder="Cari pesan error..." />
                             </label>
                         </div>
-
-                        <select wire:model.live="filterLevel" class="select select-sm select-bordered w-full sm:w-40">
-                            <option value="">Semua Level</option>
-                            <option value="emergency">🔴 Emergency</option>
-                            <option value="alert">🟠 Alert</option>
-                            <option value="critical">🔴 Critical</option>
-                            <option value="error">🔴 Error</option>
-                            <option value="warning">🟡 Warning</option>
-                            <option value="notice">🔵 Notice</option>
-                            <option value="info">🟢 Info</option>
-                            <option value="debug">⚪ Debug</option>
-                        </select>
-
-                        <select wire:model.live="linesPerPage" class="select select-sm select-bordered w-full sm:w-32">
-                            <option value="50">50 baris</option>
-                            <option value="100">100 baris</option>
-                            <option value="200">200 baris</option>
-                            <option value="500">500 baris</option>
-                        </select>
+                        <div class="dropdown dropdown-end">
+                            <label tabindex="0" class="btn btn-ghost btn-sm gap-2 w-full sm:w-auto">
+                                <x-heroicon-o-funnel class="w-5 h-5" />
+                                Filter
+                                @if ($activeFilterCount > 0)
+                                    <span class="badge badge-primary badge-sm">{{ $activeFilterCount }}</span>
+                                @endif
+                            </label>
+                            <div tabindex="0" class="dropdown-content z-10 card card-compact w-80 p-4 bg-base-100 border border-base-300 mt-2">
+                                <div class="space-y-3">
+                                    <div class="form-control">
+                                        <label class="label"><span class="label-text font-bold text-xs uppercase">Level</span></label>
+                                        <select wire:model.live="filterLevel" class="select select-sm select-bordered">
+                                            <option value="">Semua Level</option>
+                                            <option value="emergency">🔴 Emergency</option>
+                                            <option value="alert">🟠 Alert</option>
+                                            <option value="critical">🔴 Critical</option>
+                                            <option value="error">🔴 Error</option>
+                                            <option value="warning">🟡 Warning</option>
+                                            <option value="notice">🔵 Notice</option>
+                                            <option value="info">🟢 Info</option>
+                                            <option value="debug">⚪ Debug</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-control">
+                                        <label class="label"><span class="label-text font-bold text-xs uppercase">Jumlah Baris</span></label>
+                                        <select wire:model.live="linesPerPage" class="select select-sm select-bordered">
+                                            <option value="50">50 baris</option>
+                                            <option value="100">100 baris</option>
+                                            <option value="200">200 baris</option>
+                                            <option value="500">500 baris</option>
+                                        </select>
+                                    </div>
+                                    <button wire:click="resetFilters" class="btn btn-ghost btn-sm w-full">Reset Filter</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {{-- Stats Bar --}}

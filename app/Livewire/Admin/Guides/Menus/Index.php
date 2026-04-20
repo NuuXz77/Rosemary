@@ -17,10 +17,22 @@ class Index extends Component
 
     public string $activeRole = 'admin';
     public string $search = '';
+    public string $filterStatus = '';
     public int $perPage = 10;
 
     public function updatingSearch(): void
     {
+        $this->resetPage();
+    }
+
+    public function updatingFilterStatus(): void
+    {
+        $this->resetPage();
+    }
+
+    public function resetFilters(): void
+    {
+        $this->filterStatus = '';
         $this->resetPage();
     }
 
@@ -69,6 +81,8 @@ class Index extends Component
                         ->orWhere('required_permission', 'like', '%' . $this->search . '%');
                 });
             })
+            ->when($this->filterStatus === 'active', fn($query) => $query->where('is_active', true))
+            ->when($this->filterStatus === 'inactive', fn($query) => $query->where('is_active', false))
             ->orderBy('sort_order')
             ->orderBy('label')
             ->paginate($this->perPage);

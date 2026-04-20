@@ -1,17 +1,36 @@
 <div>
     <x-slot:header>
         @if ($dashboardRole === 'admin')
+            @php
+                $activeFilterCount = $period !== 'month' ? 1 : 0;
+            @endphp
             <div class="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
                     <h1 class="text-xl font-bold text-base-content">Dashboard</h1>
                     {{-- <p class="text-sm text-base-content/60">Ringkasan data bisnis Rosemary</p> --}}
                 </div>
-                <div class="join bg-base-200/50 p-1 rounded-xl">
-                    @foreach (['today' => 'Hari Ini', 'week' => 'Minggu Ini', 'month' => 'Bulan Ini', 'year' => 'Tahun Ini'] as $key => $label)
-                        <input type="radio" name="admin-period"
-                            class="join-item btn btn-sm rounded-lg font-bold border-none" aria-label="{{ $label }}"
-                            value="{{ $key }}" @checked($period === $key) wire:model.live="period" />
-                    @endforeach
+                <div class="dropdown dropdown-end">
+                    <label tabindex="0" class="btn btn-ghost btn-sm gap-2">
+                        <x-heroicon-o-funnel class="w-5 h-5" />
+                        Filter
+                        @if ($activeFilterCount > 0)
+                            <span class="badge badge-primary badge-sm">{{ $activeFilterCount }}</span>
+                        @endif
+                    </label>
+                    <div tabindex="0" class="dropdown-content z-10 card card-compact w-72 p-4 bg-base-100 border border-base-300 mt-2">
+                        <div class="space-y-3">
+                            <div class="form-control">
+                                <label class="label"><span class="label-text font-bold text-xs uppercase">Periode Dashboard</span></label>
+                                <select wire:model.live="period" class="select select-sm select-bordered">
+                                    <option value="today">Hari Ini</option>
+                                    <option value="week">Minggu Ini</option>
+                                    <option value="month">Bulan Ini</option>
+                                    <option value="year">Tahun Ini</option>
+                                </select>
+                            </div>
+                            <button wire:click="resetFilters" class="btn btn-ghost btn-sm w-full">Reset Filter</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         @endif

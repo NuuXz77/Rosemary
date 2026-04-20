@@ -57,6 +57,8 @@ Route::middleware('auth')->group(function () {
         ->middleware('can:guides.view');
 
     Route::middleware('can:guides.manage')->group(function () {
+        Route::get('/settings/guides/articles/create', App\Livewire\Admin\Guides\Articles\Create::class)->name('guides.articles.create');
+        Route::get('/settings/guides/articles', App\Livewire\Admin\Guides\Articles\Index::class)->name('guides.articles.index');
         Route::get('/settings/guides/menus', App\Livewire\Admin\Guides\Menus\Index::class)->name('guides.menus.index');
         Route::get('/settings/guides/steps', App\Livewire\Admin\Guides\Steps\Index::class)->name('guides.steps.index');
         Route::get('/settings/guides/faqs', App\Livewire\Admin\Guides\Faqs\Index::class)->name('guides.faqs.index');

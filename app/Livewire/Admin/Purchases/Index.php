@@ -19,6 +19,7 @@ class Index extends Component
     public int $perPage = 10;
     public string $sortField = 'created_at';
     public string $sortDirection = 'desc';
+    public string $filterStatus = '';
 
     public function mount()
     {
@@ -29,6 +30,17 @@ class Index extends Component
 
     public function updatingSearch()
     {
+        $this->resetPage();
+    }
+
+    public function updatingFilterStatus(): void
+    {
+        $this->resetPage();
+    }
+
+    public function resetFilters(): void
+    {
+        $this->filterStatus = '';
         $this->resetPage();
     }
 
@@ -80,6 +92,7 @@ class Index extends Component
                         ->orWhereHas('supplier', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'));
                 });
             })
+            ->when($this->filterStatus !== '', fn($query) => $query->where('status', $this->filterStatus))
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
 

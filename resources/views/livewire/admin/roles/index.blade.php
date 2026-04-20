@@ -3,17 +3,48 @@
         $canCreate = auth()->user()->can('roles.create') || auth()->user()->can('roles.manage');
         $canEdit = auth()->user()->can('roles.edit') || auth()->user()->can('roles.manage');
         $canDelete = auth()->user()->can('roles.delete') || auth()->user()->can('roles.manage');
+        $activeFilterCount = collect([
+            $filterUserAssignment,
+        ])->filter(fn($value) => $value !== '')->count();
     @endphp
 
     <div class="card bg-base-100 border border-base-300">
         <div class="card-body">
 
             <div class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mb-6">
-                <div class="form-control w-full md:w-80">
-                    <label class="input input-sm">
-                        <x-bi-search class="w-3" />
-                        <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari role..." />
-                    </label>
+                <div class="flex items-center gap-2 w-full md:w-auto">
+                    <div class="form-control w-full md:w-80">
+                        <label class="input input-sm">
+                            <x-bi-search class="w-3" />
+                            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari role..." />
+                        </label>
+                    </div>
+
+                    <div class="dropdown dropdown-end">
+                        <label tabindex="0" class="btn btn-ghost btn-sm gap-2">
+                            <x-heroicon-o-funnel class="w-5 h-5" />
+                            Filter
+                            @if ($activeFilterCount > 0)
+                                <span class="badge badge-primary badge-sm">{{ $activeFilterCount }}</span>
+                            @endif
+                        </label>
+                        <div tabindex="0" class="dropdown-content z-10 card card-compact w-64 p-4 bg-base-100 border border-base-300 mt-2">
+                            <div class="space-y-3">
+                                <x-form.select
+                                    label="Relasi User"
+                                    name="filterUserAssignment"
+                                    wire:model.live="filterUserAssignment"
+                                    placeholder="Semua"
+                                    class="select-sm"
+                                >
+                                    <option value="assigned">Sudah dipakai user</option>
+                                    <option value="unassigned">Belum dipakai user</option>
+                                </x-form.select>
+
+                                <button wire:click="resetFilters" class="btn btn-ghost btn-sm w-full">Reset Filter</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 @if($canCreate)

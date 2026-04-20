@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Productions;
 
 use App\Models\Productions;
+use App\Models\Shift;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -18,6 +19,8 @@ class Index extends Component
     // Search & Pagination
     public string $search = '';
     public int $perPage = 10;
+    public string $filterStatus = '';
+    public string $filterShift = '';
 
     protected $listeners = [
         'production-created' => '$refresh',
@@ -28,6 +31,23 @@ class Index extends Component
 
     public function updatingSearch(): void
     {
+        $this->resetPage();
+    }
+
+    public function updatingFilterStatus(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterShift(): void
+    {
+        $this->resetPage();
+    }
+
+    public function resetFilters(): void
+    {
+        $this->filterStatus = '';
+        $this->filterShift = '';
         $this->resetPage();
     }
 
@@ -57,12 +77,15 @@ class Index extends Component
                 $query->whereHas('product', fn($innerQuery) => $innerQuery->where('name', 'like', '%' . $this->search . '%'))
                     ->orWhereHas('studentGroup', fn($innerQuery) => $innerQuery->where('name', 'like', '%' . $this->search . '%'));
             })
+            ->when($this->filterStatus !== '', fn($query) => $query->where('status', $this->filterStatus))
+            ->when($this->filterShift !== '', fn($query) => $query->where('shift_id', $this->filterShift))
             ->orderByDesc('production_date')
             ->orderByDesc('created_at')
             ->paginate($this->perPage);
 
         return view('livewire.admin.productions.index', [
             'productions' => $productions,
+            'shifts' => Shift::query()->orderBy('name')->get(),
         ]);
     }
 }

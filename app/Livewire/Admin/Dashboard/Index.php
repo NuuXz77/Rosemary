@@ -102,6 +102,13 @@ class Index extends Component
         $this->salesChartScope = in_array($value, $allowedScopes, true) ? $value : 'daily';
     }
 
+    public function resetFilters(): void
+    {
+        $this->period = 'month';
+        $this->salesChartScope = 'daily';
+        $this->chartDays = 7;
+    }
+
     private function buildDailySalesTrend(): array
     {
         $start = now()->subDays(6)->startOfDay();

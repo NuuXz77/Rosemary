@@ -24,6 +24,7 @@ class Index extends Component
     public $current_password;
     public $new_password;
     public $new_password_confirmation;
+    public string $activityFilter = '';
 
     public function mount()
     {
@@ -92,6 +93,11 @@ class Index extends Component
         $this->isChangingPassword = false;
 
         $this->dispatch('show-toast', type: 'success', message: 'Password berhasil diperbarui.');
+    }
+
+    public function resetFilters(): void
+    {
+        $this->activityFilter = '';
     }
 
     public function render()

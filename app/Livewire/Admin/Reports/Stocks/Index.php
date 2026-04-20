@@ -17,6 +17,7 @@ class Index extends Component
     public $startDate;
     public $endDate;
     public $search = '';
+    public $filterStockLevel = '';
     public $perPage = 15;
 
     public function mount()
@@ -27,9 +28,18 @@ class Index extends Component
 
     public function updated($property)
     {
-        if (in_array($property, ['startDate', 'endDate', 'search'])) {
+        if (in_array($property, ['startDate', 'endDate', 'search', 'filterStockLevel'])) {
             $this->resetPage();
         }
+    }
+
+    public function resetFilters(): void
+    {
+        $this->startDate = now()->startOfMonth()->format('Y-m-d');
+        $this->endDate = now()->format('Y-m-d');
+        $this->filterStockLevel = '';
+        $this->search = '';
+        $this->resetPage();
     }
 
     public function export()
@@ -45,6 +55,8 @@ class Index extends Component
         $stocks = ProductStocks::query()
             ->with(['product'])
             ->when($this->search, fn($q) => $q->whereHas('product', fn($s) => $s->where('name', 'like', '%' . $this->search . '%')))
+            ->when($this->filterStockLevel === 'low', fn($q) => $q->where('qty_available', '<=', 5))
+            ->when($this->filterStockLevel === 'normal', fn($q) => $q->where('qty_available', '>', 5))
             ->orderBy('qty_available', 'desc')
             ->paginate($this->perPage);
 

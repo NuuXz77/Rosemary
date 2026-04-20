@@ -58,7 +58,7 @@ class POS extends Component
         'cashier_student_id' => 'required|exists:students,id',
         'status_order' => 'required|in:Take away,Dine in',
         'table_number' => 'nullable|string|max:255',
-        'payment_method' => 'required|in:cash,qris,transfer',
+        'payment_method' => 'required|in:cash,qris',
         'paid_amount' => 'required|numeric|min:0',
     ];
 

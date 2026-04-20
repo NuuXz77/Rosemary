@@ -18,6 +18,7 @@ class Index extends Component
 
     public string $search = '';
     public int $perPage = 10;
+    public string $filterFrequency = '';
 
     public function mount(): void
     {
@@ -28,6 +29,17 @@ class Index extends Component
 
     public function updatingSearch(): void
     {
+        $this->resetPage();
+    }
+
+    public function updatingFilterFrequency(): void
+    {
+        $this->resetPage();
+    }
+
+    public function resetFilters(): void
+    {
+        $this->filterFrequency = '';
         $this->resetPage();
     }
 
@@ -71,6 +83,7 @@ class Index extends Component
                 $q->where('name', 'like', "%{$this->search}%")
                   ->orWhere('phone', 'like', "%{$this->search}%");
             })
+            ->when($this->filterFrequency !== '', fn($q) => $q->where('status', $this->filterFrequency))
             ->orderBy('created_at', 'desc')
             ->paginate($this->perPage);
 

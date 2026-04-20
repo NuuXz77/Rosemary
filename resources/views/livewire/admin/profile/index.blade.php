@@ -223,26 +223,60 @@
             <!-- Recent Activity (Placeholder) -->
             <div class="card bg-base-100 border border-base-300">
                 <div class="card-body">
-                    <h3 class="font-bold text-lg mb-4">Aktivitas Terakhir</h3>
+                    @php
+                        $activeFilterCount = $activityFilter !== '' ? 1 : 0;
+                    @endphp
+                    <div class="flex items-center justify-between gap-3 mb-4">
+                        <h3 class="font-bold text-lg">Aktivitas Terakhir</h3>
+                        <div class="dropdown dropdown-end">
+                            <label tabindex="0" class="btn btn-ghost btn-sm gap-2">
+                                <x-heroicon-o-funnel class="w-5 h-5" />
+                                Filter
+                                @if ($activeFilterCount > 0)
+                                    <span class="badge badge-primary badge-sm">{{ $activeFilterCount }}</span>
+                                @endif
+                            </label>
+                            <div tabindex="0" class="dropdown-content z-10 card card-compact w-72 p-4 bg-base-100 border border-base-300 mt-2">
+                                <div class="space-y-3">
+                                    <div class="form-control">
+                                        <label class="label"><span class="label-text font-bold text-xs uppercase">Jenis Aktivitas</span></label>
+                                        <select wire:model.live="activityFilter" class="select select-sm select-bordered">
+                                            <option value="">Semua Aktivitas</option>
+                                            <option value="login">Login</option>
+                                            <option value="profile">Profil</option>
+                                            <option value="sales">Transaksi</option>
+                                        </select>
+                                    </div>
+                                    <button wire:click="resetFilters" class="btn btn-ghost btn-sm w-full">Reset Filter</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <ul class="steps steps-vertical">
-                        <li class="step step-primary" data-content="●">
-                            <div class="text-left ml-2">
-                                <p class="font-bold text-sm">Login ke sistem</p>
-                                <p class="text-xs text-base-content/60">Baru saja</p>
-                            </div>
-                        </li>
-                        <li class="step" data-content="●">
-                            <div class="text-left ml-2">
-                                <p class="font-bold text-sm">Memperbarui data profil</p>
-                                <p class="text-xs text-base-content/60">Kemarin, 14:30</p>
-                            </div>
-                        </li>
-                        <li class="step" data-content="●">
-                            <div class="text-left ml-2">
-                                <p class="font-bold text-sm">Melakukan transaksi penjualan #INV-001</p>
-                                <p class="text-xs text-base-content/60">18 Feb 2026, 09:15</p>
-                            </div>
-                        </li>
+                        @if($activityFilter === '' || $activityFilter === 'login')
+                            <li class="step step-primary" data-content="●">
+                                <div class="text-left ml-2">
+                                    <p class="font-bold text-sm">Login ke sistem</p>
+                                    <p class="text-xs text-base-content/60">Baru saja</p>
+                                </div>
+                            </li>
+                        @endif
+                        @if($activityFilter === '' || $activityFilter === 'profile')
+                            <li class="step" data-content="●">
+                                <div class="text-left ml-2">
+                                    <p class="font-bold text-sm">Memperbarui data profil</p>
+                                    <p class="text-xs text-base-content/60">Kemarin, 14:30</p>
+                                </div>
+                            </li>
+                        @endif
+                        @if($activityFilter === '' || $activityFilter === 'sales')
+                            <li class="step" data-content="●">
+                                <div class="text-left ml-2">
+                                    <p class="font-bold text-sm">Melakukan transaksi penjualan #INV-001</p>
+                                    <p class="text-xs text-base-content/60">18 Feb 2026, 09:15</p>
+                                </div>
+                            </li>
+                        @endif
                     </ul>
                 </div>
             </div>

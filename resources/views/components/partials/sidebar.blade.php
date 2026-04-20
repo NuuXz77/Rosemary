@@ -334,13 +334,16 @@
                                 {{ request()->routeIs('users.*', 'roles.*', 'permissions.*', 'category-permissions.*') ? 'open' : '' }}>
                                 <summary>
                                     <x-heroicon-o-users class="w-5" />
-                                    Manajemen Pengguna
+                                    Pengguna & Akses
                                 </summary>
                                 <ul>
                                     @if ($canUsers)
                                         <li>
                                             <a wire:navigate href="{{ route('users.index') }}"
-                                                class="{{ request()->routeIs('users.*') ? 'bg-base-300' : '' }}">Pengguna</a>
+                                                class="{{ request()->routeIs('users.*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                <x-heroicon-o-user-circle class="w-4 h-4" />
+                                                Pengguna
+                                            </a>
                                         </li>
                                     @endif
 
@@ -350,27 +353,35 @@
                                                 {{ request()->routeIs('roles.*', 'permissions.*', 'category-permissions.*') ? 'open' : '' }}>
                                                 <summary>
                                                     <x-heroicon-o-shield-check class="w-5" />
-                                                    Hak Akses
+                                                    Role & Permission
                                                 </summary>
                                                 <ul>
                                                     @if ($canCategoryPermissions)
                                                         <li>
                                                             <a wire:navigate
                                                                 href="{{ route('category-permissions.index') }}"
-                                                                class="{{ request()->routeIs('category-permissions.*') ? 'bg-base-300' : '' }}">Kategori
-                                                                Permission</a>
+                                                                class="{{ request()->routeIs('category-permissions.*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-squares-2x2 class="w-4 h-4" />
+                                                                Kategori Permission
+                                                            </a>
                                                         </li>
                                                     @endif
                                                     @if ($canRoles)
                                                         <li>
                                                             <a wire:navigate href="{{ route('roles.index') }}"
-                                                                class="{{ request()->routeIs('roles.*') ? 'bg-base-300' : '' }}">Role</a>
+                                                                class="{{ request()->routeIs('roles.*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-shield-check class="w-4 h-4" />
+                                                                Role
+                                                            </a>
                                                         </li>
                                                     @endif
                                                     @if ($canPermissions)
                                                         <li>
                                                             <a wire:navigate href="{{ route('permissions.index') }}"
-                                                                class="{{ request()->routeIs('permissions.*') ? 'bg-base-300' : '' }}">Permission</a>
+                                                                class="{{ request()->routeIs('permissions.*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-key class="w-4 h-4" />
+                                                                Permission
+                                                            </a>
                                                         </li>
                                                     @endif
                                                 </ul>
@@ -411,28 +422,34 @@
                                 {{ request()->is('students*', 'student-groups*', 'student-group-members*', 'master/classes*') ? 'open' : '' }}>
                                 <summary>
                                     <x-heroicon-o-academic-cap class="w-5" />
-                                    Manajemen Siswa
+                                    Siswa & Kelompok
                                 </summary>
                                 <ul>
                                     @if ($canStudents)
                                         <li>
                                             <a wire:navigate href="/students"
-                                                class="{{ request()->is('students*') ? 'bg-base-300' : '' }}">Data
-                                                Siswa</a>
+                                                class="{{ request()->is('students*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                <x-heroicon-o-academic-cap class="w-4 h-4" />
+                                                Data Siswa
+                                            </a>
                                         </li>
                                     @endif
                                     @if ($canStudentGroups)
                                         <li>
                                             <a wire:navigate href="/student-groups"
-                                                class="{{ request()->is('student-groups*') ? 'bg-base-300' : '' }}">Kelompok
-                                                Siswa</a>
+                                                class="{{ request()->is('student-groups*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                <x-heroicon-o-user-group class="w-4 h-4" />
+                                                Kelompok Siswa
+                                            </a>
                                         </li>
                                     @endif
                                     @if ($canStudentMembers)
                                         <li>
                                             <a wire:navigate href="/student-group-members"
-                                                class="{{ request()->is('student-group-members*') ? 'bg-base-300' : '' }}">Anggota
-                                                Kelompok</a>
+                                                class="{{ request()->is('student-group-members*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                <x-heroicon-o-users class="w-4 h-4" />
+                                                Anggota Kelompok
+                                            </a>
                                         </li>
                                     @endif
                                 </ul>
@@ -447,25 +464,32 @@
                         <details {{ request()->is('schedules*', 'student-attendances*', 'student-group-attendances*') ? 'open' : '' }}>
                             <summary>
                                 <x-heroicon-o-calendar class="w-5" />
-                                Penjadwalan
+                                Jadwal & Kehadiran
                             </summary>
                             <ul>
                                 @if ($canSchedules)
                                     <li>
                                         <a wire:navigate href="/schedules"
-                                            class="{{ request()->is('schedules*') ? 'bg-base-300' : '' }}">Jadwal Harian</a>
+                                            class="{{ request()->is('schedules*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                            <x-heroicon-o-calendar-days class="w-4 h-4" />
+                                            Jadwal Harian
+                                        </a>
                                     </li>
                                     <li>
                                         <a wire:navigate href="/student-attendances"
-                                            class="{{ request()->is('student-attendances*') ? 'bg-base-300' : '' }}">Kehadiran
-                                            Siswa</a>
+                                            class="{{ request()->is('student-attendances*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                            <x-heroicon-o-check-badge class="w-4 h-4" />
+                                            Kehadiran Siswa
+                                        </a>
                                     </li>
                                 @endif
                                 @if ($canGroupAttendances)
                                     <li>
                                         <a wire:navigate href="/student-group-attendances"
-                                            class="{{ request()->is('student-group-attendances*') ? 'bg-base-300' : '' }}">Kehadiran
-                                            Grup</a>
+                                            class="{{ request()->is('student-group-attendances*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                            <x-heroicon-o-user-group class="w-4 h-4" />
+                                            Kehadiran Grup
+                                        </a>
                                     </li>
                                 @endif
                             </ul>
@@ -496,7 +520,7 @@
                                 <a wire:navigate href="{{ $inventoryMaterialRoute }}"
                                     class="{{ request()->is('materials*', 'material-stocks*', 'material-stock-logs*', 'material-wastes*') ? 'bg-base-300' : '' }}">
                                     <x-heroicon-o-archive-box class="w-5" />
-                                    Manajemen Inventaris
+                                    Inventaris & Stok
                                 </a>
                             @elseif($canProductGroup)
                                 @php
@@ -511,7 +535,7 @@
                                 <a wire:navigate href="{{ $inventoryProductRoute }}"
                                     class="{{ request()->is('products*', 'product-stocks*', 'product-stock-logs*', 'product-wastes*') ? 'bg-base-300' : '' }}">
                                     <x-heroicon-o-archive-box class="w-5" />
-                                    Manajemen Inventaris
+                                    Inventaris & Stok
                                 </a>
                             @endif
                         @else
@@ -519,7 +543,7 @@
                                 {{ request()->is('materials*', 'material-stocks*', 'material-stock-logs*', 'material-wastes*', 'products*', 'product-stocks*', 'product-stock-logs*', 'product-wastes*', 'product-materials*') ? 'open' : '' }}>
                                 <summary>
                                     <x-heroicon-o-archive-box class="w-5" />
-                                    Manajemen Inventaris
+                                    Inventaris & Stok
                                 </summary>
                                 <ul>
                                     @if ($canMaterialGroup)
@@ -528,35 +552,43 @@
                                                 {{ request()->is('materials*', 'material-stocks*', 'material-stock-logs*', 'material-wastes*') ? 'open' : '' }}>
                                                 <summary>
                                                     <x-heroicon-o-cube class="w-5" />
-                                                    Material
+                                                    Bahan Baku
                                                 </summary>
                                                 <ul>
                                                     @can('materials.view')
                                                         <li>
                                                             <a wire:navigate href="/materials"
-                                                                class="{{ request()->is('materials*') ? 'bg-base-300' : '' }}">Data
-                                                                Material</a>
+                                                                class="{{ request()->is('materials*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-cube class="w-4 h-4" />
+                                                                Data Material
+                                                            </a>
                                                         </li>
                                                     @endcan
                                                     @can('material-stocks.view')
                                                         <li>
                                                             <a wire:navigate href="/material-stocks"
-                                                                class="{{ request()->is('material-stocks*') ? 'bg-base-300' : '' }}">Stok
-                                                                Material</a>
+                                                                class="{{ request()->is('material-stocks*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-archive-box class="w-4 h-4" />
+                                                                Stok Material
+                                                            </a>
                                                         </li>
                                                     @endcan
                                                     @can('material-stock-logs.view')
                                                         <li>
                                                             <a wire:navigate href="/material-stock-logs"
-                                                                class="{{ request()->is('material-stock-logs*') ? 'bg-base-300' : '' }}">Riwayat
-                                                                Stok Material</a>
+                                                                class="{{ request()->is('material-stock-logs*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-clock class="w-4 h-4" />
+                                                                Riwayat Stok Material
+                                                            </a>
                                                         </li>
                                                     @endcan
                                                     @can('material-wastes.view')
                                                         <li>
                                                             <a wire:navigate href="/material-wastes"
-                                                                class="{{ request()->is('material-wastes*') ? 'bg-base-300' : '' }}">Limbah
-                                                                Bahan (Waste)</a>
+                                                                class="{{ request()->is('material-wastes*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-trash class="w-4 h-4" />
+                                                                Kadaluarsa / Gagal Bahan
+                                                            </a>
                                                         </li>
                                                     @endcan
                                                 </ul>
@@ -569,35 +601,43 @@
                                                 {{ request()->is('products*', 'product-stocks*', 'product-stock-logs*', 'product-wastes*') ? 'open' : '' }}>
                                                 <summary>
                                                     <x-heroicon-o-shopping-bag class="w-5" />
-                                                    Produk
+                                                    Produk Jadi
                                                 </summary>
                                                 <ul>
                                                     @can('products.view')
                                                         <li>
                                                             <a wire:navigate href="/products"
-                                                                class="{{ request()->is('products*') ? 'bg-base-300' : '' }}">Data
-                                                                Produk</a>
+                                                                class="{{ request()->is('products*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-shopping-bag class="w-4 h-4" />
+                                                                Data Produk
+                                                            </a>
                                                         </li>
                                                     @endcan
                                                     @can('product-stocks.view')
                                                         <li>
                                                             <a wire:navigate href="/product-stocks"
-                                                                class="{{ request()->is('product-stocks*') ? 'bg-base-300' : '' }}">Stok
-                                                                Produk</a>
+                                                                class="{{ request()->is('product-stocks*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-archive-box class="w-4 h-4" />
+                                                                Stok Produk
+                                                            </a>
                                                         </li>
                                                     @endcan
                                                     @can('product-stock-logs.view')
                                                         <li>
                                                             <a wire:navigate href="/product-stock-logs"
-                                                                class="{{ request()->is('product-stock-logs*') ? 'bg-base-300' : '' }}">Riwayat
-                                                                Stok Produk</a>
+                                                                class="{{ request()->is('product-stock-logs*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-clock class="w-4 h-4" />
+                                                                Riwayat Stok Produk
+                                                            </a>
                                                         </li>
                                                     @endcan
                                                     @can('product-wastes.view')
                                                         <li>
                                                             <a wire:navigate href="/product-wastes"
-                                                                class="{{ request()->is('product-wastes*') ? 'bg-base-300' : '' }}">Limbah
-                                                                Produk (Waste)</a>
+                                                                class="{{ request()->is('product-wastes*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-trash class="w-4 h-4" />
+                                                                Kadaluarsa / Gagal Produk
+                                                            </a>
                                                         </li>
                                                     @endcan
                                                 </ul>
@@ -609,7 +649,7 @@
                                             <a wire:navigate href="/product-materials"
                                                 class="{{ request()->is('product-materials*') ? 'bg-base-300' : '' }}">
                                                 <x-heroicon-o-beaker class="w-5" />
-                                                Resep Produk
+                                                Resep & Formula
                                             </a>
                                         </li>
                                     @endif
@@ -652,31 +692,43 @@
                             <details {{ request()->is('purchases*', 'productions*', 'sales*') || request()->routeIs('production.orders.*') ? 'open' : '' }}>
                                 <summary>
                                     <x-heroicon-o-banknotes class="w-5" />
-                                    Manajemen Transaksi
+                                    Transaksi Operasional
                                 </summary>
                                 <ul>
                                     @if ($canPurchases)
                                         <li>
                                             <a wire:navigate href="/purchases"
-                                                class="{{ request()->is('purchases*') ? 'bg-base-300' : '' }}">Pembelian</a>
+                                                class="{{ request()->is('purchases*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                <x-heroicon-o-banknotes class="w-4 h-4" />
+                                                Pembelian
+                                            </a>
                                         </li>
                                     @endif
                                     @if ($canProductions)
                                         <li>
                                             <a wire:navigate href="/productions"
-                                                class="{{ request()->is('productions*') ? 'bg-base-300' : '' }}">Produksi</a>
+                                                class="{{ request()->is('productions*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                <x-heroicon-o-wrench-screwdriver class="w-4 h-4" />
+                                                Produksi
+                                            </a>
                                         </li>
                                     @endif
                                     @if ($canProductionOrders)
                                         <li>
                                             <a wire:navigate href="{{ route('production.orders.index') }}"
-                                                class="{{ request()->routeIs('production.orders.*') ? 'bg-base-300' : '' }}">Antrian Pesanan</a>
+                                                class="{{ request()->routeIs('production.orders.*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                <x-heroicon-o-list-bullet class="w-4 h-4" />
+                                                Antrian Pesanan
+                                            </a>
                                         </li>
                                     @endif
                                     @if ($canSales)
                                         <li>
                                             <a wire:navigate href="/sales"
-                                                class="{{ request()->is('sales*') ? 'bg-base-300' : '' }}">Penjualan</a>
+                                                class="{{ request()->is('sales*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                <x-heroicon-o-receipt-percent class="w-4 h-4" />
+                                                Penjualan
+                                            </a>
                                         </li>
                                     @endif
                                 </ul>
@@ -724,47 +776,59 @@
                             <details {{ request()->is('reports*') ? 'open' : '' }}>
                                 <summary>
                                     <x-heroicon-o-chart-bar class="w-5" />
-                                    Laporan & Analitik
+                                    Laporan & Analisis
                                 </summary>
                                 <ul>
                                     @if ($canReportSales)
                                         <li>
                                             <a wire:navigate href="/reports/sales"
-                                                class="{{ request()->is('reports/sales*') ? 'bg-base-300' : '' }}">Laporan
-                                                Penjualan</a>
+                                                class="{{ request()->is('reports/sales*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                <x-heroicon-o-chart-bar class="w-4 h-4" />
+                                                Laporan Penjualan
+                                            </a>
                                         </li>
                                     @endif
                                     @if ($canReportPurchases)
                                         <li>
                                             <a wire:navigate href="/reports/purchases"
-                                                class="{{ request()->is('reports/purchases*') ? 'bg-base-300' : '' }}">Laporan
-                                                Pembelian</a>
+                                                class="{{ request()->is('reports/purchases*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                <x-heroicon-o-chart-bar class="w-4 h-4" />
+                                                Laporan Pembelian
+                                            </a>
                                         </li>
                                     @endif
                                     @if ($canReportProductions)
                                         <li>
                                             <a wire:navigate href="/reports/productions"
-                                                class="{{ request()->is('reports/productions*') ? 'bg-base-300' : '' }}">Laporan
-                                                Produksi</a>
+                                                class="{{ request()->is('reports/productions*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                <x-heroicon-o-chart-bar class="w-4 h-4" />
+                                                Laporan Produksi
+                                            </a>
                                         </li>
                                         <li>
                                             <a wire:navigate href="/reports/wastes"
-                                                class="{{ request()->is('reports/wastes*') ? 'bg-base-300' : '' }}">Laporan
-                                                Limbah (Waste)</a>
+                                                class="{{ request()->is('reports/wastes*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                <x-heroicon-o-chart-bar-square class="w-4 h-4" />
+                                                Laporan Kadaluarsa / Gagal
+                                            </a>
                                         </li>
                                     @endif
                                     @if ($canReportStocks)
                                         <li>
                                             <a wire:navigate href="/reports/stocks"
-                                                class="{{ request()->is('reports/stocks*') ? 'bg-base-300' : '' }}">Laporan
-                                                Stok</a>
+                                                class="{{ request()->is('reports/stocks*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                <x-heroicon-o-chart-bar class="w-4 h-4" />
+                                                Laporan Stok
+                                            </a>
                                         </li>
                                     @endif
                                     @if ($canReportSchedules)
                                         <li>
                                             <a wire:navigate href="/reports/schedules"
-                                                class="{{ request()->is('reports/schedules*') ? 'bg-base-300' : '' }}">Laporan
-                                                Jadwal</a>
+                                                class="{{ request()->is('reports/schedules*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                <x-heroicon-o-chart-bar class="w-4 h-4" />
+                                                Laporan Jadwal
+                                            </a>
                                         </li>
                                     @endif
                                 </ul>
@@ -797,7 +861,7 @@
                                 <a wire:navigate href="{{ $masterRoute }}"
                                     class="{{ request()->is('master*') ? 'bg-base-300' : '' }}">
                                     <x-heroicon-o-cog-6-tooth class="w-5" />
-                                    Pengaturan
+                                    Pengaturan Sistem
                                 </a>
                             @elseif($canAppSettings)
                                 <a wire:navigate href="/settings/app"
@@ -834,7 +898,7 @@
                             <details {{ request()->is('settings*', 'master*') || request()->routeIs('laravel-logs') ? 'open' : '' }}>
                                 <summary>
                                     <x-heroicon-o-cog-6-tooth class="w-5" />
-                                    Pengaturan
+                                    Pengaturan Sistem
                                 </summary>
                                 <ul>
                                     @if ($hasMasterMenu)
@@ -843,49 +907,70 @@
                                                 {{ request()->is('master/categories*', 'master/units*', 'master/suppliers*', 'master/customers*', 'master/shifts*', 'master/divisions*', 'master/classes*') ? 'open' : '' }}>
                                                 <summary>
                                                     <x-heroicon-o-squares-2x2 class="w-5" />
-                                                    Data Master
+                                                    Master Data
                                                 </summary>
                                                 <ul>
                                                     @if ($canMasterClasses)
                                                         <li>
                                                             <a wire:navigate href="/master/classes"
-                                                                class="{{ request()->is('master/classes*') ? 'bg-base-300' : '' }}">Kelas</a>
+                                                                class="{{ request()->is('master/classes*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-academic-cap class="w-4 h-4" />
+                                                                Kelas
+                                                            </a>
                                                         </li>
                                                     @endif
                                                     @if ($canMasterCategories)
                                                         <li>
                                                             <a wire:navigate href="/master/categories"
-                                                                class="{{ request()->is('master/categories*') ? 'bg-base-300' : '' }}">Kategori</a>
+                                                                class="{{ request()->is('master/categories*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-tag class="w-4 h-4" />
+                                                                Kategori
+                                                            </a>
                                                         </li>
                                                     @endif
                                                     @if ($canMasterUnits)
                                                         <li>
                                                             <a wire:navigate href="/master/units"
-                                                                class="{{ request()->is('master/units*') ? 'bg-base-300' : '' }}">Satuan</a>
+                                                                class="{{ request()->is('master/units*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-scale class="w-4 h-4" />
+                                                                Satuan
+                                                            </a>
                                                         </li>
                                                     @endif
                                                     @if ($canMasterSuppliers)
                                                         <li>
                                                             <a wire:navigate href="/master/suppliers"
-                                                                class="{{ request()->is('master/suppliers*') ? 'bg-base-300' : '' }}">Supplier</a>
+                                                                class="{{ request()->is('master/suppliers*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-truck class="w-4 h-4" />
+                                                                Supplier
+                                                            </a>
                                                         </li>
                                                     @endif
                                                     @if ($canMasterCustomers)
                                                         <li>
                                                             <a wire:navigate href="/master/customers"
-                                                                class="{{ request()->is('master/customers*') ? 'bg-base-300' : '' }}">Pelanggan</a>
+                                                                class="{{ request()->is('master/customers*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-user-group class="w-4 h-4" />
+                                                                Pelanggan
+                                                            </a>
                                                         </li>
                                                     @endif
                                                     @if ($canMasterShifts)
                                                         <li>
                                                             <a wire:navigate href="/master/shifts"
-                                                                class="{{ request()->is('master/shifts*') ? 'bg-base-300' : '' }}">Shift</a>
+                                                                class="{{ request()->is('master/shifts*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-clock class="w-4 h-4" />
+                                                                Shift
+                                                            </a>
                                                         </li>
                                                     @endif
                                                     @if ($canMasterDivisions)
                                                         <li>
                                                             <a wire:navigate href="/master/divisions"
-                                                                class="{{ request()->is('master/divisions*') ? 'bg-base-300' : '' }}">Divisi</a>
+                                                                class="{{ request()->is('master/divisions*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-building-office-2 class="w-4 h-4" />
+                                                                Divisi
+                                                            </a>
                                                         </li>
                                                     @endif
 
@@ -896,7 +981,8 @@
                                     @if ($canAppSettings)
                                         <li>
                                             <a wire:navigate href="/settings/app"
-                                                class="{{ request()->is('settings/app*') ? 'bg-base-300' : '' }}">
+                                                class="{{ request()->is('settings/app*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                <x-heroicon-o-cog-6-tooth class="w-4 h-4" />
                                                 Pengaturan Aplikasi
                                             </a>
                                         </li>
@@ -904,7 +990,8 @@
                                     @if ($canDiscountSettings)
                                         <li>
                                             <a wire:navigate href="/settings/discounts"
-                                                class="{{ request()->is('settings/discounts*') ? 'bg-base-300' : '' }}">
+                                                class="{{ request()->is('settings/discounts*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                <x-heroicon-o-tag class="w-4 h-4" />
                                                 Set Diskon
                                             </a>
                                         </li>
@@ -941,29 +1028,23 @@
                                             <details {{ request()->routeIs('guides.*') ? 'open' : '' }}>
                                                 <summary>
                                                     <x-heroicon-o-book-open class="w-5" />
-                                                    Guide
+                                                    Panduan
                                                 </summary>
                                                 <ul>
                                                     <li>
                                                         <a wire:navigate href="{{ route('guides.index') }}"
-                                                            class="{{ request()->routeIs('guides.index') ? 'bg-base-300' : '' }}">Pusat Panduan</a>
+                                                            class="{{ request()->routeIs('guides.index') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                            <x-heroicon-o-book-open class="w-4 h-4" />
+                                                            Pusat Bantuan
+                                                        </a>
                                                     </li>
                                                     @if ($canGuideManage)
                                                         <li>
-                                                            <a wire:navigate href="{{ route('guides.menus.index') }}"
-                                                                class="{{ request()->routeIs('guides.menus.*') ? 'bg-base-300' : '' }}">Kelola Menu</a>
-                                                        </li>
-                                                        <li>
-                                                            <a wire:navigate href="{{ route('guides.steps.index') }}"
-                                                                class="{{ request()->routeIs('guides.steps.*') ? 'bg-base-300' : '' }}">Kelola Step</a>
-                                                        </li>
-                                                        <li>
-                                                            <a wire:navigate href="{{ route('guides.faqs.index') }}"
-                                                                class="{{ request()->routeIs('guides.faqs.*') ? 'bg-base-300' : '' }}">Kelola FAQ</a>
-                                                        </li>
-                                                        <li>
-                                                            <a wire:navigate href="{{ route('guides.visuals.index') }}"
-                                                                class="{{ request()->routeIs('guides.visuals.*') ? 'bg-base-300' : '' }}">Kelola Visual</a>
+                                                            <a wire:navigate href="{{ route('guides.articles.index') }}"
+                                                                class="{{ request()->routeIs('guides.articles.*') ? 'bg-base-300' : '' }} flex items-center gap-2">
+                                                                <x-heroicon-o-pencil-square class="w-4 h-4" />
+                                                                Kelola Konten Panduan
+                                                            </a>
                                                         </li>
                                                     @endif
                                                 </ul>
