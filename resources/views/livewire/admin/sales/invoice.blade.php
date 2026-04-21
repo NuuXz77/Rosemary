@@ -53,14 +53,13 @@
                         <span>Status Order:</span>
                         <span class="text-right">{{ $sale->status_order ?? 'Take away' }}</span>
                     </div>
-                    @if (($sale->status_order ?? 'Take away') !== 'Take away')
+                    @if(($sale->status_order ?? 'Take away') !== 'Take away')
                         <div class="flex justify-between gap-3">
                             <span>Pelanggan:</span>
-                            <span
-                                class="text-right">{{ $sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)') }}</span>
+                            <span class="text-right">{{ $sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)') }}</span>
                         </div>
                     @endif
-                    @if (($sale->status_order ?? 'Take away') === 'Dine in' && $sale->table_number)
+                    @if(($sale->status_order ?? 'Take away') === 'Dine in' && $sale->table_number)
                         <div class="flex justify-between gap-3">
                             <span>Meja:</span>
                             <span class="text-right">{{ $sale->table_number }}</span>
@@ -83,10 +82,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($sale->items as $item)
+                            @foreach($sale->items as $item)
                                 <tr>
-                                    <td class="py-1.5 pr-2 uppercase wrap-break-word">
-                                        {{ $item->product?->name ?? 'Produk dihapus' }}</td>
+                                    <td class="py-1.5 pr-2 uppercase wrap-break-word">{{ $item->product?->name ?? 'Produk dihapus' }}</td>
                                     <td class="py-1.5 text-center">{{ $item->qty }}</td>
                                     <td class="py-1.5 text-right whitespace-nowrap">
                                         Rp {{ number_format($item->price, 0, ',', '.') }}
@@ -110,7 +108,7 @@
                         <span>Rp {{ number_format($sale->subtotal, 0, ',', '.') }}</span>
                     </div>
 
-                    @if ($sale->discount_amount > 0)
+                    @if($sale->discount_amount > 0)
                         <div class="flex justify-between">
                             <span>Diskon</span>
                             <span>− Rp {{ number_format($sale->discount_amount, 0, ',', '.') }}</span>
@@ -136,7 +134,7 @@
                         <span>Dibayar</span>
                         <span>Rp {{ number_format($sale->paid_amount, 0, ',', '.') }}</span>
                     </div>
-                    @if ($sale->change_amount > 0)
+                    @if($sale->change_amount > 0)
                         <div class="flex justify-between">
                             <span>Kembalian</span>
                             <span>Rp {{ number_format($sale->change_amount, 0, ',', '.') }}</span>
@@ -150,8 +148,7 @@
 
                 {{-- Footer --}}
                 <div class="border-t border-dashed border-black mt-4 pt-3 text-center">
-                    <p class="text-[10px]">Terima kasih telah berbelanja di <span
-                            class="font-bold">{{ $appName }}</span></p>
+                    <p class="text-[10px]">Terima kasih telah berbelanja di <span class="font-bold">{{ $appName }}</span></p>
                     <p class="text-[10px] mt-1">{{ $sale->created_at->format('d/m/Y H:i:s') }}</p>
                 </div>
 
@@ -171,12 +168,11 @@
         </div>
     </div>
 
-
+    
     {{-- Print styles --}}
     <style>
         .invoice-page {
-            --invoice-screen-max-width: 22rem;
-            /* lebih narrow */
+            --invoice-screen-max-width: 28rem;
         }
 
         .invoice-print-area {
@@ -211,7 +207,7 @@
             z-index: 0;
         }
 
-        .invoice-body>* {
+        .invoice-body > * {
             position: relative;
             z-index: 1;
         }
@@ -228,8 +224,8 @@
 
         @media print {
             @page {
-                size: A4 portrait;
-                margin: 10mm 15mm;
+                size: 80mm auto;
+                margin: 0;
             }
 
             * {
@@ -239,7 +235,9 @@
 
             html,
             body {
-                width: 100% !important;
+                width: 80mm !important;
+                min-width: 80mm !important;
+                max-width: 80mm !important;
                 height: auto !important;
                 overflow: visible !important;
                 margin: 0 !important;
@@ -257,24 +255,24 @@
             }
 
             .invoice-page {
-                position: absolute !important;
+                position: fixed !important;
                 left: 0 !important;
                 top: 0 !important;
                 min-height: auto !important;
-                width: 100% !important;
+                width: 80mm !important;
+                min-width: 80mm !important;
+                max-width: 80mm !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 background: #fff !important;
-                transform: none !important;
             }
 
             .invoice-print-area {
-                width: 72mm !important;
-                /* lebar thermal 72mm */
-                min-width: 72mm !important;
-                max-width: 72mm !important;
-                margin: 0 auto !important;
-                padding: 0 !important;
+                width: 80mm !important;
+                min-width: 80mm !important;
+                max-width: 80mm !important;
+                margin: 0 !important;
+                padding: 0 1.2mm !important;
             }
 
             .invoice-paper {
@@ -289,10 +287,9 @@
             }
 
             .invoice-body {
-                padding: 2mm !important;
-                font-size: 15px !important;
-                /* font lebih besar */
-                line-height: 1.5 !important;
+                padding: 1.2mm !important;
+                font-size: 13px !important;
+                line-height: 1.36 !important;
             }
 
             .invoice-body::before {
@@ -311,45 +308,36 @@
 
             .invoice-print-area table th:nth-child(2),
             .invoice-print-area table td:nth-child(2) {
-                width: 10% !important;
+                width: 12% !important;
             }
 
             .invoice-print-area table th:nth-child(3),
             .invoice-print-area table td:nth-child(3) {
-                width: 24% !important;
+                width: 23% !important;
             }
 
             .invoice-print-area table th:nth-child(4),
             .invoice-print-area table td:nth-child(4) {
-                width: 24% !important;
+                width: 23% !important;
             }
 
             .invoice-print-area table th,
             .invoice-print-area table td {
-                font-size: 14px !important;
-                padding-top: 2px !important;
-                padding-bottom: 2px !important;
+                font-size: 12px !important;
+                padding-top: 1px !important;
+                padding-bottom: 1px !important;
             }
 
-            /* Override semua text size class ke ukuran lebih besar */
             .invoice-body .text-\[10px\] {
-                font-size: 13px !important;
+                font-size: 11px !important;
             }
 
             .invoice-body .text-\[11px\] {
-                font-size: 14px !important;
-            }
-
-            .invoice-body .text-\[12px\] {
-                font-size: 15px !important;
+                font-size: 12px !important;
             }
 
             .invoice-body .text-\[13px\] {
-                font-size: 16px !important;
-            }
-
-            .invoice-body .text-base {
-                font-size: 17px !important;
+                font-size: 14px !important;
             }
 
             .print\:hidden {
