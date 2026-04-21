@@ -224,7 +224,7 @@
 
         @media print {
             @page {
-                size: auto;
+                size: 58mm auto;
                 margin: 0;
             }
 
@@ -235,15 +235,15 @@
 
             html,
             body {
-                --receipt-print-scale: 2.35;
-                width: 100% !important;
-                min-width: 100% !important;
-                max-width: 100% !important;
+                width: 58mm !important;
+                min-width: 58mm !important;
+                max-width: 58mm !important;
                 height: auto !important;
                 overflow: visible !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 background: #fff !important;
+                font-family: "Courier New", Consolas, monospace !important;
             }
 
             body * {
@@ -253,29 +253,28 @@
             .invoice-page,
             .invoice-page * {
                 visibility: visible !important;
+                color: #000 !important;
             }
 
             .invoice-page {
-                position: absolute !important;
+                position: fixed !important;
                 left: 0 !important;
                 top: 0 !important;
                 min-height: auto !important;
-                width: calc(100% / var(--receipt-print-scale)) !important;
-                min-width: calc(100% / var(--receipt-print-scale)) !important;
-                max-width: calc(100% / var(--receipt-print-scale)) !important;
+                width: 58mm !important;
+                min-width: 58mm !important;
+                max-width: 58mm !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 background: #fff !important;
-                transform: scale(var(--receipt-print-scale)) !important;
-                transform-origin: top left !important;
             }
 
             .invoice-print-area {
-                width: 100% !important;
-                min-width: 100% !important;
-                max-width: 100% !important;
+                width: 58mm !important;
+                min-width: 58mm !important;
+                max-width: 58mm !important;
                 margin: 0 !important;
-                padding: 0 !important;
+                padding: 0 0.6mm !important;
             }
 
             .invoice-paper {
@@ -290,9 +289,9 @@
             }
 
             .invoice-body {
-                padding: 1.2mm !important;
-                font-size: 13px !important;
-                line-height: 1.36 !important;
+                padding: 1mm !important;
+                font-size: 3.5mm !important;
+                line-height: 1.28 !important;
             }
 
             .invoice-body::before {
@@ -306,12 +305,12 @@
 
             .invoice-print-area table th:nth-child(1),
             .invoice-print-area table td:nth-child(1) {
-                width: 42% !important;
+                width: 43% !important;
             }
 
             .invoice-print-area table th:nth-child(2),
             .invoice-print-area table td:nth-child(2) {
-                width: 12% !important;
+                width: 10% !important;
             }
 
             .invoice-print-area table th:nth-child(3),
@@ -321,26 +320,30 @@
 
             .invoice-print-area table th:nth-child(4),
             .invoice-print-area table td:nth-child(4) {
-                width: 23% !important;
+                width: 24% !important;
             }
 
             .invoice-print-area table th,
             .invoice-print-area table td {
-                font-size: 12px !important;
-                padding-top: 1px !important;
-                padding-bottom: 1px !important;
+                font-size: 3.1mm !important;
+                padding-top: 0.6mm !important;
+                padding-bottom: 0.6mm !important;
             }
 
             .invoice-body .text-\[10px\] {
-                font-size: 11px !important;
+                font-size: 2.9mm !important;
             }
 
             .invoice-body .text-\[11px\] {
-                font-size: 12px !important;
+                font-size: 3.1mm !important;
             }
 
             .invoice-body .text-\[13px\] {
-                font-size: 14px !important;
+                font-size: 3.6mm !important;
+            }
+
+            .invoice-body h2 {
+                font-size: 4.1mm !important;
             }
 
             .print\:hidden {
