@@ -13,7 +13,7 @@
             </div>
         </div>
         <div class="flex w-full sm:w-auto items-center gap-2">
-            <button onclick="window.print()" class="btn btn-primary btn-sm gap-2 flex-1 sm:flex-none">
+            <button onclick="printInvoiceOnly()" class="btn btn-primary btn-sm gap-2 flex-1 sm:flex-none">
                 <x-heroicon-o-printer class="w-4 h-4" />
                 Cetak Invoice
             </button>
@@ -157,7 +157,7 @@
 
         {{-- Bottom actions (hide on print) --}}
         <div class="flex flex-col sm:flex-row justify-center gap-3 mt-6 print:hidden">
-            <button onclick="window.print()" class="btn btn-primary gap-2 w-full sm:w-auto">
+            <button onclick="printInvoiceOnly()" class="btn btn-primary gap-2 w-full sm:w-auto">
                 <x-heroicon-o-printer class="w-5 h-5" />
                 Cetak Invoice
             </button>
@@ -329,4 +329,183 @@
             }
         }
     </style>
+
+    <script>
+        function printInvoiceOnly() {
+            const invoiceElement = document.querySelector('.invoice-paper');
+
+            if (!invoiceElement) {
+                window.print();
+                return;
+            }
+
+            const printWindow = window.open('', '_blank', 'width=900,height=700');
+
+            if (!printWindow) {
+                window.print();
+                return;
+            }
+
+            const inheritedStyles = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+                .map((node) => {
+                    const href = node.getAttribute('href');
+                    if (!href) {
+                        return '';
+                    }
+
+                    const absoluteHref = new URL(href, window.location.href).href;
+                    return `<link rel="stylesheet" href="${absoluteHref}">`;
+                })
+                .join('');
+
+            const printHtml = `
+                <!doctype html>
+                <html>
+                <head>
+                    <meta charset="utf-8" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1" />
+                    <title>Print Invoice</title>
+                    ${inheritedStyles}
+                    <style>
+                        @page {
+                            size: A4 portrait;
+                            margin: 8mm;
+                        }
+
+                        * {
+                            box-sizing: border-box;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                        }
+
+                        html,
+                        body {
+                            margin: 0;
+                            padding: 0;
+                            background: #fff;
+                            color: #000;
+                        }
+
+                        .receipt-wrap {
+                            --chars-per-line: 48;
+                            width: min(100%, calc(var(--chars-per-line) * 1ch));
+                            margin: 0 auto;
+                            padding: 0;
+                        }
+
+                        .invoice-paper {
+                            position: relative;
+                            isolation: isolate;
+                            overflow: hidden;
+                            background: #fff;
+                            color: #000;
+                            border: none;
+                            box-shadow: none;
+                            border-radius: 0;
+                        }
+
+                        .invoice-body {
+                            position: relative;
+                            padding: 3mm;
+                            font-size: 11px;
+                            line-height: 1.35;
+                            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", "Courier New", monospace;
+                        }
+
+                        .invoice-body::before {
+                            content: '';
+                            position: absolute;
+                            inset: 10% 8%;
+                            background-image: url('{{ asset('img/label.jpeg') }}');
+                            background-repeat: no-repeat;
+                            background-position: center;
+                            background-size: min(74%, 220px);
+                            opacity: 0.04;
+                            pointer-events: none;
+                            z-index: 0;
+                        }
+
+                        .invoice-body > * {
+                            position: relative;
+                            z-index: 1;
+                        }
+
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            table-layout: fixed;
+                        }
+
+                        th,
+                        td {
+                            vertical-align: top;
+                            word-break: break-word;
+                        }
+
+                        @media print {
+                            body {
+                                margin: 0;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="invoice-page">
+                        <div class="receipt-wrap">${invoiceElement.outerHTML}</div>
+                    </div>
+                </body>
+                </html>
+            `;
+
+            printWindow.onafterprint = function () {
+                printWindow.close();
+            };
+
+            printWindow.document.open();
+            printWindow.document.write(printHtml);
+            printWindow.document.close();
+
+            const waitForStylesheetLoad = function () {
+                const links = Array.from(printWindow.document.querySelectorAll('link[rel="stylesheet"]'));
+
+                if (!links.length) {
+                    return Promise.resolve();
+                }
+
+                return Promise.all(
+                    links.map((link) => {
+                        return new Promise((resolve) => {
+                            if (link.sheet) {
+                                resolve();
+                                return;
+                            }
+
+                            const done = () => resolve();
+                            link.addEventListener('load', done, { once: true });
+                            link.addEventListener('error', done, { once: true });
+                            setTimeout(done, 1200);
+                        });
+                    })
+                );
+            };
+
+            const triggerPrint = function () {
+                waitForStylesheetLoad().finally(function () {
+                    try {
+                        printWindow.focus();
+                        printWindow.print();
+                    } catch (e) {
+                        // Fallback: keep popup open if browser blocks immediate print call
+                    }
+                });
+            };
+
+            if (printWindow.document.readyState === 'complete') {
+                triggerPrint();
+            } else {
+                printWindow.addEventListener('load', triggerPrint, { once: true });
+                setTimeout(triggerPrint, 250);
+            }
+        }
+    </script>
 </div>
