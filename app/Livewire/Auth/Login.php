@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Auth;
 
-use App\Models\Schedules;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -43,14 +42,6 @@ class Login extends Component
             return;
         }
 
-        if ($user->hasRole('Production') && !$this->hasProductionScheduleToday()) {
-            $message = 'Akun Production tidak bisa login karena tidak memiliki jadwal produksi hari ini!';
-            $this->error = $message;
-            $this->dispatch('show-toast', type: 'error', message: $message);
-            $this->password = '';
-            return;
-        }
-
         Auth::login($user, $this->remember);
         session()->regenerate();
 
@@ -67,20 +58,5 @@ class Login extends Component
         }
 
         return $this->redirect('/dashboard', navigate: true);
-    }
-
-    private function hasProductionScheduleToday(): bool
-    {
-        $today = now()->toDateString();
-
-        return Schedules::query()
-            ->where('type', 'production')
-            ->whereDate('date', $today)
-            ->where('status', true)
-            ->where(function ($query) {
-                $query->whereNull('absence_type')
-                    ->orWhere('absence_type', '!=', Schedules::ABSENCE_RESCHEDULED);
-            })
-            ->exists();
     }
 }
