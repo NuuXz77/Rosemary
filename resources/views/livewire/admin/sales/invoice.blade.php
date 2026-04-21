@@ -53,13 +53,14 @@
                         <span>Status Order:</span>
                         <span class="text-right">{{ $sale->status_order ?? 'Take away' }}</span>
                     </div>
-                    @if(($sale->status_order ?? 'Take away') !== 'Take away')
+                    @if (($sale->status_order ?? 'Take away') !== 'Take away')
                         <div class="flex justify-between gap-3">
                             <span>Pelanggan:</span>
-                            <span class="text-right">{{ $sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)') }}</span>
+                            <span
+                                class="text-right">{{ $sale->customer?->name ?? ($sale->guest_name ?: 'Guest (Umum)') }}</span>
                         </div>
                     @endif
-                    @if(($sale->status_order ?? 'Take away') === 'Dine in' && $sale->table_number)
+                    @if (($sale->status_order ?? 'Take away') === 'Dine in' && $sale->table_number)
                         <div class="flex justify-between gap-3">
                             <span>Meja:</span>
                             <span class="text-right">{{ $sale->table_number }}</span>
@@ -76,20 +77,20 @@
                         <thead>
                             <tr class="text-[10px] uppercase tracking-wide border-b border-dashed border-black">
                                 <th class="text-left pb-1.5 font-bold">Produk</th>
-                                <th class="text-center pb-1.5 font-bold w-12">Qty</th>
-                                <th class="text-right pb-1.5 font-bold w-24">Harga</th>
-                                <th class="text-right pb-1.5 font-bold w-24">Subtotal</th>
+                                <th class="text-center pb-1.5 font-bold w-10">Qty</th>
+                                <th class="text-right pb-1.5 font-bold w-20">Subtotal</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($sale->items as $item)
+                            @foreach ($sale->items as $item)
                                 <tr>
-                                    <td class="py-1.5 pr-2 uppercase wrap-break-word">{{ $item->product?->name ?? 'Produk dihapus' }}</td>
-                                    <td class="py-1.5 text-center">{{ $item->qty }}</td>
-                                    <td class="py-1.5 text-right whitespace-nowrap">
-                                        Rp {{ number_format($item->price, 0, ',', '.') }}
+                                    <td class="py-1 pr-2 uppercase" style="word-break:break-word;">
+                                        {{ $item->product?->name ?? 'Produk dihapus' }}
+                                        <br><span class="text-[10px] opacity-60">@ Rp
+                                            {{ number_format($item->price, 0, ',', '.') }}</span>
                                     </td>
-                                    <td class="py-1.5 text-right font-bold whitespace-nowrap">
+                                    <td class="py-1 text-center">{{ $item->qty }}</td>
+                                    <td class="py-1 text-right font-bold whitespace-nowrap">
                                         Rp {{ number_format($item->subtotal, 0, ',', '.') }}
                                     </td>
                                 </tr>
@@ -108,7 +109,7 @@
                         <span>Rp {{ number_format($sale->subtotal, 0, ',', '.') }}</span>
                     </div>
 
-                    @if($sale->discount_amount > 0)
+                    @if ($sale->discount_amount > 0)
                         <div class="flex justify-between">
                             <span>Diskon</span>
                             <span>− Rp {{ number_format($sale->discount_amount, 0, ',', '.') }}</span>
@@ -134,7 +135,7 @@
                         <span>Dibayar</span>
                         <span>Rp {{ number_format($sale->paid_amount, 0, ',', '.') }}</span>
                     </div>
-                    @if($sale->change_amount > 0)
+                    @if ($sale->change_amount > 0)
                         <div class="flex justify-between">
                             <span>Kembalian</span>
                             <span>Rp {{ number_format($sale->change_amount, 0, ',', '.') }}</span>
@@ -148,7 +149,8 @@
 
                 {{-- Footer --}}
                 <div class="border-t border-dashed border-black mt-4 pt-3 text-center">
-                    <p class="text-[10px]">Terima kasih telah berbelanja di <span class="font-bold">{{ $appName }}</span></p>
+                    <p class="text-[10px]">Terima kasih telah berbelanja di <span
+                            class="font-bold">{{ $appName }}</span></p>
                     <p class="text-[10px] mt-1">{{ $sale->created_at->format('d/m/Y H:i:s') }}</p>
                 </div>
 
@@ -168,7 +170,7 @@
         </div>
     </div>
 
-    
+
     {{-- Print styles --}}
     <style>
         .invoice-page {
@@ -207,7 +209,7 @@
             z-index: 0;
         }
 
-        .invoice-body > * {
+        .invoice-body>* {
             position: relative;
             z-index: 1;
         }
@@ -224,7 +226,7 @@
 
         @media print {
             @page {
-                size: 80mm auto;
+                size: auto;
                 margin: 0;
             }
 
@@ -235,9 +237,10 @@
 
             html,
             body {
-                width: 80mm !important;
-                min-width: 80mm !important;
-                max-width: 80mm !important;
+                --receipt-print-scale: 2.35;
+                width: 100% !important;
+                min-width: 100% !important;
+                max-width: 100% !important;
                 height: auto !important;
                 overflow: visible !important;
                 margin: 0 !important;
@@ -255,24 +258,26 @@
             }
 
             .invoice-page {
-                position: fixed !important;
+                position: absolute !important;
                 left: 0 !important;
                 top: 0 !important;
                 min-height: auto !important;
-                width: 80mm !important;
-                min-width: 80mm !important;
-                max-width: 80mm !important;
+                width: calc(100% / var(--receipt-print-scale)) !important;
+                min-width: calc(100% / var(--receipt-print-scale)) !important;
+                max-width: calc(100% / var(--receipt-print-scale)) !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 background: #fff !important;
+                transform: scale(var(--receipt-print-scale)) !important;
+                transform-origin: top left !important;
             }
 
             .invoice-print-area {
-                width: 80mm !important;
-                min-width: 80mm !important;
-                max-width: 80mm !important;
+                width: 100% !important;
+                min-width: 100% !important;
+                max-width: 100% !important;
                 margin: 0 !important;
-                padding: 0 1.2mm !important;
+                padding: 0 !important;
             }
 
             .invoice-paper {
