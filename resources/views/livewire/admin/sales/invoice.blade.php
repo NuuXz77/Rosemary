@@ -25,7 +25,7 @@
     </div>
 
     {{-- Invoice Card (Thermal style like receipt modal) --}}
-    <div class="max-w-md mx-auto invoice-print-area">
+    <div class="w-full max-w-md mx-auto invoice-print-area">
         <div class="invoice-paper card bg-white text-black rounded-none border-0 shadow-none">
             <div class="invoice-body card-body p-4 sm:p-5 font-mono text-[12px]">
 
@@ -171,6 +171,15 @@
     
     {{-- Print styles --}}
     <style>
+        .invoice-page {
+            --invoice-screen-max-width: 28rem;
+        }
+
+        .invoice-print-area {
+            width: 100%;
+            max-width: var(--invoice-screen-max-width);
+        }
+
         .invoice-paper {
             position: relative;
             isolation: isolate;
@@ -216,7 +225,7 @@
         @media print {
             @page {
                 size: auto;
-                margin: 8mm;
+                margin: 0;
             }
 
             * {
@@ -226,9 +235,12 @@
 
             html,
             body {
-                width: 100% !important;
+                width: auto !important;
                 height: auto !important;
                 overflow: visible !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff !important;
             }
 
             body * {
@@ -241,26 +253,27 @@
             }
 
             .invoice-page {
-                position: fixed !important;
-                inset: 0 !important;
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
                 min-height: auto !important;
                 width: 100% !important;
+                max-width: 100% !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 background: #fff !important;
-                z-index: 9999 !important;
             }
 
             .invoice-print-area {
                 width: 100% !important;
-                max-width: none !important;
+                max-width: 100% !important;
                 margin: 0 !important;
                 padding: 0 !important;
             }
 
             .invoice-paper {
                 width: 100% !important;
-                max-width: none !important;
+                max-width: 100% !important;
                 border: none !important;
                 border-radius: 0 !important;
                 box-shadow: none !important;
@@ -270,29 +283,45 @@
             }
 
             .invoice-body {
-                padding: 12px !important;
-                font-size: 11px !important;
+                padding: 3mm !important;
+                font-size: 10px !important;
+                line-height: 1.35 !important;
             }
 
             .invoice-body::before {
                 inset: 10% 8%;
-                opacity: 0.06;
-                background-size: min(78%, 340px);
+                opacity: 0.04;
+                background-size: min(74%, 220px);
                 filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.18));
+            }
+
+            .invoice-print-area table {
+                table-layout: fixed !important;
+                width: 100% !important;
+            }
+
+            .invoice-print-area table th,
+            .invoice-print-area table td {
+                font-size: 9px !important;
+                padding-top: 2px !important;
+                padding-bottom: 2px !important;
+            }
+
+            /* Keep content proportionate on wider thermal paper like 80mm */
+            @media (min-width: 70mm) {
+                .invoice-body {
+                    padding: 4mm !important;
+                    font-size: 11px !important;
+                }
+
+                .invoice-print-area table th,
+                .invoice-print-area table td {
+                    font-size: 10px !important;
+                }
             }
 
             .print\:hidden {
                 display: none !important;
-            }
-
-            body,
-            main,
-            .drawer-content,
-            .drawer,
-            .drawer-content > main {
-                background: #fff !important;
-                padding: 0 !important;
-                margin: 0 !important;
             }
 
             .overflow-x-auto {
