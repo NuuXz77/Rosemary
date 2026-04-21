@@ -224,7 +224,7 @@
 
         @media print {
             @page {
-                size: auto;
+                size: 58mm auto;
                 margin: 0;
             }
 
@@ -235,8 +235,9 @@
 
             html,
             body {
-                width: 100% !important;
-                max-width: 100% !important;
+                width: 58mm !important;
+                min-width: 58mm !important;
+                max-width: 58mm !important;
                 height: auto !important;
                 overflow: visible !important;
                 margin: 0 !important;
@@ -254,20 +255,24 @@
             }
 
             .invoice-page {
-                position: static !important;
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
                 min-height: auto !important;
-                width: 100% !important;
-                max-width: 100% !important;
+                width: 58mm !important;
+                min-width: 58mm !important;
+                max-width: 58mm !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 background: #fff !important;
             }
 
             .invoice-print-area {
-                width: 100% !important;
-                max-width: 100% !important;
+                width: 58mm !important;
+                min-width: 58mm !important;
+                max-width: 58mm !important;
                 margin: 0 !important;
-                padding: 0 2mm !important;
+                padding: 0 1.2mm !important;
             }
 
             .invoice-paper {
@@ -282,16 +287,13 @@
             }
 
             .invoice-body {
-                padding: 2.5mm !important;
-                font-size: 12px !important;
-                line-height: 1.35 !important;
+                padding: 1.8mm !important;
+                font-size: 13px !important;
+                line-height: 1.4 !important;
             }
 
             .invoice-body::before {
-                inset: 10% 8%;
-                opacity: 0.04;
-                background-size: min(74%, 220px);
-                filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.18));
+                display: none !important;
             }
 
             .invoice-print-area table {
@@ -321,7 +323,7 @@
 
             .invoice-print-area table th,
             .invoice-print-area table td {
-                font-size: 11px !important;
+                font-size: 12px !important;
                 padding-top: 2px !important;
                 padding-bottom: 2px !important;
             }
