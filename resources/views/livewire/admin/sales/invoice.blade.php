@@ -224,7 +224,7 @@
 
         @media print {
             @page {
-                size: 58mm auto;
+                size: auto;
                 margin: 0;
             }
 
@@ -235,8 +235,8 @@
 
             html,
             body {
-                width: 58mm !important;
-                max-width: 58mm !important;
+                width: 100% !important;
+                max-width: 100% !important;
                 height: auto !important;
                 overflow: visible !important;
                 margin: 0 !important;
@@ -256,23 +256,23 @@
             .invoice-page {
                 position: static !important;
                 min-height: auto !important;
-                width: 58mm !important;
-                max-width: 58mm !important;
+                width: 100% !important;
+                max-width: 100% !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 background: #fff !important;
             }
 
             .invoice-print-area {
-                width: 58mm !important;
-                max-width: 58mm !important;
+                width: 100% !important;
+                max-width: 100% !important;
                 margin: 0 !important;
-                padding: 0 !important;
+                padding: 0 2mm !important;
             }
 
             .invoice-paper {
-                width: 58mm !important;
-                max-width: 58mm !important;
+                width: 100% !important;
+                max-width: 100% !important;
                 border: none !important;
                 border-radius: 0 !important;
                 box-shadow: none !important;
@@ -283,7 +283,7 @@
 
             .invoice-body {
                 padding: 2.5mm !important;
-                font-size: 11px !important;
+                font-size: 12px !important;
                 line-height: 1.35 !important;
             }
 
@@ -321,7 +321,7 @@
 
             .invoice-print-area table th,
             .invoice-print-area table td {
-                font-size: 10px !important;
+                font-size: 11px !important;
                 padding-top: 2px !important;
                 padding-bottom: 2px !important;
             }
