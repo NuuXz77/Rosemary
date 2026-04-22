@@ -20,6 +20,8 @@ class Sales extends Model
     public const PRODUCTION_STATUS_PENDING = 'pending';
     public const PRODUCTION_STATUS_COOKING = 'cooking';
     public const PRODUCTION_STATUS_DONE = 'done';
+    public const PRODUCTION_STATUS_DELIVERED = 'delivered';
+    public const PRODUCTION_STATUS_COMPLETED = 'completed';
 
     public const ORDER_STATUSES = [
         self::ORDER_STATUS_TAKE_AWAY,
@@ -33,8 +35,7 @@ class Sales extends Model
         'guest_name',        // Nama pembeli jika Guest (tidak terdaftar)
         'table_number',      // Nomor meja (optional)
         'status_order',      // Enum: 'Take away', 'Dine in'
-        'production_status', // Enum: 'pending', 'cooking', 'done'
-        'called_at',         // Waktu pelanggan dipanggil
+        'production_status', // Enum: 'pending', 'cooking', 'done', 'delivered', 'completed'
         'shift_id',          // FK ke shifts (shift saat transaksi)
         'cashier_student_id',// FK ke students (siswa kasir)
         'subtotal',          // Subtotal belanja
@@ -49,7 +50,6 @@ class Sales extends Model
 
     protected $casts = [
         'created_at' => 'datetime',
-        'called_at' => 'datetime',
     ];
 
     public function isDineIn(): bool
@@ -81,7 +81,9 @@ class Sales extends Model
     {
         return match ($this->production_status) {
             self::PRODUCTION_STATUS_COOKING => 'Sedang Diproses',
-            self::PRODUCTION_STATUS_DONE => 'Selesai',
+            self::PRODUCTION_STATUS_DONE => 'Selesai Masak',
+            self::PRODUCTION_STATUS_DELIVERED => 'Diantar',
+            self::PRODUCTION_STATUS_COMPLETED => 'Selesai',
             default => 'Menunggu',
         };
     }

@@ -181,6 +181,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:production-orders.view')->group(function () {
         Route::get('/production/orders', App\Livewire\Admin\ProductionOrders\Index::class)
             ->name('production.orders.index');
+        Route::get('/production/orders/{sale}', App\Livewire\Admin\ProductionOrders\Detail::class)
+            ->whereNumber('sale')
+            ->name('production.orders.detail');
     });
 
     Route::middleware('can:sales.view')->group(function () {

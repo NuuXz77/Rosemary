@@ -43,7 +43,15 @@ class Index extends Component
 
     public function mount(): void
     {
-        $this->lastNotifiedOrderId = (int) session('production_orders_last_notified_id', 0);
+        // Set baseline to current latest pending order so first render won't trigger sound.
+        // Only truly NEW orders (arriving after page load via poll) will notify.
+        $latestPending = Sales::query()
+            ->whereIn('status', ['paid', 'unpaid'])
+            ->where('production_status', Sales::PRODUCTION_STATUS_PENDING)
+            ->latest('id')
+            ->value('id');
+
+        $this->lastNotifiedOrderId = $latestPending ? (int) $latestPending : 0;
     }
 
     public function updatedSearch(): void
@@ -90,47 +98,46 @@ class Index extends Component
         $sale = Sales::findOrFail($saleId);
         $sale->update(['production_status' => Sales::PRODUCTION_STATUS_DONE]);
 
-        if ($this->isSoundEnabled()) {
-            $this->dispatch('play-order-notification', [
-                'message' => 'Pesanan selesai. ' . $sale->service_identity . ' silakan ke kasir.',
-                'volume' => $this->soundVolume(),
-            ]);
-        }
-
-        $this->dispatch('show-toast', type: 'success', message: 'Pesanan ditandai selesai.');
+        $this->dispatch('show-toast', type: 'success', message: 'Pesanan selesai masak.');
     }
 
-    public function callCustomer(int $saleId): void
+    public function setDelivered(int $saleId): void
     {
-        if (!auth()->user()?->can('production-orders.call')) {
-            $this->dispatch('show-toast', type: 'error', message: 'Tidak memiliki izin untuk memanggil pelanggan.');
+        if (!auth()->user()?->can('production-orders.manage')) {
+            $this->dispatch('show-toast', type: 'error', message: 'Tidak memiliki izin untuk mengubah status pesanan.');
             return;
         }
 
         $sale = Sales::findOrFail($saleId);
-        $sale->update(['called_at' => now()]);
-
-        $hasCustomIdentity = trim((string) ($sale->guest_name ?? '')) !== ''
-            || trim((string) ($sale->customer?->name ?? '')) !== '';
-
-        $message = ($sale->status_order === Sales::ORDER_STATUS_TAKE_AWAY && !$hasCustomIdentity)
-            ? ('Nomor antrian ' . $sale->service_identity . ', pesanan Anda siap diambil.')
-            : ('Atas nama ' . $sale->service_identity . ', pesanan Anda sudah siap.');
+        $sale->update(['production_status' => Sales::PRODUCTION_STATUS_DELIVERED]);
 
         if ($this->isSoundEnabled()) {
             $this->dispatch('play-order-notification', [
-                'message' => $message,
+                'message' => 'Pesanan ' . $sale->service_identity . ' sudah diantar.',
                 'volume' => $this->soundVolume(),
             ]);
         }
 
-        $this->dispatch('show-toast', type: 'success', message: 'Panggilan pelanggan diputar.');
+        $this->dispatch('show-toast', type: 'success', message: 'Pesanan ditandai sudah diantar.');
+    }
+
+    public function setCompleted(int $saleId): void
+    {
+        $sale = Sales::findOrFail($saleId);
+
+        if ($sale->production_status !== Sales::PRODUCTION_STATUS_DELIVERED) {
+            $this->dispatch('show-toast', type: 'warning', message: 'Pesanan belum diantar.');
+            return;
+        }
+
+        $sale->update(['production_status' => Sales::PRODUCTION_STATUS_COMPLETED]);
+        $this->dispatch('show-toast', type: 'success', message: 'Pesanan dikonfirmasi selesai.');
     }
 
     public function render()
     {
         $baseQuery = Sales::query()
-            ->with(['items.product', 'cashier', 'customer'])
+            ->with(['cashier', 'customer'])
             ->whereIn('status', ['paid', 'unpaid']);
 
         $orders = (clone $baseQuery)
@@ -143,13 +150,15 @@ class Index extends Component
                         ->orWhere('guest_name', 'like', '%' . $this->search . '%');
                 });
             })
-            ->orderByRaw("FIELD(production_status, 'pending', 'cooking', 'done')")
+            ->orderByRaw("FIELD(production_status, 'pending', 'cooking', 'done', 'delivered', 'completed')")
             ->orderByDesc('created_at')
             ->paginate($this->perPage);
 
         $countPending = (clone $baseQuery)->where('production_status', Sales::PRODUCTION_STATUS_PENDING)->count();
         $countCooking = (clone $baseQuery)->where('production_status', Sales::PRODUCTION_STATUS_COOKING)->count();
         $countDone = (clone $baseQuery)->where('production_status', Sales::PRODUCTION_STATUS_DONE)->count();
+        $countDelivered = (clone $baseQuery)->where('production_status', Sales::PRODUCTION_STATUS_DELIVERED)->count();
+        $countCompleted = (clone $baseQuery)->where('production_status', Sales::PRODUCTION_STATUS_COMPLETED)->count();
 
         $latestPending = (clone $baseQuery)
             ->where('production_status', Sales::PRODUCTION_STATUS_PENDING)
@@ -158,7 +167,6 @@ class Index extends Component
 
         if ($latestPending && $latestPending->id !== $this->lastNotifiedOrderId) {
             $this->lastNotifiedOrderId = (int) $latestPending->id;
-            session(['production_orders_last_notified_id' => $this->lastNotifiedOrderId]);
 
             if ($this->isSoundEnabled()) {
                 $template = trim($this->soundTemplate());
@@ -175,8 +183,9 @@ class Index extends Component
             'countPending' => $countPending,
             'countCooking' => $countCooking,
             'countDone' => $countDone,
+            'countDelivered' => $countDelivered,
+            'countCompleted' => $countCompleted,
             'canManage' => auth()->user()?->can('production-orders.manage') ?? false,
-            'canCall' => auth()->user()?->can('production-orders.call') ?? false,
             'soundEnabled' => $this->isSoundEnabled(),
             'soundVolume' => $this->soundVolume(),
         ]);

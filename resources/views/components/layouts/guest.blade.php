@@ -15,35 +15,12 @@
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
-
-    {{-- Apply saved theme BEFORE render to avoid flash --}}
-    <script>
-        (function () {
-            const saved = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', saved);
-        })();
-
-        // Re-apply theme after every wire:navigate page swap
-        document.addEventListener('livewire:navigated', function () {
-            const saved = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', saved);
-        });
-    </script>
 </head>
 
 <body>
     {{-- <div class="absolute inset-0 -z-10 h-full w-full items-center px-5 py-24 [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#63e_100%)]"></div> --}}
     {{ $slot }}
     @livewireScripts
-
-    <script>
-        document.addEventListener('livewire:navigated', () => {
-            console.log('Halaman telah pindah atau dimuat!');
-            // Inisialisasi JS Anda di sini
-        }, {
-            once: true
-        });
-    </script>
 </body>
 
 </html>

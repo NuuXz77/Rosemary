@@ -252,6 +252,135 @@ class POS extends Component
         $this->redirect(route('kasir.checkout'), navigate: true);
     }
 
+    /**
+     * Fast checkout path for client-side cart (Alpine) to reduce per-click Livewire latency.
+     *
+     * @param array<int, array{id:mixed, qty:mixed}> $items
+     */
+    public function checkoutFromClient(
+        array $items,
+        $customerId = null,
+        ?string $guestName = null,
+        ?string $statusOrder = null,
+        ?string $tableNumber = null
+    ): void {
+        if (!$this->shift_id) {
+            $this->shift_id = $this->resolveShiftId();
+        }
+
+        $statusOrder = in_array($statusOrder, [Sales::ORDER_STATUS_TAKE_AWAY, Sales::ORDER_STATUS_DINE_IN], true)
+            ? $statusOrder
+            : Sales::ORDER_STATUS_TAKE_AWAY;
+
+        $tableNumber = $statusOrder === Sales::ORDER_STATUS_DINE_IN
+            ? trim((string) $tableNumber)
+            : '';
+
+        $guestName = trim((string) $guestName);
+        $customerId = is_numeric($customerId) ? (int) $customerId : null;
+
+        if ($customerId && !Customers::where('id', $customerId)->where('status', true)->exists()) {
+            $this->dispatch('show-toast', type: 'error', message: 'Pelanggan tidak valid atau tidak aktif.');
+            return;
+        }
+
+        if ($statusOrder === Sales::ORDER_STATUS_DINE_IN && $tableNumber === '') {
+            $this->dispatch('show-toast', type: 'error', message: 'Nomor meja wajib diisi untuk order dine in.');
+            return;
+        }
+
+        if (empty($items)) {
+            $this->dispatch('show-toast', type: 'error', message: 'Keranjang belanja masih kosong!');
+            return;
+        }
+
+        $productIds = collect($items)
+            ->pluck('id')
+            ->filter(fn($id) => is_numeric($id))
+            ->map(fn($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        if ($productIds->isEmpty()) {
+            $this->dispatch('show-toast', type: 'error', message: 'Keranjang tidak valid.');
+            return;
+        }
+
+        $products = Products::with('stock')
+            ->whereIn('id', $productIds)
+            ->where('status', true)
+            ->get()
+            ->keyBy('id');
+
+        $normalizedCart = [];
+        $subtotal = 0.0;
+
+        foreach ($items as $item) {
+            $id = isset($item['id']) && is_numeric($item['id']) ? (int) $item['id'] : 0;
+            $qty = isset($item['qty']) && is_numeric($item['qty']) ? (int) $item['qty'] : 0;
+
+            if ($id <= 0 || $qty <= 0) {
+                continue;
+            }
+
+            /** @var Products|null $product */
+            $product = $products->get($id);
+            if (!$product) {
+                $this->dispatch('show-toast', type: 'error', message: 'Ada produk yang sudah tidak tersedia.');
+                return;
+            }
+
+            $stockAvailable = (int) (optional($product->stock)->qty_available ?? 0);
+            if ($stockAvailable <= 0) {
+                $this->dispatch('show-toast', type: 'error', message: "Stok {$product->name} sudah habis.");
+                return;
+            }
+
+            if ($qty > $stockAvailable) {
+                $this->dispatch('show-toast', type: 'error', message: "Stok {$product->name} tidak mencukupi.");
+                return;
+            }
+
+            $price = (float) $product->price;
+            $rowSubtotal = $price * $qty;
+
+            $normalizedCart[] = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $price,
+                'qty' => $qty,
+                'subtotal' => $rowSubtotal,
+            ];
+
+            $subtotal += $rowSubtotal;
+        }
+
+        if (empty($normalizedCart)) {
+            $this->dispatch('show-toast', type: 'error', message: 'Keranjang belanja masih kosong!');
+            return;
+        }
+
+        $total = max(0, $subtotal - (float) $this->discount_amount);
+
+        session([
+            'pos_checkout_cart'             => $normalizedCart,
+            'pos_checkout_customer_id'      => $customerId,
+            'pos_checkout_guest_name'       => $customerId
+                ? null
+                : ($guestName !== '' ? $guestName : null),
+            'pos_checkout_status_order'     => $statusOrder,
+            'pos_checkout_table_number'     => $statusOrder === Sales::ORDER_STATUS_DINE_IN ? $tableNumber : null,
+            'pos_checkout_shift_id'         => $this->shift_id,
+            'pos_checkout_cashier_id'       => $this->cashier_student_id,
+            'pos_checkout_subtotal'         => $subtotal,
+            'pos_checkout_discount_amount'  => (float) $this->discount_amount,
+            'pos_checkout_total'            => $total,
+            'pos_checkout_pine_mode'        => $this->pinMode,
+        ]);
+
+        $this->redirect(route('kasir.checkout'), navigate: true);
+    }
+
     public function openPayment()
     {
         if (empty($this->cart)) {

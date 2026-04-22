@@ -1,4 +1,4 @@
-<div class="space-y-6" wire:poll.6s>
+<div class="space-y-6" wire:poll.1s>
     <div class="card bg-base-100 border border-base-300">
         <div class="card-body p-6">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-5">
@@ -9,7 +9,7 @@
                     </p>
                 </div>
                 <div class="badge badge-soft badge-primary px-3 py-3 text-xs">
-                    Auto refresh tiap 6 detik
+                    Live - Auto refresh
                 </div>
             </div>
 
@@ -27,7 +27,7 @@
                 </div>
             @endif
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5">
                 <div class="card bg-warning/10 border border-warning/30">
                     <div class="card-body p-4">
                         <div class="text-xs uppercase tracking-wider text-warning font-bold">Pending</div>
@@ -42,8 +42,20 @@
                 </div>
                 <div class="card bg-success/10 border border-success/30">
                     <div class="card-body p-4">
-                        <div class="text-xs uppercase tracking-wider text-success font-bold">Done</div>
+                        <div class="text-xs uppercase tracking-wider text-success font-bold">Selesai Masak</div>
                         <div class="text-2xl font-black">{{ $countDone }}</div>
+                    </div>
+                </div>
+                <div class="card bg-primary/10 border border-primary/30">
+                    <div class="card-body p-4">
+                        <div class="text-xs uppercase tracking-wider text-primary font-bold">Diantar</div>
+                        <div class="text-2xl font-black">{{ $countDelivered }}</div>
+                    </div>
+                </div>
+                <div class="card bg-base-200 border border-base-300">
+                    <div class="card-body p-4">
+                        <div class="text-xs uppercase tracking-wider text-base-content/60 font-bold">Selesai</div>
+                        <div class="text-2xl font-black">{{ $countCompleted }}</div>
                     </div>
                 </div>
             </div>
@@ -78,7 +90,9 @@
                             >
                                 <option value="pending">Pending</option>
                                 <option value="cooking">Cooking</option>
-                                <option value="done">Done</option>
+                                <option value="done">Selesai Masak</option>
+                                <option value="delivered">Diantar</option>
+                                <option value="completed">Selesai</option>
                             </x-form.select>
 
                             <x-form.select
@@ -106,14 +120,28 @@
                             <th>Waktu</th>
                             <th>Layanan</th>
                             <th>Identitas</th>
-                            <th>Item</th>
                             <th>Status Production</th>
-                            <th>Kasir</th>
                             <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($orders as $order)
+                            @php
+                                $prodActions = [];
+
+                                if ($canManage && $order->production_status === 'pending') {
+                                    $prodActions[] = ['method' => 'setCooking', 'label' => 'Proses Pesanan', 'icon' => 'heroicon-o-fire', 'class' => 'text-info'];
+                                }
+                                if ($canManage && $order->production_status === 'cooking') {
+                                    $prodActions[] = ['method' => 'setDone', 'label' => 'Selesai Masak', 'icon' => 'heroicon-o-check-circle', 'class' => 'text-success'];
+                                }
+                                if ($canManage && $order->production_status === 'done') {
+                                    $prodActions[] = ['method' => 'setDelivered', 'label' => 'Sudah Diantar', 'icon' => 'heroicon-o-truck', 'class' => 'text-primary'];
+                                }
+                                if ($order->production_status === 'delivered') {
+                                    $prodActions[] = ['method' => 'setCompleted', 'label' => 'Pesanan Selesai', 'icon' => 'heroicon-o-check-badge', 'class' => 'text-neutral'];
+                                }
+                            @endphp
                             <tr wire:key="prod-order-{{ $order->id }}">
                                 <td class="font-semibold">{{ $order->invoice_number }}</td>
                                 <td class="text-xs">{{ $order->created_at?->format('d/m/Y H:i') }}</td>
@@ -129,54 +157,31 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <div class="text-xs">
-                                        @foreach($order->items as $item)
-                                            <div>{{ $item->product?->name ?? '-' }} x{{ $item->qty }}</div>
-                                        @endforeach
-                                    </div>
-                                </td>
-                                <td>
                                     @php
                                         $statusBadge = match($order->production_status) {
                                             'cooking' => 'badge-info',
                                             'done' => 'badge-success',
+                                            'delivered' => 'badge-primary',
+                                            'completed' => 'badge-neutral',
                                             default => 'badge-warning',
                                         };
                                     @endphp
                                     <span class="badge badge-soft {{ $statusBadge }}">{{ $order->production_status_label }}</span>
                                 </td>
-                                <td class="text-xs">{{ $order->cashier?->name ?? '-' }}</td>
-                                <td>
-                                    <div class="flex items-center justify-center gap-1">
-                                        @if($canManage && $order->production_status === 'pending')
-                                            <button class="btn btn-xs btn-info" wire:click="setCooking({{ $order->id }})">
-                                                Proses
-                                            </button>
-                                        @endif
-
-                                        @if($canManage && $order->production_status === 'cooking')
-                                            <button class="btn btn-xs btn-success" wire:click="setDone({{ $order->id }})">
-                                                Selesai
-                                            </button>
-                                        @endif
-
-                                        @if($canCall && $order->production_status === 'done')
-                                            <button class="btn btn-xs btn-primary" wire:click="callCustomer({{ $order->id }})">
-                                                Panggil
-                                            </button>
-                                        @endif
-                                    </div>
-
-                                    @if($order->called_at)
-                                        <div class="text-[10px] text-base-content/60 text-center mt-1">
-                                            Dipanggil {{ $order->called_at->format('H:i:s') }}
-                                        </div>
-                                    @endif
+                                <td class="text-center">
+                                    <x-partials.dropdown-action
+                                        :id="$order->id"
+                                        :showView="true"
+                                        :viewRoute="route('production.orders.detail', $order->id)"
+                                        :showEdit="false"
+                                        :showDelete="false"
+                                        :customActions="$prodActions"
+                                    />
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-10 text-base-content/50">
+                                <td colspan="6" class="text-center py-10 text-base-content/50">
                                     Belum ada pesanan yang masuk.
                                 </td>
                             </tr>

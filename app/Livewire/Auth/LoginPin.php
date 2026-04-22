@@ -62,6 +62,21 @@ class LoginPin extends Component
         $this->studentName = null;
     }
 
+    public function submitPin(string $pin): void
+    {
+        $pin = preg_replace('/\D/', '', $pin) ?? '';
+
+        if (strlen($pin) !== 4) {
+            $this->dispatch('show-toast', type: 'warning', message: 'PIN harus 4 digit.');
+            $this->digits = [];
+            $this->studentName = null;
+            return;
+        }
+
+        $this->digits = str_split($pin);
+        $this->verifyPin();
+    }
+
     private function verifyPin(): void
     {
         $pin = implode('', $this->digits);

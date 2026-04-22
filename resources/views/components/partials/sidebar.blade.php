@@ -1,5 +1,5 @@
-<aside class="drawer-side">
-    <label for="sidebar-drawer" class="drawer-overlay"></label>
+<aside class="drawer-side z-40">
+    <label for="sidebar-drawer" class="drawer-overlay" @click="$dispatch('sidebar-toggle')"></label>
 
     <div class="bg-base-100 text-base-content h-full w-64 md:w-72 border-r border-base-300 flex flex-col">
         <!-- Sidebar Header - Fixed at Top -->

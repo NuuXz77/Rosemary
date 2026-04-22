@@ -1,5 +1,77 @@
 <div class="min-h-screen flex items-center justify-center bg-base-200 px-4 py-8 relative overflow-hidden"
-    x-data>
+    x-data="{
+        digits: [],
+        pinLength: 4,
+        isSubmitting: false,
+        addDigit(digit) {
+            if (this.isSubmitting || this.digits.length >= this.pinLength) {
+                return;
+            }
+
+            this.digits.push(String(digit));
+
+            if (this.digits.length === this.pinLength) {
+                this.submitPin();
+            }
+        },
+        removeDigit() {
+            if (this.isSubmitting || this.digits.length === 0) {
+                return;
+            }
+
+            this.digits.pop();
+        },
+        clearPin() {
+            if (this.isSubmitting) {
+                return;
+            }
+
+            this.digits = [];
+        },
+        async submitPin() {
+            if (this.isSubmitting || this.digits.length !== this.pinLength) {
+                return;
+            }
+
+            this.isSubmitting = true;
+
+            try {
+                await $wire.call('submitPin', this.digits.join(''));
+            } finally {
+                this.isSubmitting = false;
+                this.digits = [];
+            }
+        },
+        onKeydown(event) {
+            if (event.ctrlKey || event.metaKey || event.altKey) {
+                return;
+            }
+
+            if (/^[0-9]$/.test(event.key)) {
+                event.preventDefault();
+                this.addDigit(event.key);
+                return;
+            }
+
+            if (event.key === 'Backspace') {
+                event.preventDefault();
+                this.removeDigit();
+                return;
+            }
+
+            if (event.key === 'Delete') {
+                event.preventDefault();
+                this.clearPin();
+                return;
+            }
+
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                this.submitPin();
+            }
+        }
+    }"
+    x-on:keydown.window="onKeydown($event)">
 
     {{-- Toast --}}
     <x-partials.toast />
@@ -205,14 +277,14 @@
 
                 {{-- PIN Dots --}}
                 <div class="flex justify-center gap-5">
-                    @foreach (range(0, 3) as $i)
-                        <div @class([
-                            'w-4 h-4 rounded-full border-2 transition-all duration-200',
-                            $i < count($digits)
+                    <template x-for="(dot, i) in Array.from({ length: pinLength })" :key="i">
+                        <div
+                            class="w-4 h-4 rounded-full border-2 transition-all duration-200"
+                            :class="i < digits.length
                                 ? 'bg-orange-500 border-orange-500 scale-110 shadow-[0_0_10px_2px_rgba(249,115,22,0.45)]'
-                                : 'bg-transparent border-base-content/25',
-                        ])></div>
-                    @endforeach
+                                : 'bg-transparent border-base-content/25'">
+                        </div>
+                    </template>
                 </div>
 
                 {{-- Student greeting --}}
@@ -229,8 +301,8 @@
                 <div class="grid grid-cols-3 gap-4">
                     @foreach (['1','2','3','4','5','6','7','8','9'] as $digit)
                         <button
-                            wire:click="addDigit('{{ $digit }}')"
-                            @disabled(count($digits) >= 4)
+                            @click="addDigit('{{ $digit }}')"
+                            :disabled="isSubmitting || digits.length >= pinLength"
                             class="h-14 rounded-2xl border border-base-300/40 bg-base-100 text-base-content text-xl font-semibold shadow-sm
                                    hover:bg-base-200 active:scale-95 transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed">
                             {{ $digit }}
@@ -239,7 +311,8 @@
 
                     {{-- CLR --}}
                     <button
-                        wire:click="clearPin"
+                        @click="clearPin()"
+                        :disabled="isSubmitting"
                         class="h-14 rounded-2xl border border-base-300/40 bg-base-100 text-yellow-400 text-sm font-semibold shadow-sm
                                hover:bg-yellow-400/10 active:scale-95 transition-all duration-150">
                         CLR
@@ -247,8 +320,8 @@
 
                     {{-- 0 --}}
                     <button
-                        wire:click="addDigit('0')"
-                        @disabled(count($digits) >= 4)
+                        @click="addDigit('0')"
+                        :disabled="isSubmitting || digits.length >= pinLength"
                         class="h-14 rounded-2xl border border-base-300/40 bg-base-100 text-base-content text-xl font-semibold shadow-sm
                                hover:bg-base-200 active:scale-95 transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed">
                         0
@@ -256,7 +329,8 @@
 
                     {{-- Backspace --}}
                     <button
-                        wire:click="removeDigit"
+                        @click="removeDigit()"
+                        :disabled="isSubmitting"
                         class="h-14 rounded-2xl border border-base-300/40 bg-base-100 text-red-400 shadow-sm
                                hover:bg-red-400/10 active:scale-95 transition-all duration-150 flex items-center justify-center">
                         <x-heroicon-o-backspace class="w-6 h-6" />

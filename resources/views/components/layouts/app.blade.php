@@ -18,27 +18,41 @@
     <link rel="manifest" href="{{ asset('img/favicon/site.webmanifest') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     @livewireStyles
-
-    {{-- Apply saved theme BEFORE render to avoid flash --}}
-    <script>
-        (function () {
-            const saved = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', saved);
-        })();
-
-        // Re-apply theme after every wire:navigate page swap
-        document.addEventListener('livewire:navigated', function () {
-            const saved = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', saved);
-        });
-    </script>
 </head>
 
 <body class="min-h-screen">
-    <div class="{{ Auth::check() ? 'drawer lg:drawer-open' : 'drawer' }}">
-        <input id="sidebar-drawer" type="checkbox" class="drawer-toggle" />
+    <div class="{{ Auth::check() ? 'drawer' : 'drawer' }}"
+        x-data="{
+            sidebarOpen: false,
+            isLg: window.innerWidth >= 1024,
+            init() {
+                const saved = localStorage.getItem('sidebar:open');
+                if (saved !== null) {
+                    this.sidebarOpen = saved === 'true';
+                } else {
+                    this.sidebarOpen = this.isLg;
+                }
+                this.syncCheckbox();
+
+                window.addEventListener('resize', () => {
+                    this.isLg = window.innerWidth >= 1024;
+                });
+            },
+            toggle() {
+                this.sidebarOpen = !this.sidebarOpen;
+                localStorage.setItem('sidebar:open', this.sidebarOpen);
+                this.syncCheckbox();
+            },
+            syncCheckbox() {
+                const cb = document.getElementById('sidebar-drawer');
+                if (cb) cb.checked = this.sidebarOpen;
+            }
+        }"
+        :class="sidebarOpen && isLg ? 'drawer-open' : ''"
+        @sidebar-toggle.window="toggle()">
+        <input id="sidebar-drawer" type="checkbox" class="drawer-toggle"
+            @change="sidebarOpen = $el.checked; localStorage.setItem('sidebar:open', sidebarOpen)" />
 
         <!-- Content -->
         <div class="drawer-content flex flex-col">
@@ -174,301 +188,6 @@
     @endif
 
     @livewireScripts
-    <script>
-        // ── Alpine Global Components ─────────────────────────────────
-        // Dipanggil dari alpine:init (load pertama) DAN livewire:navigated (navigate)
-        function registerAlpineComponents() {
-            Alpine.data('modal', (modalId, customEvents = []) => ({
-                open: false,
-                init() {
-                    // Default event patterns
-                    const defaultEvents = [
-                        'close-create-modal',
-                        'close-edit-modal',
-                        'close-delete-modal',
-                        'close-detail-modal',
-                        'close-export-excel-modal',
-                        'close-export-pdf-modal',
-                    ];
-
-                    // Gabungkan default events dengan custom events
-                    const allEvents = [...defaultEvents, ...customEvents];
-
-                    // Listen untuk semua events
-                    allEvents.forEach(eventName => {
-                        this.$wire.on(eventName, () => {
-                            this.closeModal();
-                        });
-                    });
-
-                    // Handle manual close (ESC atau click X)
-                    const modal = document.getElementById(modalId);
-                    modal?.addEventListener('close', () => {
-                        this.open = false;
-                    });
-                },
-                closeModal() {
-                    this.open = false;
-                    setTimeout(() => {
-                        document.getElementById(modalId)?.close();
-                    }, 300);
-                },
-                openModal() {
-                    this.open = true;
-                    this.$nextTick(() => {
-                        document.getElementById(modalId)?.showModal();
-                    });
-                }
-            }));
-        }
-
-        function bootstrapAppLayoutScripts() {
-            if (window.Alpine) {
-                registerAlpineComponents();
-
-                if (typeof window.Alpine.initTree === 'function') {
-                    requestAnimationFrame(() => {
-                        window.Alpine.initTree(document.body);
-                    });
-                }
-            }
-
-            highlightActiveMenu();
-        }
-
-        // Load pertama: alpine belum init
-        document.addEventListener('alpine:init', registerAlpineComponents);
-
-        // ── Active menu highlighting ──────────────────────────────────
-        function highlightActiveMenu() {
-            const currentPath = window.location.pathname;
-            const menuLinks = document.querySelectorAll('.sidebar-menu a');
-
-            menuLinks.forEach(link => {
-                const href = link.getAttribute('href');
-                if (href && currentPath.startsWith(href.replace(/\/$/, '')) && href !== '/') {
-                    link.parentElement.classList.add('active');
-                }
-            });
-        }
-
-        // Load pertama + fallback saat script dimuat setelah navigate
-        document.addEventListener('DOMContentLoaded', bootstrapAppLayoutScripts);
-
-        // Saat Livewire siap (termasuk transisi guest -> app)
-        document.addEventListener('livewire:initialized', bootstrapAppLayoutScripts);
-
-        // Toggle sidebar on mobile
-        function toggleSidebar() {
-            const drawer = document.getElementById('sidebar-drawer');
-            drawer.checked = !drawer.checked;
-        }
-
-        // ── Livewire Navigate: re-init setelah setiap navigate ───────
-        document.addEventListener('livewire:navigated', () => {
-            bootstrapAppLayoutScripts();
-        });
-
-        document.addEventListener('livewire:navigating', () => {
-            // DESTROY SEMUA QUILL INSTANCES
-            console.log('🔥 DESTROYING ALL QUILL INSTANCES...');
-
-            // Destroy instance globals
-            if (window.quillCreateInstance) {
-                window.quillCreateInstance = null;
-            }
-            if (window.quillEditInstance) {
-                window.quillEditInstance = null;
-            }
-
-            // HAPUS SEMUA ELEMENT YANG BERKAITAN DENGAN QUILL
-            // 1. Hapus semua toolbar
-            document.querySelectorAll('.ql-toolbar').forEach(el => el.remove());
-
-            // 2. Hapus semua container
-            document.querySelectorAll('.ql-container').forEach(el => {
-                el.classList.remove('ql-container', 'ql-snow', 'ql-blank');
-                el.innerHTML = '';
-            });
-
-            // 3. Hapus semua element dengan class ql-*
-            document.querySelectorAll('[class*="ql-"]').forEach(el => {
-                if (el.classList.contains('ql-toolbar') || el.classList.contains('ql-container')) {
-                    el.remove();
-                }
-            });
-
-            // 4. Reset wrapper Create
-            const wrapperCreate = document.getElementById('quill-wrapper-create');
-            if (wrapperCreate) {
-                wrapperCreate.innerHTML = '<div id="quill-editor-create" style="height: 300px;"></div>';
-            }
-
-            // 5. Reset wrapper Edit
-            const wrapperEdit = document.getElementById('quill-wrapper-edit');
-            if (wrapperEdit) {
-                wrapperEdit.innerHTML = '<div id="quill-editor-edit" style="height: 300px;"></div>';
-            }
-
-            console.log('✅ QUILL DESTROYED!');
-
-            // Alpine destroy
-            if (window.Alpine && typeof window.Alpine.destroyTree === 'function') {
-                window.Alpine.destroyTree(document.body);
-            }
-        });
-
-        // Fallback ekstra jika halaman app dirender sesudah event navigated terpanggil
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            bootstrapAppLayoutScripts();
-        }
-
-        // Pull to Refresh Functionality
-        (function() {
-            let startY = 0;
-            let currentY = 0;
-            let isPulling = false;
-            let isRefreshing = false;
-            const threshold = 80; // Pixel threshold untuk trigger refresh
-            const pullIndicator = document.getElementById('pull-to-refresh');
-
-            function showIndicator() {
-                pullIndicator.classList.remove('opacity-0', '-translate-y-full');
-                pullIndicator.classList.add('opacity-100', 'translate-y-0');
-            }
-
-            function hideIndicator() {
-                pullIndicator.classList.remove('opacity-100', 'translate-y-0');
-                pullIndicator.classList.add('opacity-0', '-translate-y-full');
-            }
-
-            function refreshData() {
-                if (isRefreshing) return;
-                isRefreshing = true;
-                showIndicator();
-
-                // Refresh Livewire component
-                try {
-                    if (window.Livewire) {
-                        // Refresh semua Livewire components yang ada di halaman
-                        const livewireElements = document.querySelectorAll('[wire\\:id]');
-                        livewireElements.forEach(element => {
-                            const componentId = element.getAttribute('wire:id');
-                            if (componentId) {
-                                const component = Livewire.find(componentId);
-                                if (component && typeof component.$refresh === 'function') {
-                                    component.$refresh();
-                                }
-                            }
-                        });
-                    }
-                } catch (error) {
-                    console.log('Refresh error:', error);
-                }
-
-                // Force hide indicator setelah delay
-                setTimeout(() => {
-                    isRefreshing = false;
-                    hideIndicator();
-                }, 1000);
-            }
-
-            // Touch events untuk mobile
-            document.addEventListener('touchstart', (e) => {
-                if (window.scrollY === 0 && !isRefreshing) {
-                    startY = e.touches[0].pageY;
-                    isPulling = true;
-                }
-            }, {
-                passive: true
-            });
-
-            document.addEventListener('touchmove', (e) => {
-                if (!isPulling || isRefreshing) return;
-
-                currentY = e.touches[0].pageY;
-                const pullDistance = currentY - startY;
-
-                if (pullDistance > 0 && pullDistance < threshold && window.scrollY === 0) {
-                    const progress = Math.min(pullDistance / threshold, 1);
-                    pullIndicator.style.transform = `translateY(${progress * 100 - 100}%)`;
-                    pullIndicator.style.opacity = progress;
-                }
-            }, {
-                passive: true
-            });
-
-            document.addEventListener('touchend', () => {
-                if (!isPulling) return;
-
-                const pullDistance = currentY - startY;
-
-                if (pullDistance >= threshold && window.scrollY === 0 && !isRefreshing) {
-                    refreshData();
-                } else {
-                    hideIndicator();
-                }
-
-                isPulling = false;
-                startY = 0;
-                currentY = 0;
-            }, {
-                passive: true
-            });
-
-            // Mouse events untuk desktop (scroll ke atas dengan scroll wheel)
-            let scrollAttempts = 0;
-            let scrollTimer = null;
-
-            document.addEventListener('wheel', (e) => {
-                // Jika scroll ke atas (deltaY negatif) dan sudah di posisi paling atas
-                if (e.deltaY < 0 && window.scrollY === 0 && !isRefreshing) {
-                    scrollAttempts++;
-
-                    clearTimeout(scrollTimer);
-                    scrollTimer = setTimeout(() => {
-                        scrollAttempts = 0;
-                    }, 500);
-
-                    // Jika user scroll ke atas 3x dalam 500ms, trigger refresh
-                    if (scrollAttempts >= 3) {
-                        refreshData();
-                        scrollAttempts = 0;
-                    }
-                }
-            }, {
-                passive: true
-            });
-
-            // Keyboard shortcut (Ctrl/Cmd + R tetapi prevent default dan pakai custom refresh)
-            document.addEventListener('keydown', (e) => {
-                if ((e.ctrlKey || e.metaKey) && e.key === 'r' && !isRefreshing) {
-                    e.preventDefault();
-                    refreshData();
-                }
-            });
-
-            // Fallback: pastikan indicator selalu bisa di-hide
-            setInterval(() => {
-                if (isRefreshing) {
-                    const timeSinceShow = Date.now();
-                    // Jika loading lebih dari 3 detik, force hide
-                    if (pullIndicator.classList.contains('opacity-100')) {
-                        const opacity = parseFloat(getComputedStyle(pullIndicator).opacity);
-                        if (opacity > 0) {
-                            setTimeout(() => {
-                                if (isRefreshing) {
-                                    isRefreshing = false;
-                                    hideIndicator();
-                                }
-                            }, 2000);
-                        }
-                    }
-                }
-            }, 3000);
-        })();
-    </script>
-    @include('components.partials.theme-script')
 </body>
 
 </html>

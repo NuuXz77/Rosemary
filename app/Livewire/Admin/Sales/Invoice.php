@@ -30,6 +30,8 @@ class Invoice extends Component
     {
         return view('livewire.admin.sales.invoice', [
             'appName' => AppSetting::get('app_name', config('app.name', 'Rosemary')),
+            'appAddress' => AppSetting::get('app_address', ''),
+            'appLogo' => AppSetting::get('app_logo', 'img/logo.png'),
         ]);
     }
 }
